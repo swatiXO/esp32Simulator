@@ -17,62 +17,155 @@ import { SIMULATION_REGISTRY } from '@/lib/simulationRegistry';
 import { useAppStore } from '@/store/useAppStore';
 import InteractiveLecture from '@/components/InteractiveLecture';
 import { useActivityStore } from '@/store/useActivityStore';
-import Link from 'next/link';
 import { LECTURES_STRUCTURED_DATA } from '@/lib/lecturesStructuredData';
 
+/* ── shared design tokens ── */
+const T = {
+  bg:          '#04080f',
+  bgSidebar:   '#060d19',
+  bgCard:      'rgba(255,255,255,0.025)',
+  bgCardHov:   'rgba(255,255,255,0.04)',
+  border:      'rgba(255,255,255,0.07)',
+  borderHov:   'rgba(255,255,255,0.13)',
+  textPrimary: '#f0f4ff',
+  textSec:     'rgba(240,244,255,0.55)',
+  textMuted:   'rgba(240,244,255,0.3)',
+  textTiny:    'rgba(240,244,255,0.18)',
+  blue:        '#3b82f6',
+  amber:       '#f59e0b',
+  green:       '#10b981',
+  mono:        '"JetBrains Mono", monospace',
+  sans:        '"Inter", sans-serif',
+  display:     '"Space Grotesk", sans-serif',
+};
+
+const LEVEL_ACCENTS = ['#3b82f6','#f59e0b','#10b981','#8b5cf6','#ef4444'];
+const getAccent = (id: number) => LEVEL_ACCENTS[(id - 1) % LEVEL_ACCENTS.length];
+
+const STEP_TYPE_LABEL: Record<string, string> = {
+  content:   'Read',
+  concept:   'Concept',
+  explore:   'Explore',
+  challenge: 'Challenge',
+  mapping:   'Mapping',
+};
+
+/* ── inline SVG icons ── */
+const ChevronLeft = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="15 18 9 12 15 6"/>
+  </svg>
+);
+const Check = ({ size = 12 }: { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+const Lock = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+  </svg>
+);
+const ArrowRight = () => (
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14M12 5l7 7-7 7"/>
+  </svg>
+);
+
+/* ════════════════════════════════════════════════════════════
+   LOADING / ERROR SCREENS
+   ════════════════════════════════════════════════════════════ */
+function LoadingScreen({ label }: { label: string }) {
+  return (
+    <main style={{ minHeight: '100vh', background: T.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: T.sans }}>
+      <div style={{ textAlign: 'center' }}>
+        <div style={{
+          width: 34, height: 34, borderRadius: '50%', margin: '0 auto 14px',
+          border: `2.5px solid rgba(59,130,246,0.15)`,
+          borderTop: `2.5px solid ${T.blue}`,
+          animation: 'lp-spin .8s linear infinite',
+        }} />
+        <p style={{ fontSize: 12, color: T.textMuted, fontFamily: T.mono, letterSpacing: '0.05em' }}>{label}</p>
+      </div>
+      <style>{`@keyframes lp-spin { to { transform: rotate(360deg); } }`}</style>
+    </main>
+  );
+}
+
+function NotFoundScreen({ onBack }: { onBack: () => void }) {
+  return (
+    <main style={{ minHeight: '100vh', background: T.bg, fontFamily: T.sans }}>
+      <div style={{ maxWidth: 480, margin: '80px auto', padding: '0 24px' }}>
+        <div style={{ borderRadius: 18, background: T.bgCard, border: `1px solid ${T.border}`, padding: '32px 28px' }}>
+          <p style={{ fontSize: 16, fontWeight: 700, color: T.textPrimary, fontFamily: T.display, margin: '0 0 8px' }}>Lesson not found</p>
+          <p style={{ fontSize: 13, color: T.textSec, margin: '0 0 20px' }}>This lesson doesn't exist or may have moved.</p>
+          <button
+            type="button"
+            onClick={onBack}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              padding: '8px 18px', borderRadius: 10, cursor: 'pointer',
+              fontSize: 13, fontWeight: 600, fontFamily: T.sans,
+              background: 'rgba(255,255,255,0.04)', border: `1px solid ${T.border}`,
+              color: T.textSec, transition: 'all .18s',
+            }}
+          >
+            <ChevronLeft /> Back to Learning Path
+          </button>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+/* ════════════════════════════════════════════════════════════
+   MAIN PAGE
+   ════════════════════════════════════════════════════════════ */
 export default function LessonPage() {
   const router = useRouter();
   const params = useParams<{ levelId: string; lessonId: string }>();
-  const blocks = useAppStore((state) => state.blocks);
-  const clearBlocks = useAppStore((state) => state.clearBlocks);
+  const blocks    = useAppStore((s) => s.blocks);
+  const clearBlocks = useAppStore((s) => s.clearBlocks);
 
-  const levelId = Number(params.levelId);
+  const levelId  = Number(params.levelId);
   const lessonId = params.lessonId;
+  const accent   = getAccent(levelId);
 
-  // Kit code activation check
-  const { hasAccess, isCheckingSub, initialize } = useActivityStore();
-  const hasEsp32 = hasAccess('esp32');
+  const { hasAccess, isCheckingSub, initialize, markLessonComplete } = useActivityStore();
+  const hasEsp32      = hasAccess('esp32');
   const isFreePreview = levelId === 1 && lessonId === '1-1';
 
-  React.useEffect(() => {
-    initialize();
-  }, [initialize]);
+  React.useEffect(() => { initialize(); }, [initialize]);
 
   React.useEffect(() => {
     if (!isCheckingSub && !isFreePreview) {
-      const isLessonLocked = !hasEsp32 && (levelId > 1 || lessonId !== '1-1');
-      if (isLessonLocked) {
-        alert('This lesson requires kit activation code! Redirecting to activation page...');
+      if (!hasEsp32 && (levelId > 1 || lessonId !== '1-1')) {
         router.push('/redeem');
       }
     }
   }, [isCheckingSub, hasEsp32, levelId, lessonId, isFreePreview, router]);
 
-  const level = LEVELS.find((l) => l.id === levelId);
+  const level  = LEVELS.find((l) => l.id === levelId);
   const lesson = level?.lessons.find((l) => l.id === lessonId);
 
   const [currentStepIndex, setCurrentStepIndex] = React.useState(0);
-  const [completedSteps, setCompletedSteps] = React.useState<Set<number>>(new Set());
-  const [challengeError, setChallengeError] = React.useState<string | null>(null);
-  const [challengePassed, setChallengePassed] = React.useState(false);
-  const [contentReady, setContentReady] = React.useState(false);
-  const [contentWarning, setContentWarning] = React.useState(false);
-  const [quizReady, setQuizReady] = React.useState(false);
-  const { markLessonComplete } = useActivityStore();
+  const [completedSteps,   setCompletedSteps]   = React.useState<Set<number>>(new Set());
+  const [challengeError,   setChallengeError]   = React.useState<string | null>(null);
+  const [challengePassed,  setChallengePassed]  = React.useState(false);
+  const [contentReady,     setContentReady]     = React.useState(false);
+  const [contentWarning,   setContentWarning]   = React.useState(false);
+  const [quizReady,        setQuizReady]        = React.useState(false);
 
-  const totalSteps = lesson?.steps.length ?? 0;
+  const totalSteps  = lesson?.steps.length ?? 0;
   const currentStep = lesson?.steps[currentStepIndex];
 
-  // Look up lecture metadata to check if there is a quiz
-  const lectureKey = `${levelId}-${lessonId}-${currentStep?.id}`;
+  const lectureKey  = `${levelId}-${lessonId}-${currentStep?.id}`;
   const stepLecture = LECTURES_STRUCTURED_DATA[lectureKey];
-  const hasQuiz = !!(stepLecture?.quiz && stepLecture.quiz.length > 0);
+  const hasQuiz     = !!(stepLecture?.quiz && stepLecture.quiz.length > 0);
+  const progressPct = totalSteps > 0 ? ((currentStepIndex + 1) / totalSteps) * 100 : 0;
 
   React.useEffect(() => {
-    // Don't clear blocks on mapping step — student needs to see what they built
-    if (currentStep?.type !== 'mapping') {
-      clearBlocks();
-    }
+    if (currentStep?.type !== 'mapping') clearBlocks();
     setChallengeError(null);
     setChallengePassed(false);
     setContentReady(false);
@@ -80,494 +173,474 @@ export default function LessonPage() {
     setQuizReady(false);
   }, [clearBlocks, currentStepIndex, currentStep?.type]);
 
-  // Listen for custom events from InteractiveLecture
   React.useEffect(() => {
-    const handleLecture = () => setContentReady(true);
-    const handleQuiz = () => setQuizReady(true);
-    window.addEventListener('lecture-complete', handleLecture);
-    window.addEventListener('quiz-complete', handleQuiz);
+    const onLecture = () => setContentReady(true);
+    const onQuiz    = () => setQuizReady(true);
+    window.addEventListener('lecture-complete', onLecture);
+    window.addEventListener('quiz-complete',    onQuiz);
     return () => {
-      window.removeEventListener('lecture-complete', handleLecture);
-      window.removeEventListener('quiz-complete', handleQuiz);
+      window.removeEventListener('lecture-complete', onLecture);
+      window.removeEventListener('quiz-complete',    onQuiz);
     };
   }, []);
 
-  if (isCheckingSub && !isFreePreview) {
-    return (
-      <main className="min-h-screen bg-[#EDEDED] flex items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#2E4862] border-t-transparent mx-auto"></div>
-          <p className="mt-3 text-sm text-gray-500 font-medium">Verifying kit activation...</p>
-        </div>
-      </main>
-    );
-  }
+  /* guards */
+  if (isCheckingSub && !isFreePreview) return <LoadingScreen label="Verifying kit activation..." />;
+  if (!level || !lesson || !currentStep) return <NotFoundScreen onBack={() => router.push('/learn')} />;
 
-  if (!level || !lesson) {
-    return (
-      <main className="min-h-screen bg-[#EDEDED]">
-        <Header />
-        <div className="mx-auto max-w-3xl px-6 py-16">
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <h1 className="text-xl font-bold text-[#2E4862]">Lesson not found</h1>
-            <button
-              type="button"
-              onClick={() => router.push('/learn')}
-              className="mt-3 text-sm text-gray-500 hover:text-[#2E4862]"
-            >
-              ← Back to Learning Path
-            </button>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  if (!currentStep) {
-    return (
-      <main className="min-h-screen bg-[#EDEDED]">
-        <Header />
-        <div className="mx-auto max-w-3xl px-6 py-16">
-          <div className="rounded-xl bg-white p-6 shadow-sm">
-            <h1 className="text-xl font-bold text-[#2E4862]">Lesson not found</h1>
-            <button
-              type="button"
-              onClick={() => router.push('/learn')}
-              className="mt-3 text-sm text-gray-500 hover:text-[#2E4862]"
-            >
-              ← Back to Learning Path
-            </button>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  const progressPercent = totalSteps > 0 ? ((currentStepIndex + 1) / totalSteps) * 100 : 0;
-
-  const handlePrev = () => {
-    if (currentStepIndex === 0) return;
-    setCurrentStepIndex((prev) => prev - 1);
-  };
+  /* ── handlers ── */
+  const handlePrev = () => { if (currentStepIndex > 0) setCurrentStepIndex(p => p - 1); };
 
   const validateChallenge = (): boolean => {
-    if (!currentStep?.challengeBlocks) return true;
-
-    const studentTypes = blocks.map((b) => b.type);
+    if (!currentStep.challengeBlocks) return true;
+    const studentTypes  = blocks.map((b) => b.type);
     const requiredTypes = currentStep.challengeBlocks;
     setChallengePassed(false);
 
-    if (studentTypes.length === 0) {
-      setChallengeError('Add some blocks to complete this challenge!');
-      return false;
-    }
+    if (studentTypes.length === 0) { setChallengeError('Add some blocks to complete this challenge!'); return false; }
 
     if (currentStep.challengeStrict) {
-      // Order must match exactly
-      const matches =
-        studentTypes.length === requiredTypes.length &&
-        requiredTypes.every((type, index) => studentTypes[index] === type);
-      if (!matches) {
-        setChallengeError(
-          'Good start! Try reordering your blocks — check the hint for the right sequence.',
-        );
-        return false;
-      }
+      const ok = studentTypes.length === requiredTypes.length && requiredTypes.every((t, i) => studentTypes[i] === t);
+      if (!ok) { setChallengeError('Good start! Try reordering your blocks — check the hint for the right sequence.'); return false; }
     } else {
-      // Just check all required types are present
-      const missingBlocks = requiredTypes.filter((required) => {
-        if (required === 'delay_ms') {
-          return !studentTypes.includes('delay_ms') && !studentTypes.includes('delay_sec');
-        }
-
-        if (required === 'delay_sec') {
-          return !studentTypes.includes('delay_ms') && !studentTypes.includes('delay_sec');
-        }
-
-        return !studentTypes.includes(required);
+      const blockNames: Record<string, string> = { pinMode:'Set Pin Mode', dw_high:'Turn ON LED', dw_low:'Turn OFF LED', delay_ms:'Wait (ms)', delay_sec:'Wait (seconds)', serial_begin:'Start Serial', btn_read:'Read Button', if_block:'If condition', end_if:'End If' };
+      const missing = requiredTypes.filter(r => {
+        if (r === 'delay_ms' || r === 'delay_sec') return !studentTypes.includes('delay_ms') && !studentTypes.includes('delay_sec');
+        return !studentTypes.includes(r);
       });
-      if (missingBlocks.length > 0) {
-        const blockNames: Record<string, string> = {
-          pinMode: 'Set Pin Mode',
-          dw_high: 'Turn ON LED',
-          dw_low: 'Turn OFF LED',
-          delay_ms: 'Wait (ms)',
-          delay_sec: 'Wait (seconds)',
-          serial_begin: 'Start Serial',
-          btn_read: 'Read Button',
-          if_block: 'If condition',
-          end_if: 'End If',
-        };
-        const missing = missingBlocks.map((b) => blockNames[b] || b).join(', ');
-        setChallengeError(
-          `Almost there! You still need: ${missing}. Check the hint for guidance.`,
-        );
-        return false;
-      }
+      if (missing.length > 0) { setChallengeError(`Almost there! You still need: ${missing.map(b => blockNames[b] || b).join(', ')}.`); return false; }
     }
 
-    // Check pin values if specified
     if (currentStep.challengePinValues) {
-      for (const [blockType, expectedPin] of Object.entries(currentStep.challengePinValues)) {
-        const block = blocks.find((b) => b.type === blockType);
-        if (block && Number(block.values.pin) !== expectedPin) {
-          setChallengeError(
-            `Check the pin number on your ${blockType} block — expected Pin ${expectedPin}`,
-          );
-          return false;
-        }
+      for (const [bt, ep] of Object.entries(currentStep.challengePinValues)) {
+        const b = blocks.find(b => b.type === bt);
+        if (b && Number(b.values.pin) !== ep) { setChallengeError(`Check the pin number on your ${bt} block — expected Pin ${ep}`); return false; }
       }
     }
-
-    setChallengeError(null);
-    setChallengePassed(true);
-    return true;
+    setChallengeError(null); setChallengePassed(true); return true;
   };
 
   const handleAdvance = async () => {
-    setCompletedSteps((prev) => {
-      const next = new Set(prev);
-      next.add(currentStepIndex);
-      return next;
-    });
-
-    if (currentStepIndex >= totalSteps - 1) {
-      // Mark lesson as complete in the store
-      await markLessonComplete(lessonId);
-      router.push(`/learn/level/${levelId}`);
-      return;
-    }
-
-    setCurrentStepIndex((prev) => prev + 1);
+    setCompletedSteps(prev => { const n = new Set(prev); n.add(currentStepIndex); return n; });
+    if (currentStepIndex >= totalSteps - 1) { await markLessonComplete(lessonId); router.push(`/learn/level/${levelId}`); return; }
+    setCurrentStepIndex(p => p + 1);
   };
 
   const handleNext = () => {
-    // Gate content/concept steps: all sections must be marked as read
     if (currentStep.type === 'content' || currentStep.type === 'concept') {
-      if (!currentStep.pdfUrl && !contentReady) {
-        setContentWarning(true);
-        return;
-      }
-      // Quiz requirement for concept building steps
-      if (currentStep.type === 'concept' && hasQuiz && !quizReady) {
-        setContentWarning(true);
-        return;
-      }
+      if (!currentStep.pdfUrl && !contentReady) { setContentWarning(true); return; }
+      if (currentStep.type === 'concept' && hasQuiz && !quizReady) { setContentWarning(true); return; }
     }
     setContentWarning(false);
-
     if (currentStep.type === 'challenge') {
-      if (currentStep.challengeSimulationId) {
-        handleAdvance();
-        return;
-      }
-      if (!challengePassed) {
-        const isValid = validateChallenge();
-        if (!isValid) return;
-        return;
-      }
-      handleAdvance();
-      return;
+      if (currentStep.challengeSimulationId) { handleAdvance(); return; }
+      if (!challengePassed) { if (!validateChallenge()) return; return; }
+      handleAdvance(); return;
     }
     handleAdvance();
   };
 
-  const allowedBlocksFromStep = currentStep?.allowedBlocks;
-  const allowedBlocks = allowedBlocksFromStep
-    ? allowedBlocksFromStep.filter((type) => BLOCK_CATALOGUE.some((b) => b.type === type))
+  const allowedBlocks = currentStep.allowedBlocks
+    ? currentStep.allowedBlocks.filter(t => BLOCK_CATALOGUE.some(b => b.type === t))
     : undefined;
-  const SimulationComponent = currentStep?.simulationId
-    ? SIMULATION_REGISTRY[currentStep.simulationId] ?? null
-    : null;
+  const SimComp = currentStep.simulationId ? SIMULATION_REGISTRY[currentStep.simulationId] ?? null : null;
+
+  const isLastStep = currentStepIndex === totalSteps - 1;
 
   return (
-    <main className="min-h-screen bg-[#EDEDED]">
-      <Header />
+    <>
+      <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
-      <div className="flex h-[calc(100vh-56px)] overflow-hidden">
-        <aside className="w-[260px] bg-white border-r border-gray-200 flex flex-col">
-          <div className="border-b border-gray-100 p-5">
-            <button
-              type="button"
-              onClick={() => router.push('/learn')}
-              className="text-xs text-gray-500 hover:text-[#2E4862]"
-            >
-              ← Levels
-            </button>
+      <style suppressHydrationWarning>{`
+        * { box-sizing: border-box; }
+        @keyframes lp-spin    { to { transform: rotate(360deg); } }
+        @keyframes lp-fadein  { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+        .lp-step-btn:hover:not(:disabled) { background: rgba(255,255,255,0.05) !important; border-color: rgba(255,255,255,0.1) !important; }
+        .lp-back-btn:hover    { color: #f0f4ff !important; }
+        .lp-next-btn:hover    { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(59,130,246,0.35) !important; }
+        .lp-prev-btn:hover:not(:disabled) { color: rgba(240,244,255,0.7) !important; }
+        .lp-map-panel         { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; overflow: hidden; }
+      `}</style>
 
-            <h2 className="mt-3 text-base font-bold text-[#2E4862]">{lesson.title}</h2>
-            <p className="mt-1 text-xs text-gray-500">{lesson.description}</p>
+      <main style={{ minHeight: '100vh', background: T.bg, color: T.textPrimary, fontFamily: T.sans }}>
+        <Header />
 
-            <div className="mt-3 h-1.5 rounded-full bg-gray-100">
-              <div
-                className="h-1.5 rounded-full bg-[#2E4862]"
-                style={{ width: `${progressPercent}%` }}
-              />
+        <div style={{ display: 'flex', height: 'calc(100vh - 64px)', overflow: 'hidden' }}>
+
+          {/* ══════════════ SIDEBAR ══════════════ */}
+          <aside style={{
+            width: 264, flexShrink: 0, display: 'flex', flexDirection: 'column',
+            background: T.bgSidebar,
+            borderRight: `1px solid ${T.border}`,
+          }}>
+            {/* Lesson meta */}
+            <div style={{ padding: '18px 16px 14px', borderBottom: `1px solid ${T.border}` }}>
+              <button
+                type="button"
+                onClick={() => router.push('/learn')}
+                className="lp-back-btn"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                  background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                  fontSize: 11, color: T.textMuted, fontFamily: T.sans, transition: 'color .15s',
+                }}
+              >
+                <ChevronLeft /> All levels
+              </button>
+
+              <h2 style={{ fontFamily: T.display, fontSize: 14, fontWeight: 700, color: T.textPrimary, margin: '12px 0 4px', letterSpacing: -0.2, lineHeight: 1.3 }}>
+                {lesson.title}
+              </h2>
+              <p style={{ fontSize: 11.5, color: T.textSec, margin: '0 0 12px', lineHeight: 1.55 }}>
+                {lesson.description}
+              </p>
+
+              {/* Progress bar */}
+              <div style={{ height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.06)', marginBottom: 6 }}>
+                <div style={{
+                  height: 3, borderRadius: 99, background: accent,
+                  width: `${progressPct}%`, transition: 'width .5s cubic-bezier(0.16,1,0.3,1)',
+                }} />
+              </div>
+              <p style={{ fontSize: 10, color: T.textMuted, fontFamily: T.mono }}>
+                {currentStepIndex + 1} / {totalSteps} steps
+              </p>
             </div>
-            <p className="mt-1 text-xs text-gray-400">
-              {currentStepIndex + 1} of {totalSteps} steps
-            </p>
-          </div>
 
-          <div className="flex-1 overflow-y-auto py-3">
-            {lesson.steps.map((step, index) => {
-              const isActive = index === currentStepIndex;
-              const isCompleted = completedSteps.has(index);
-              const isLocked = index > completedSteps.size;
-
-              const icon = isCompleted ? '✅' : isActive ? '🔵' : isLocked ? '🔒' : '⚪';
-
-              return (
-                <button
-                  key={step.id}
-                  type="button"
-                  disabled={isLocked}
-                  onClick={() => setCurrentStepIndex(index)}
-                  className={`mx-3 mb-2 flex w-[calc(100%-24px)] items-center gap-2 rounded-lg px-3 py-2.5 text-left ${isActive
-                      ? 'bg-[#2E4862] text-white cursor-pointer'
-                      : isCompleted
-                        ? 'bg-green-50 text-green-700 border border-green-100 cursor-pointer'
-                        : isLocked
-                          ? 'opacity-40 cursor-not-allowed text-gray-600'
-                          : 'cursor-pointer text-gray-600 hover:bg-gray-50'
-                    }`}
-                >
-                  <span>{icon}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-xs font-medium">{step.title}</p>
-                    <p className="mt-0.5 text-[10px] opacity-60 uppercase tracking-wide">{step.type}</p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </aside>
-
-        <section className="flex flex-1 flex-col overflow-hidden">
-          {!currentStep.pdfUrl && (
-            <div className="border-b border-gray-100 bg-white px-8 py-5">
-              <h1 className="text-xl font-bold text-[#2E4862]">{currentStep.title}</h1>
-              <p className="mt-0.5 text-sm text-gray-500">{currentStep.description}</p>
-            </div>
-          )}
-
-          <div className="flex-1 overflow-hidden flex flex-col">
-            {contentWarning && (currentStep.type === 'content' || currentStep.type === 'concept') && (
-              <div className="mx-8 mt-4 rounded-xl border border-amber-200 bg-amber-50 px-5 py-3 text-xs text-amber-800 flex items-center gap-2 animate-fadeIn flex-shrink-0">
-                <span>⚠️</span>
-                <span className="font-bold">
-                  {currentStep.type === 'concept' && hasQuiz && !quizReady
-                    ? 'Please complete the lecture reading and attempt the quiz before continuing!'
-                    : 'Please read and mark all sections as complete before continuing!'}
-                </span>
-              </div>
-            )}
-            {(currentStep.type === 'content' || currentStep.type === 'concept') && (
-              <div className="flex-1 px-8 py-6 overflow-y-auto min-h-0">
-                {currentStep.pdfUrl ? (
-                  <PDFViewer url={currentStep.pdfUrl} title={currentStep.pdfLabel} />
-                ) : (
-                  <InteractiveLecture
-                    levelId={levelId}
-                    lessonId={lessonId}
-                    stepId={currentStep.id}
-                  />
-                )}
-              </div>
-            )}
-
-            {(currentStep.type === 'explore' || currentStep.type === 'challenge') && (
-              <div className="h-full p-3">
-                <div className="flex-shrink-0 px-4 pt-3 flex flex-col gap-2">
-                  {currentStep.hint && (
-                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700">
-                      💡 Hint: {currentStep.hint}
-                    </div>
-                  )}
-                  {contentWarning && (
-                    <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-700">
-                      📖 Please read and mark all sections as complete before proceeding.
-                    </div>
-                  )}
-                  {currentStep.type === 'challenge' && challengeError && (
-                    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-2 text-xs text-red-700">
-                      ❌ {challengeError}
-                    </div>
-                  )}
-                  {currentStep.type === 'challenge' && challengePassed && (
-                    <div className="rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-xs text-green-700">
-                      ✅ Great job! Your solution looks correct. Click Next to continue.
-                    </div>
-                  )}
-                </div>
-
-                {currentStep.type === 'explore' && currentStep.explorationSimulationId ? (
-                  <div className="h-full overflow-y-auto px-2 py-1">
-                    {(() => {
-                      const ExploreComponent = SIMULATION_REGISTRY[
-                        currentStep.explorationSimulationId
-                      ] ?? null;
-                      return ExploreComponent ? <ExploreComponent /> : null;
-                    })()}
-                  </div>
-                ) : currentStep.type === 'challenge' && currentStep.challengeSimulationId ? (
-                  <div className="h-full overflow-y-auto px-2 py-1">
-                    {(() => {
-                      const ChallengeSimComponent = SIMULATION_REGISTRY[
-                        currentStep.challengeSimulationId
-                      ] ?? null;
-                      return ChallengeSimComponent ? <ChallengeSimComponent /> : null;
-                    })()}
-                  </div>
-                ) : (
-                  <div className="flex h-[calc(100%-0px)] overflow-hidden rounded-xl">
-                    <div className="w-[240px] overflow-hidden rounded-xl bg-white shadow-sm flex-shrink-0">
-                      <Sidebar allowedBlocks={allowedBlocks} />
-                    </div>
-                    <div className="ml-3 flex-1 overflow-hidden">
-                      <Canvas showAIButton={false} />
-                    </div>
-                  </div>
-                )}
-
-                {currentStep.type === 'challenge' && SimulationComponent &&
-                  !currentStep.challengeSimulationId && (
-                    <SimulationOverlay
-                      isOpen={challengePassed}
-                      onContinue={handleAdvance}
-                      blocks={blocks}
-                      title="See what your code does on the hardware"
-                    >
-                      <SimulationComponent />
-                    </SimulationOverlay>
-                  )}
-              </div>
-            )}
-
-            {currentStep.type === 'mapping' && (
-              <div className="h-full p-4 flex flex-col">
-                <p className="mb-3 text-sm text-gray-500 flex-shrink-0">
-                  🔍 See how each block maps to real Arduino C++ code
-                </p>
-                <div className="flex flex-1 gap-3 overflow-hidden">
-                  {/* Left — simulation, example program, or student blocks */}
-                  <div className={`flex-shrink-0 overflow-hidden rounded-xl bg-white shadow-sm ${currentStep.mappingSimulationId ? 'flex-1' : 'w-[360px]'
-                    }`}>
-                    {currentStep.mappingSimulationId ? (
-                      <div className="h-full overflow-y-auto p-3">
-                        {(() => {
-                          const MapSim = SIMULATION_REGISTRY[
-                            currentStep.mappingSimulationId
-                          ] ?? null;
-                          return MapSim ? <MapSim /> : null;
-                        })()}
-                      </div>
-                    ) : (
-                      <>
-                        <div className="bg-[#2E4862] px-4 py-2.5 rounded-t-xl">
-                          <p className="text-xs font-semibold text-white">
-                            {lesson?.steps.find(s => s.type === 'challenge')?.challengeSimulationId
-                              ? 'Example Program'
-                              : 'Your Blocks'}
-                          </p>
-                        </div>
-                        <div className="overflow-y-auto h-[calc(100%-40px)] pointer-events-none">
-                          {lesson?.steps.find(s => s.type === 'challenge')?.challengeSimulationId ? (
-                            <div className="p-4 flex flex-col gap-2">
-                              <p className="text-[10px] text-gray-400 mb-2 leading-relaxed">
-                                This lesson used an interactive simulator instead of the block
-                                canvas. Below is a representative program showing the concept.
-                              </p>
-                              {[
-                                { icon: '📌', label: 'Set Pin 2 as OUTPUT', colour: 'bg-orange-500' },
-                                { icon: '💡', label: 'Turn ON LED on Pin 2', colour: 'bg-orange-500' },
-                                { icon: '⏱️', label: 'Wait 1000 ms', colour: 'bg-yellow-500' },
-                                { icon: '🌑', label: 'Turn OFF LED on Pin 2', colour: 'bg-orange-500' },
-                                { icon: '⏱️', label: 'Wait 1000 ms', colour: 'bg-yellow-500' },
-                              ].map((block, i) => (
-                                <div key={i} className={`${block.colour} text-white px-3 py-2.5
-                                  rounded-xl text-xs font-semibold flex items-center gap-2`}>
-                                  <span>{block.icon}</span>
-                                  <span>{block.label}</span>
-                                </div>
-                              ))}
-                            </div>
-                          ) : (
-                            <Canvas showAIButton={false} />
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Arrow indicator */}
-                  <div className="flex items-center justify-center flex-shrink-0">
-                    <div className="flex flex-col items-center gap-1 text-[#2E4862]">
-                      <div className="w-8 h-0.5 bg-[#2E4862]" />
-                      <span className="text-lg">→</span>
-                      <p className="text-[10px] text-gray-400 text-center w-16">generates</p>
-                    </div>
-                  </div>
-
-                  {/* Right — generated or hardcoded code */}
-                  <div className={`overflow-hidden rounded-xl bg-white shadow-sm ${currentStep.mappingSimulationId ? 'w-[380px] flex-shrink-0' : 'flex-1'
-                    }`}>
-                    {(() => {
-                      if (currentStep.mappingCodeComponent) {
-                        const MappingPanel = MAPPING_PANEL_REGISTRY[
-                          currentStep.mappingCodeComponent
-                        ] ?? null;
-                        if (MappingPanel) return <MappingPanel />;
-                      }
-                      if (lesson?.steps.find(s => s.type === 'challenge')
-                        ?.challengeSimulationId) {
-                        return <StaticCodePanel />;
-                      }
-                      return <CodePanel showLiveOutput={
-                        currentStep?.showSerialOutput === true
-                      } />;
-                    })()}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center justify-between border-t border-gray-200 bg-white px-8 py-4">
-            <button
-              type="button"
-              onClick={handlePrev}
-              disabled={currentStepIndex === 0}
-              className="text-sm text-gray-500 hover:text-[#2E4862] disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              ← Back
-            </button>
-
-            <div className="flex items-center gap-2">
-              {lesson.steps.map((_, index) => {
-                const isActive = index === currentStepIndex;
-                const isCompleted = completedSteps.has(index);
+            {/* Step list */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '10px 10px' }}>
+              {lesson.steps.map((step, i) => {
+                const isActive    = i === currentStepIndex;
+                const isCompleted = completedSteps.has(i);
+                const isLocked    = i > completedSteps.size;
 
                 return (
-                  <span
-                    key={index}
-                    className={`h-2 w-2 rounded-full ${isActive ? 'bg-[#2E4862]' : isCompleted ? 'bg-green-500' : 'bg-gray-200'
-                      }`}
-                  />
+                  <button
+                    key={step.id}
+                    type="button"
+                    disabled={isLocked}
+                    onClick={() => setCurrentStepIndex(i)}
+                    className="lp-step-btn"
+                    style={{
+                      width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                      padding: '9px 11px', borderRadius: 10, marginBottom: 4, textAlign: 'left',
+                      cursor: isLocked ? 'not-allowed' : 'pointer',
+                      border: `1px solid ${isActive ? accent + '35' : 'transparent'}`,
+                      background: isActive ? (accent + '12') : 'transparent',
+                      opacity: isLocked ? 0.35 : 1,
+                      transition: 'all .18s',
+                    }}
+                  >
+                    {/* Icon badge */}
+                    <div style={{
+                      width: 24, height: 24, borderRadius: 7, flexShrink: 0,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      background: isActive   ? accent
+                                : isCompleted ? 'rgba(16,185,129,0.15)'
+                                : isLocked   ? 'rgba(255,255,255,0.04)'
+                                :              'rgba(255,255,255,0.05)',
+                      border: `1px solid ${isActive ? accent + '50' : isCompleted ? 'rgba(16,185,129,0.25)' : T.border}`,
+                      color: isActive ? '#fff' : isCompleted ? '#34d399' : T.textTiny,
+                      transition: 'all .18s',
+                    }}>
+                      {isCompleted ? <Check size={10} /> : isLocked ? <Lock /> : (
+                        <span style={{ fontSize: 9, fontWeight: 700, fontFamily: T.mono }}>{i + 1}</span>
+                      )}
+                    </div>
+
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <p style={{
+                        fontSize: 12, fontWeight: 600, margin: 0, lineHeight: 1.3,
+                        color: isActive ? T.textPrimary : isCompleted ? '#6ee7b7' : T.textSec,
+                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        transition: 'color .18s',
+                      }}>{step.title}</p>
+                      <p style={{
+                        fontSize: 9.5, margin: '2px 0 0', fontFamily: T.mono,
+                        letterSpacing: '0.07em', textTransform: 'uppercase',
+                        color: isActive ? accent : T.textTiny,
+                        transition: 'color .18s',
+                      }}>{STEP_TYPE_LABEL[step.type] ?? step.type}</p>
+                    </div>
+                  </button>
                 );
               })}
             </div>
+          </aside>
 
-            <button
-              type="button"
-              onClick={handleNext}
-              className="rounded-lg bg-[#2E4862] px-6 py-2 text-sm font-medium text-white"
-            >
-              {currentStepIndex === totalSteps - 1 ? 'Complete Lesson ✓' : 'Next →'}
-            </button>
-          </div>
-        </section>
-      </div>
-    </main>
+          {/* ══════════════ MAIN CONTENT ══════════════ */}
+          <section style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+
+            {/* Step header (not shown for PDF steps) */}
+            {!currentStep.pdfUrl && (
+              <div style={{
+                padding: '16px 28px', borderBottom: `1px solid ${T.border}`,
+                background: 'rgba(6,13,25,0.8)', flexShrink: 0,
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+              }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                    <span style={{
+                      fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
+                      fontFamily: T.mono, color: accent,
+                      padding: '2px 9px', borderRadius: 99, background: accent + '14', border: `1px solid ${accent}28`,
+                    }}>
+                      {STEP_TYPE_LABEL[currentStep.type] ?? currentStep.type}
+                    </span>
+                  </div>
+                  <h1 style={{ fontFamily: T.display, fontSize: 17, fontWeight: 700, color: T.textPrimary, margin: 0, letterSpacing: -0.3 }}>
+                    {currentStep.title}
+                  </h1>
+                  {currentStep.description && (
+                    <p style={{ fontSize: 12.5, color: T.textSec, margin: '4px 0 0', lineHeight: 1.5 }}>
+                      {currentStep.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Content warning banner */}
+            {contentWarning && (currentStep.type === 'content' || currentStep.type === 'concept') && (
+              <div style={{
+                margin: '12px 24px 0', padding: '10px 16px', borderRadius: 10, flexShrink: 0,
+                background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.2)',
+                display: 'flex', alignItems: 'center', gap: 10, animation: 'lp-fadein .3s ease both',
+              }}>
+                <div style={{ width: 5, height: 5, borderRadius: '50%', background: T.amber, flexShrink: 0 }} />
+                <span style={{ fontSize: 12.5, color: 'rgba(251,191,36,0.85)', fontWeight: 600 }}>
+                  {currentStep.type === 'concept' && hasQuiz && !quizReady
+                    ? 'Complete the reading and quiz before continuing.'
+                    : 'Mark all sections as read before continuing.'}
+                </span>
+              </div>
+            )}
+
+            {/* ── Scrollable body ── */}
+            <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+
+              {/* CONTENT / CONCEPT */}
+              {(currentStep.type === 'content' || currentStep.type === 'concept') && (
+                <div style={{ flex: 1, padding: '20px 28px', overflowY: 'auto', minHeight: 0 }}>
+                  {currentStep.pdfUrl
+                    ? <PDFViewer url={currentStep.pdfUrl} title={currentStep.pdfLabel} />
+                    : <InteractiveLecture levelId={levelId} lessonId={lessonId} stepId={currentStep.id} />
+                  }
+                </div>
+              )}
+
+              {/* EXPLORE / CHALLENGE */}
+              {(currentStep.type === 'explore' || currentStep.type === 'challenge') && (
+                <div style={{ flex: 1, padding: '12px', overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: 8 }}>
+
+                  {/* Hint / feedback banners */}
+                  {(currentStep.hint || contentWarning || challengeError || challengePassed) && (
+                    <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      {currentStep.hint && (
+                        <div style={{
+                          padding: '9px 14px', borderRadius: 10,
+                          background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.18)',
+                          display: 'flex', gap: 10, alignItems: 'flex-start',
+                        }}>
+                          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: T.mono, color: T.amber, flexShrink: 0, marginTop: 2 }}>Hint</span>
+                          <span style={{ fontSize: 12.5, color: 'rgba(251,191,36,0.75)', lineHeight: 1.6 }}>{currentStep.hint}</span>
+                        </div>
+                      )}
+                      {challengeError && (
+                        <div style={{
+                          padding: '9px 14px', borderRadius: 10,
+                          background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.18)',
+                          display: 'flex', gap: 10, alignItems: 'flex-start',
+                        }}>
+                          <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', fontFamily: T.mono, color: '#f87171', flexShrink: 0, marginTop: 2 }}>Error</span>
+                          <span style={{ fontSize: 12.5, color: 'rgba(252,165,165,0.75)', lineHeight: 1.6 }}>{challengeError}</span>
+                        </div>
+                      )}
+                      {challengePassed && (
+                        <div style={{
+                          padding: '9px 14px', borderRadius: 10,
+                          background: 'rgba(16,185,129,0.07)', border: '1px solid rgba(16,185,129,0.2)',
+                          display: 'flex', gap: 10, alignItems: 'center',
+                        }}>
+                          <Check size={11} />
+                          <span style={{ fontSize: 12.5, color: '#6ee7b7', fontWeight: 600 }}>Solution looks correct — hit Next to continue.</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Simulation or block canvas */}
+                  <div style={{ flex: 1, overflow: 'hidden', borderRadius: 14, minHeight: 0 }}>
+                    {currentStep.type === 'explore' && currentStep.explorationSimulationId ? (
+                      <div style={{ height: '100%', overflowY: 'auto' }}>
+                        {(() => { const C = SIMULATION_REGISTRY[currentStep.explorationSimulationId] ?? null; return C ? <C /> : null; })()}
+                      </div>
+                    ) : currentStep.type === 'challenge' && currentStep.challengeSimulationId ? (
+                      <div style={{ height: '100%', overflowY: 'auto' }}>
+                        {(() => { const C = SIMULATION_REGISTRY[currentStep.challengeSimulationId] ?? null; return C ? <C /> : null; })()}
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', height: '100%', gap: 10, overflow: 'hidden' }}>
+                        <div style={{ width: 240, flexShrink: 0, borderRadius: 14, overflow: 'hidden', background: T.bgSidebar, border: `1px solid ${T.border}` }}>
+                          <Sidebar allowedBlocks={allowedBlocks} />
+                        </div>
+                        <div style={{ flex: 1, overflow: 'hidden', borderRadius: 14, border: `1px solid ${T.border}` }}>
+                          <Canvas showAIButton={false} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {currentStep.type === 'challenge' && SimComp && !currentStep.challengeSimulationId && (
+                    <SimulationOverlay isOpen={challengePassed} onContinue={handleAdvance} blocks={blocks} title="See what your code does on the hardware">
+                      <SimComp />
+                    </SimulationOverlay>
+                  )}
+                </div>
+              )}
+
+              {/* MAPPING */}
+              {currentStep.type === 'mapping' && (
+                <div style={{ flex: 1, padding: '14px 16px', display: 'flex', flexDirection: 'column', overflow: 'hidden', gap: 10 }}>
+                  <p style={{ fontSize: 11.5, color: T.textMuted, fontFamily: T.mono, letterSpacing: '0.04em', flexShrink: 0, margin: 0 }}>
+                    See how each block maps to real Arduino C++ code
+                  </p>
+
+                  <div style={{ flex: 1, display: 'flex', gap: 10, overflow: 'hidden', minHeight: 0 }}>
+                    {/* Left panel */}
+                    <div className="lp-map-panel" style={{ flexShrink: 0, overflow: 'hidden', width: currentStep.mappingSimulationId ? undefined : 360, flex: currentStep.mappingSimulationId ? 1 : undefined }}>
+                      {currentStep.mappingSimulationId ? (
+                        <div style={{ height: '100%', overflowY: 'auto', padding: 12 }}>
+                          {(() => { const C = SIMULATION_REGISTRY[currentStep.mappingSimulationId] ?? null; return C ? <C /> : null; })()}
+                        </div>
+                      ) : (
+                        <>
+                          <div style={{ padding: '10px 14px', borderBottom: `1px solid ${T.border}`, background: accent + '10' }}>
+                            <p style={{ margin: 0, fontSize: 11, fontWeight: 700, fontFamily: T.mono, letterSpacing: '0.08em', textTransform: 'uppercase', color: accent }}>
+                              {lesson.steps.find(s => s.type === 'challenge')?.challengeSimulationId ? 'Example Program' : 'Your Blocks'}
+                            </p>
+                          </div>
+                          <div style={{ overflowY: 'auto', height: 'calc(100% - 38px)', pointerEvents: 'none' }}>
+                            {lesson.steps.find(s => s.type === 'challenge')?.challengeSimulationId ? (
+                              <div style={{ padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                <p style={{ fontSize: 10.5, color: T.textMuted, marginBottom: 8, lineHeight: 1.6 }}>
+                                  This lesson used an interactive simulator. Below is a representative program showing the concept.
+                                </p>
+                                {[
+                                  { label: 'Set Pin 2 as OUTPUT', color: '#f97316' },
+                                  { label: 'Turn ON LED on Pin 2', color: '#f97316' },
+                                  { label: 'Wait 1000 ms',         color: '#eab308' },
+                                  { label: 'Turn OFF LED on Pin 2',color: '#f97316' },
+                                  { label: 'Wait 1000 ms',         color: '#eab308' },
+                                ].map((b, i) => (
+                                  <div key={i} style={{
+                                    padding: '9px 13px', borderRadius: 10,
+                                    background: b.color + '18', border: `1px solid ${b.color}30`,
+                                    fontSize: 12, fontWeight: 600, color: b.color,
+                                    display: 'flex', alignItems: 'center', gap: 8,
+                                    borderLeft: `3px solid ${b.color}`,
+                                  }}>
+                                    {b.label}
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <Canvas showAIButton={false} />
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+
+                    {/* Arrow connector */}
+                    <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, padding: '0 4px' }}>
+                      <div style={{ width: 24, height: 1, background: `linear-gradient(90deg,transparent,${T.border})` }} />
+                      <ArrowRight />
+                      <p style={{ fontSize: 9, color: T.textTiny, fontFamily: T.mono, letterSpacing: '0.06em', margin: 0 }}>generates</p>
+                      <div style={{ width: 24, height: 1, background: `linear-gradient(90deg,${T.border},transparent)` }} />
+                    </div>
+
+                    {/* Right panel — code */}
+                    <div className="lp-map-panel" style={{ overflow: 'hidden', width: currentStep.mappingSimulationId ? 380 : undefined, flexShrink: currentStep.mappingSimulationId ? 0 : undefined, flex: currentStep.mappingSimulationId ? undefined : 1 }}>
+                      {(() => {
+                        if (currentStep.mappingCodeComponent) {
+                          const Panel = MAPPING_PANEL_REGISTRY[currentStep.mappingCodeComponent] ?? null;
+                          if (Panel) return <Panel />;
+                        }
+                        if (lesson.steps.find(s => s.type === 'challenge')?.challengeSimulationId) return <StaticCodePanel />;
+                        return <CodePanel showLiveOutput={currentStep.showSerialOutput === true} />;
+                      })()}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* ══════════════ BOTTOM NAV ══════════════ */}
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              padding: '12px 24px', borderTop: `1px solid ${T.border}`,
+              background: 'rgba(6,13,25,0.9)', flexShrink: 0,
+            }}>
+              {/* Prev */}
+              <button
+                type="button"
+                onClick={handlePrev}
+                disabled={currentStepIndex === 0}
+                className="lp-prev-btn"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: 'none', border: 'none', cursor: currentStepIndex === 0 ? 'not-allowed' : 'pointer',
+                  fontSize: 13, color: currentStepIndex === 0 ? T.textTiny : T.textMuted,
+                  fontFamily: T.sans, fontWeight: 500, transition: 'color .15s',
+                  opacity: currentStepIndex === 0 ? 0.4 : 1,
+                }}
+              >
+                <ChevronLeft /> Back
+              </button>
+
+              {/* Step dots */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                {lesson.steps.map((_, i) => {
+                  const isActive    = i === currentStepIndex;
+                  const isCompleted = completedSteps.has(i);
+                  return (
+                    <span key={i} style={{
+                      display: 'block',
+                      width: isActive ? 20 : 6, height: 6, borderRadius: 99,
+                      background: isActive ? accent : isCompleted ? T.green : 'rgba(255,255,255,0.1)',
+                      transition: 'all .3s cubic-bezier(0.16,1,0.3,1)',
+                    }} />
+                  );
+                })}
+              </div>
+
+              {/* Next */}
+              <button
+                type="button"
+                onClick={handleNext}
+                className="lp-next-btn"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  padding: '9px 22px', borderRadius: 10, cursor: 'pointer',
+                  fontSize: 13, fontWeight: 700, fontFamily: T.sans,
+                  background: `linear-gradient(135deg,${accent}cc,${accent})`,
+                  border: 'none', color: '#fff',
+                  boxShadow: `0 4px 16px ${accent}30`,
+                  transition: 'all .22s',
+                }}
+              >
+                {isLastStep ? (
+                  <><Check size={12} /> Complete lesson</>
+                ) : (
+                  <>Next <ArrowRight /></>
+                )}
+              </button>
+            </div>
+
+          </section>
+        </div>
+      </main>
+    </>
   );
 }

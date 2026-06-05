@@ -12,17 +12,17 @@ interface InteractiveLectureProps {
 
 /* ─── Glossary Dictionary for Technical Key Terms ─── */
 const GLOSSARY: Record<string, string> = {
-  'ESP32': 'A powerful, low-cost microcontroller with built-in Wi-Fi and Bluetooth, widely used for IoT and smart hardware projects.',
+  'ESP32': 'A powerful yet cheap microcontroller with built-in Wi-Fi and Bluetooth, widely used for IoT and smart hardware projects.',
   'microcontroller': 'A compact integrated circuit designed to govern a specific operation in an embedded system, containing a processor, memory, and I/O pins.',
   'pinMode': 'A configuration command that defines whether a specific pin behaves as an INPUT (to read sensors) or an OUTPUT (to send power).',
-  'OUTPUT': 'A pin configuration mode where the ESP32 pushes voltage (3.3V or 0V) out to control external components like LEDs or motors.',
-  'INPUT': 'A pin configuration mode where the ESP32 listens to external voltage levels, used to read switches, buttons, and sensors.',
+  'OUTPUT': 'A pin configuration mode where the controller pushes voltage (3.3V or 0V) out to control external components like LEDs or motors.',
+  'INPUT': 'A pin configuration mode where the controller listens to external voltage levels, used to read switches, buttons, and sensors.',
   'HIGH': 'The active ON state in digital control, applying full system voltage (3.3V) to a pin.',
   'LOW': 'The inactive OFF state in digital control, pulling the pin voltage down to ground level (0V).',
   'digitalWrite': 'A command that sets a digital pin to either HIGH (ON) or LOW (OFF) state.',
   'digitalRead': 'A command that checks whether a digital pin is receiving HIGH or LOW electrical signals.',
   'analogWrite': 'A command used to simulate analog voltages on digital pins using high-frequency Pulse Width Modulation (PWM).',
-  'analogRead': 'A command that converts incoming variable voltage into a numerical value (0 to 4095 on the ESP32).',
+  'analogRead': 'A command that converts incoming variable voltage into a numerical value (0 to 4095 on the controller).',
   'PWM': 'Pulse Width Modulation—a technique to control average voltage by pulsing a digital signal ON and OFF at very high speeds.',
   'LDR': 'Light Dependent Resistor—a sensor whose physical resistance decreases when exposed to bright light.',
   'Photoresistor': 'Another term for an LDR, a sensor that measures light intensity.',
@@ -278,7 +278,7 @@ function BulletItem({
   return (
     <div className="flex items-start gap-3.5 pl-1 my-2.5 animate-fadeIn group">
       <BulletIcon styleIndex={styleIndex} color={color} blockIndex={blockIndex} />
-      <span className="flex-1 leading-relaxed text-slate-700 transition-colors duration-200 group-hover:text-slate-900">
+      <span className="flex-1 leading-relaxed text-slate-100 transition-colors duration-200 group-hover:text-white">
         {highlightText(text)}
       </span>
     </div>
@@ -352,8 +352,8 @@ function RevealBlock({ question, answer, accentColor }: { question: string; answ
           className="px-5 py-4 border-t text-xs md:text-sm text-slate-700 leading-relaxed font-medium animate-slideDown flex items-start gap-3"
           style={{ borderColor: accentColor + '25', background: accentColor + '05' }}
         >
-          <span className="text-base flex-shrink-0 mt-0.5">💡</span>
-          <span>{answer}</span>
+          <span className="text-white flex-shrink-0 mt-0.5">💡</span>
+          <span className="text-white">{answer}</span>
         </div>
       )}
     </div>
@@ -605,37 +605,47 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
         boxShadow: isOpen ? '0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02)' : 'none'
       }}
     >
-      <button
-        type="button"
-        onClick={() => setIsOpen(o => !o)}
-        style={{ 
-          background: isOpen ? subtleThemeBg : 'transparent',
-          borderBottom: isOpen ? `1px solid ${subtleThemeBorder}` : 'none'
-        }}
-        className="w-full flex items-center gap-3.5 px-6 py-5 text-left hover:bg-slate-50/50 transition-all duration-300"
-      >
-        <span
-          className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black shadow-sm transition-all duration-500"
-          style={{ 
-            background: currentThemeColor,
-            transform: isRead ? 'scale(1.08) rotate(360deg)' : 'none'
-          }}
-        >
-          {isRead ? '✓' : sec.number}
-        </span>
-        <span className="text-lg flex-shrink-0 transition-transform duration-300 hover:scale-125">{sec.icon}</span>
-        <span className="flex-1 font-extrabold text-[#2E4862] text-sm md:text-base leading-snug">
-          {sec.title}
-        </span>
-        <span className="text-slate-400 text-xs md:text-sm font-black transition-transform duration-300" style={{ transform: isOpen ? 'rotate(180deg)' : 'none' }}>
-          ▼
-        </span>
-      </button>
+    <button
+  type="button"
+  onClick={() => setIsOpen(o => !o)}
+  style={{
+    borderBottom: isOpen ? `1px solid ${subtleThemeBorder}` : 'none',
+  }}
+  className="group w-full flex bg-[#0f1b2e] items-center gap-3.5 px-6 py-5 text-left transition-all duration-300 hover:bg-[#14233a] hover:shadow-lg hover:-translate-y-0.5"
+>
+  <span
+    className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black shadow-sm transition-all duration-500 group-hover:scale-110"
+    style={{
+      background: currentThemeColor,
+      color: '#ffffff',
+      transform: isRead ? 'scale(1.08) rotate(360deg)' : undefined,
+    }}
+  >
+    {isRead ? '✓' : sec.number}
+  </span>
+
+  <span className="text-lg flex-shrink-0 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-6">
+    {sec.icon}
+  </span>
+
+  <span className="flex-1 font-extrabold text-white text-sm md:text-base leading-snug transition-colors duration-300">
+    {sec.title}
+  </span>
+
+  <span
+    className="text-slate-400 text-xs md:text-sm font-black transition-all duration-300 group-hover:text-white"
+    style={{
+      transform: isOpen ? 'rotate(180deg)' : 'none',
+    }}
+  >
+    ▼
+  </span>
+</button>
 
       {isOpen && (
-        <div className="px-6 pb-6 pt-5 text-xs md:text-sm text-slate-600 leading-relaxed space-y-4 animate-slideDown">
+        <div className="px-6 pb-6 pt-5 text-xs md:text-sm text-slate-100 leading-relaxed space-y-4 animate-slideDown bg-[#16243a]">
           {preprocessedItems.map((item, idx) => {
-            const stagger = { animationDelay: `${idx * 45}ms`, animationFillMode: 'forwards' as const, opacity: 0 };
+            const stagger = { animationDelay: `${idx * 45}ms`, animationFillMode: 'forwards' as const, opacity: 0, color : 'white' };
 
             if (item.type === 'comparison') {
               return (
@@ -823,11 +833,11 @@ function QuizCard({ quiz, onQuizComplete }: { quiz: QuizQuestion[], onQuizComple
   };
 
   return (
-    <div className="rounded-3xl border border-indigo-50 bg-white p-7 shadow-sm space-y-6">
+    <div className="rounded-3xl border border-indigo-50 bg-[#16243a] p-7 shadow-sm space-y-6">
       <div className="flex items-center justify-between pb-3.5 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
-          <span className="text-xl animate-pulse">🧠</span>
-          <p className="text-xs md:text-sm font-extrabold uppercase tracking-widest text-indigo-600">
+          <span className="text-xl animate-pulse"></span>
+          <p className="text-xs md:text-sm font-extrabold uppercase tracking-widest text-white">
             Quick Comprehension Check
           </p>
         </div>
@@ -854,12 +864,12 @@ function QuizCard({ quiz, onQuizComplete }: { quiz: QuizQuestion[], onQuizComple
         const correct = q.correct;
 
         return (
-          <div key={qIdx} className="rounded-2xl border border-slate-100 bg-slate-50/40 p-5 md:p-6 space-y-4 animate-fadeIn">
+          <div key={qIdx} className="rounded-2xl border border-slate-100 bg-[#2E4862] p-5 md:p-6 space-y-4 animate-fadeIn">
             <div className="flex items-start gap-3">
               <span className="flex-shrink-0 w-6 h-6 rounded-full bg-indigo-50 flex items-center justify-center text-xs font-bold text-indigo-500 mt-0.5">
                 {qIdx + 1}
               </span>
-              <p className="font-extrabold text-[#2E4862] text-sm md:text-base leading-snug">
+              <p className="font-extrabold text-white text-sm md:text-base leading-snug">
                 {q.question}
               </p>
             </div>
@@ -929,9 +939,9 @@ function QuizCard({ quiz, onQuizComplete }: { quiz: QuizQuestion[], onQuizComple
                   type="button"
                   onClick={() => check(qIdx)}
                   disabled={chosen === undefined}
-                  className="text-xs font-black px-5 py-2.5 rounded-xl bg-[#2E4862] text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 shadow-sm shadow-slate-100 hover:bg-[#1E3042] hover:scale-[1.03] hover:shadow-md"
+                  className="text-xs font-black px-5 py-2.5 rounded-xl bg-[#16243a] text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-300 shadow-sm shadow-slate-100 hover:bg-[#1E3042] hover:scale-[1.03] hover:shadow-md"
                 >
-                  Verify Answer 🔍
+                  Verify Answer
                 </button>
               ) : (
                 <div className="mt-3 animate-fadeIn">
@@ -1115,23 +1125,26 @@ if (user) {
   };
 
   // Hero Card gradient based on Level ID
-  const getHeroGradient = () => {
-    const l = Number(levelId);
-    if (l === 1) return 'from-indigo-600 to-indigo-800';
-    if (l === 2) return 'from-emerald-600 to-emerald-800';
-    if (l === 3) return 'from-amber-600 to-amber-800';
-    return 'from-rose-600 to-rose-800';
-  };
+const getHeroGradient = () => {
+  const l = Number(levelId);
 
+  if (l === 1) return 'from-[#0f1b2e] to-[#16243a]';
+  if (l === 2) return 'from-[#122033] to-[#1a2b44]';
+  if (l === 3) return 'from-[#15263d] to-[#1e3150]';
+
+  return 'from-[#182b45] to-[#24385c]';
+};
   return (
-    <div className="min-h-full bg-slate-50/50 pb-16 relative">
-      {/* ── Sticky Mini Progress Bar ── */}
-      <div className="sticky top-0 left-0 right-0 h-1.5 bg-slate-200 z-50 overflow-hidden">
-        <div 
-          className="h-full bg-emerald-500 transition-all duration-700 ease-out" 
-          style={{ width: `${pct}%` }} 
-        />
-      </div>
+    <div className="min-h-full bg-[#04080f] pb-16 relative">
+      {/* ── Sticky Mini Progress Bar ──
+      <div className="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-sm">
+  <div className="relative h-2 overflow-hidden bg-slate-100">
+    <div
+      className="h-full bg-gradient-to-r from-emerald-400 via-emerald-500 to-emerald-600 transition-all duration-700 ease-out shadow-[0_0_12px_rgba(16,185,129,0.45)]"
+      style={{ width: `${pct}%` }}
+    />
+  </div>
+</div> */}
       <style>{`
         @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slideDown { animation: slideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
@@ -1146,11 +1159,12 @@ if (user) {
         .glossary-term {
           position: relative;
           display: inline-block;
+          color: white;
         }
         .glossary-term .tooltip-text {
           visibility: hidden;
           width: 240px;
-          background-color: #1E293B;
+          background-color: #0a1422;
           color: #F8FAFC;
           text-align: left;
           border-radius: 12px;
@@ -1255,10 +1269,10 @@ if (user) {
 
       {/* ── Congratulations Complete Banner ── */}
       {allRead && (
-        <div className="rounded-3xl bg-gradient-to-r from-emerald-400 to-teal-500 p-8 text-white text-center shadow-lg animate-fadeIn shadow-emerald-100 flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="rounded-3xl bg-gradient-to-r from-[#0f1b2e] to-[#16243a] p-8 text-white text-center shadow-lg animate-fadeIn shadow-emerald-100 flex flex-col items-center justify-center relative overflow-hidden">
           <ConfettiShower />
           <div className="text-5xl mb-3 animate-bounce relative z-10">🎉</div>
-          <h2 className="text-xl md:text-2xl font-black leading-snug relative z-10">Level complete! Amazing effort!</h2>
+          <h2 className="text-xl md:text-2xl font-black leading-snug relative z-10">Section complete! Amazing effort!</h2>
           <p className="text-xs md:text-sm text-emerald-50 mt-1.5 max-w-md leading-relaxed font-semibold relative z-10">
             You have marked all {totalSections} sections of this lesson as read. Click the <strong>Next →</strong> button in the sidebar to advance to your next task!
           </p>

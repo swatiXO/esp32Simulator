@@ -175,7 +175,7 @@ function parseContent(filePath, relativeImageFolder, imagesList) {
           <span class="inline-block w-2.5 h-2.5 rounded-full bg-cyan-500 shadow-sm shadow-cyan-300"></span>
           ${title}
         </h3>
-        <div class="text-slate-600 space-y-2">
+        <div class="text-slate-600 space-y-2 bg-full[#e6e6d6]">
           ${secContentHtml}
         </div>
         ${imgHtml}
