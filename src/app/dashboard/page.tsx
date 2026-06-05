@@ -9,7 +9,6 @@ import { useActivityStore } from '@/store/useActivityStore';
 
 /* ════════════════════════════════════════════════════════════════════════
    BUILD MIND — DASHBOARD
-   Dark theme matching the landing / login pages. No emojis (SVG icons).
    Sections: stats · features · status. Drop-in for src/app/dashboard/page.tsx
    ════════════════════════════════════════════════════════════════════════ */
 
@@ -18,7 +17,7 @@ const PANEL = '#0a1422';
 const CARD = '#0f1c30';
 const LINE = 'rgba(255,255,255,0.08)';
 const LINE_SOFT = 'rgba(255,255,255,0.05)';
-const TEXT = '#eaf0fa';
+const TEXT = '#ffffff';
 const MUTED = 'rgba(234,240,250,0.55)';
 const FAINT = 'rgba(234,240,250,0.35)';
 const BLUE = '#3b82f6';
@@ -141,7 +140,7 @@ export default function DashboardPage() {
                     <I.arrow width={15} height={15} className="bm-arrow" />
                   </button>
                 )}
-                <button onClick={() => router.push('/playground')} className="bm-ghost" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 13, background: 'rgba(255,255,255,0.04)', color: TEXT, border: `1px solid rgba(255,255,255,0.14)`, padding: '12px 22px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                <button onClick={() => router.push('/')} className="bm-ghost" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 13, background: 'rgba(255,255,255,0.04)', color: TEXT, border: `1px solid rgba(255,255,255,0.14)`, padding: '12px 22px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                   <I.blocks width={16} height={16} /> Open Playground
                 </button>
               </div>
@@ -185,7 +184,7 @@ export default function DashboardPage() {
               <div className="bm-feat-list" style={{ marginTop: 16 }}>
                 <FeatureRow primary Icon={I.blocks} title="Playground" tone={BLUE} tag="Build"
                   desc="Drag blocks that generate real Arduino code, test on the live simulator, then flash to a real ESP32."
-                  onClick={() => router.push('/')} />
+                  onClick={() => router.push('/playground')} />
                 <FeatureRow Icon={I.book} title="Learn" tone={AMBER} tag="5 Levels · 25 Lessons"
                   desc="A structured path from LED basics to WiFi and IoT cloud, each level split into focused sub-lessons."
                   onClick={() => router.push('/learn')} />
