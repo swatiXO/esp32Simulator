@@ -235,7 +235,8 @@ function BulletIcon({ styleIndex, color, blockIndex }: { styleIndex: number; col
           ★
         </div>
       );
-    case 4: // High-Tech Hexagon
+    case 4:
+      default: // High-Tech Hexagon
       return (
         <div className="flex-shrink-0 mt-1.5 w-2.5 h-2.5 flex items-center justify-center transition-all duration-300 hover:scale-110">
           <svg viewBox="0 0 100 100" className="w-2.5 h-2.5" fill={color}>
@@ -243,13 +244,13 @@ function BulletIcon({ styleIndex, color, blockIndex }: { styleIndex: number; col
           </svg>
         </div>
       );
-    case 5: // Pill Step Number
-    default:
-      return (
-        <span className="flex-shrink-0 mt-1 px-1.5 py-0.5 rounded-full text-[9px] font-black text-white leading-none shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110" style={{ background: color }}>
-          {(blockIndex + 1).toString().padStart(2, '0')}
-        </span>
-      );
+    // case 5: // Pill Step Number
+    // default:
+    //   return (
+    //     <span className="flex-shrink-0 mt-1 px-1.5 py-0.5 rounded-full text-[9px] font-black text-white leading-none shadow-sm flex items-center justify-center transition-all duration-300 hover:scale-110" style={{ background: color }}>
+    //       {(blockIndex + 1).toString().padStart(2, '0')}
+    //     </span>
+    //   );
   }
 }
 
