@@ -107,16 +107,19 @@ export default function LearnPage() {
         .lp-header-btn:disabled { cursor: not-allowed; }
 
         .lp-lesson-card {
-          border-radius: 13px; overflow: hidden; position: relative;
-          transition: transform .3s cubic-bezier(0.16,1,0.3,1), border-color .2s, box-shadow .3s;
+          border-radius: 16px; overflow: hidden; position: relative;
+          transition: transform .3s cubic-bezier(0.16,1,0.3,1), border-color .25s, box-shadow .3s, background .2s;
           animation: lp-drop .3s ease both;
         }
+        .lp-lesson-card.clickable { cursor: pointer; }
         .lp-lesson-card.clickable:hover {
-          transform: translateY(-3px);
-          box-shadow: 0 14px 40px rgba(0,0,0,.45);
-          border-color: rgba(255,255,255,0.13) !important;
+          transform: translateY(-5px);
+          box-shadow: 0 24px 56px -20px rgba(0,0,0,0.8);
+          border-color: rgba(255,255,255,0.16) !important;
         }
-        .lp-lesson-card.clickable:hover .lp-lesson-arrow { opacity: 1 !important; transform: translateX(0) !important; }
+        .lp-lesson-card.clickable:hover .lp-lesson-arrow { opacity: 1 !important; transform: translateX(4px) !important; }
+        .lp-lesson-card.clickable:hover .lp-lesson-icon { transform: scale(1.08) rotate(-4deg) !important; }
+        .lp-lesson-card.clickable:hover .lp-lesson-glow { opacity: 1 !important; }
 
         .lp-back-btn:hover    { color: #f0f4ff !important; }
         .lp-unlock-link:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,158,11,0.35) !important; }
@@ -249,81 +252,98 @@ export default function LearnPage() {
                           const accessible = canAccessLesson(level.id, lesson.id);
                           const done       = isLessonCompleted(lesson.id);
 
+                          const lessonToneColor = done ? '#10b981' : accessible ? accent : 'rgba(255,255,255,0.15)';
+
                           return (
                             <div
                               key={lesson.id}
                               className={`lp-lesson-card ${accessible ? 'clickable' : ''}`}
+                              onClick={() => accessible && router.push(`/learn/level/${level.id}/lesson/${lesson.id}`)}
                               style={{
-                                background: done ? 'rgba(16,185,129,0.05)' : 'rgba(255,255,255,0.025)',
-                                border: `1px solid ${done ? 'rgba(16,185,129,0.18)' : 'rgba(255,255,255,0.07)'}`,
+                                background: done
+                                  ? 'linear-gradient(135deg,rgba(16,185,129,0.06),rgba(16,185,129,0.03))'
+                                  : 'linear-gradient(135deg,#0a1422,#0f1c30)',
+                                border: `1px solid ${done ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.07)'}`,
                                 opacity: !accessible ? 0.5 : 1,
                                 animationDelay: `${li * 35}ms`,
+                                padding: 18,
+                                display: 'flex', gap: 14, alignItems: 'flex-start',
                               }}
                             >
-                              {/* Top colour sliver */}
-                              <div style={{ height: 2, background: done ? 'rgba(16,185,129,0.5)' : `linear-gradient(90deg,${accent}80,transparent)` }} />
+                              {/* Left accent bar */}
+                              <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: lessonToneColor, opacity: done ? 0.7 : 0.5, borderRadius: '16px 0 0 16px' }} />
 
-                              <button
-                                type="button"
-                                disabled={!accessible}
-                                onClick={() => accessible && router.push(`/learn/level/${level.id}/lesson/${lesson.id}`)}
-                                style={{ width: '100%', background: 'none', border: 'none', cursor: accessible ? 'pointer' : 'not-allowed', padding: '14px 16px', textAlign: 'left', display: 'block' }}
+                              {/* Top-right radial glow (shown on hover via CSS) */}
+                              <div className="lp-lesson-glow" style={{ position: 'absolute', top: -30, right: -20, width: 120, height: 120, borderRadius: '50%', background: `radial-gradient(circle,${lessonToneColor}40,transparent 65%)`, opacity: 0, transition: 'opacity .35s', pointerEvents: 'none' }} />
+
+                              {/* Icon badge */}
+                              <div
+                                className="lp-lesson-icon"
+                                style={{
+                                  width: 40, height: 40, flexShrink: 0, borderRadius: 12,
+                                  background: done ? 'rgba(16,185,129,0.15)' : (accent + '18'),
+                                  border: `1px solid ${done ? 'rgba(16,185,129,0.25)' : (accent + '28')}`,
+                                  color: done ? '#34d399' : accent,
+                                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  transition: 'transform .35s cubic-bezier(0.16,1,0.3,1)',
+                                  position: 'relative',
+                                }}
                               >
-                                {/* Badge row */}
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                                  <div style={{ width: 28, height: 28, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', background: done ? 'rgba(16,185,129,0.14)' : (accent + '14'), border: `1px solid ${done ? 'rgba(16,185,129,0.24)' : (accent + '24')}`, color: done ? '#34d399' : accent, flexShrink: 0 }}>
-                                    {done ? <CheckIcon size={11} /> : !accessible ? <LockIcon size={10} /> : (
-                                      <span style={{ fontSize: 10, fontWeight: 700, fontFamily: '"JetBrains Mono",monospace' }}>{li + 1}</span>
-                                    )}
-                                  </div>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                    {done && (
-                                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', fontFamily: '"JetBrains Mono",monospace', padding: '2px 8px', borderRadius: 99, background: 'rgba(16,185,129,0.1)', border: '1px solid rgba(16,185,129,0.22)', color: '#34d399', textTransform: 'uppercase' }}>Done</span>
-                                    )}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, color: 'rgba(240,244,255,0.3)', fontFamily: '"JetBrains Mono",monospace', padding: '2px 7px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                                      <ClockIcon /> {lesson.estimatedMinutes}m
-                                    </span>
-                                  </div>
+                                {done ? <CheckIcon size={16} /> : !accessible ? <LockIcon size={14} /> : (
+                                  <span style={{ fontSize: 13, fontWeight: 700, fontFamily: '"Space Grotesk",sans-serif' }}>{li + 1}</span>
+                                )}
+                              </div>
+
+                              {/* Text content */}
+                              <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+                                {/* Title row + tags */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                                  <h3 style={{ fontFamily: '"Space Grotesk",sans-serif', fontSize: 14, fontWeight: 700, color: accessible ? '#f0f4ff' : 'rgba(240,244,255,0.35)', margin: 0, letterSpacing: -0.2, lineHeight: 1.2 }}>
+                                    {lesson.title}
+                                  </h3>
+                                  {done && (
+                                    <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', fontFamily: '"JetBrains Mono",monospace', padding: '2px 8px', borderRadius: 99, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.22)', color: '#34d399', textTransform: 'uppercase', flexShrink: 0 }}>Done</span>
+                                  )}
+                                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, color: 'rgba(240,244,255,0.3)', fontFamily: '"JetBrains Mono",monospace', padding: '2px 7px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+                                    <ClockIcon /> {lesson.estimatedMinutes}m
+                                  </span>
                                 </div>
 
-                                <p style={{ fontFamily: '"Space Grotesk",sans-serif', fontSize: 13.5, fontWeight: 700, color: accessible ? '#f0f4ff' : 'rgba(240,244,255,0.35)', margin: '0 0 4px', letterSpacing: -0.2, lineHeight: 1.25 }}>
-                                  {lesson.title}
-                                </p>
-                                <p style={{ fontSize: 11.5, color: 'rgba(240,244,255,0.4)', lineHeight: 1.6, margin: '0 0 12px' }}>
+                                <p style={{ fontSize: 12, color: 'rgba(240,244,255,0.45)', lineHeight: 1.65, margin: '0 0 12px' }}>
                                   {lesson.description}
                                 </p>
 
-                                {/* Steps progress + arrow */}
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                                {/* Steps bar + CTA arrow */}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                   <div style={{ flex: 1 }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                       <span style={{ fontSize: 9.5, color: 'rgba(240,244,255,0.22)', fontFamily: '"JetBrains Mono",monospace' }}>{lesson.steps.length} steps</span>
                                       {done && <span style={{ fontSize: 9.5, color: '#34d399', fontFamily: '"JetBrains Mono",monospace' }}>100%</span>}
                                     </div>
                                     <div style={{ height: 2, borderRadius: 99, background: 'rgba(255,255,255,0.06)' }}>
-                                      <div style={{ height: 2, borderRadius: 99, background: done ? '#10b981' : accent, width: done ? '100%' : '0%' }} />
+                                      <div style={{ height: 2, borderRadius: 99, background: done ? '#10b981' : accent, width: done ? '100%' : '0%', transition: 'width .5s ease' }} />
                                     </div>
                                   </div>
                                   {accessible && (
-                                    <div className="lp-lesson-arrow" style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 10.5, fontWeight: 700, color: done ? '#34d399' : accent, opacity: 0, transform: 'translateX(-5px)', transition: 'opacity .2s, transform .2s', flexShrink: 0 }}>
+                                    <div className="lp-lesson-arrow" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 700, color: done ? '#34d399' : accent, opacity: 0, transform: 'translateX(-4px)', transition: 'opacity .22s, transform .22s', flexShrink: 0 }}>
                                       {done ? 'Review' : 'Start'} <ArrowRight />
                                     </div>
                                   )}
                                 </div>
-                              </button>
 
-                              {/* Locked lesson CTA */}
-                              {!accessible && (
-                                <div style={{ padding: '0 16px 12px' }}>
-                                  {!hasEsp32 ? (
-                                    <Link href="/redeem" className="lp-unlock-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, borderRadius: 8, padding: '5px 12px', background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.18)', fontSize: 11, fontWeight: 600, color: '#fbbf24', textDecoration: 'none', transition: 'all .2s' }}>
-                                      <LockIcon /> Unlock →
-                                    </Link>
-                                  ) : (
-                                    <p style={{ fontSize: 10, color: 'rgba(240,244,255,0.22)', fontFamily: '"JetBrains Mono",monospace', margin: 0 }}>Complete previous lesson first</p>
-                                  )}
-                                </div>
-                              )}
+                                {/* Locked lesson CTA */}
+                                {!accessible && (
+                                  <div style={{ marginTop: 10 }}>
+                                    {!hasEsp32 ? (
+                                      <Link href="/redeem" className="lp-unlock-sm" onClick={e => e.stopPropagation()} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, borderRadius: 8, padding: '5px 12px', background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.18)', fontSize: 11, fontWeight: 600, color: '#fbbf24', textDecoration: 'none', transition: 'all .2s' }}>
+                                        <LockIcon /> Unlock →
+                                      </Link>
+                                    ) : (
+                                      <p style={{ fontSize: 10, color: 'rgba(240,244,255,0.22)', fontFamily: '"JetBrains Mono",monospace', margin: 0 }}>Complete previous lesson first</p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           );
                         })}
