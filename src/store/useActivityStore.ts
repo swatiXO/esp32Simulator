@@ -150,6 +150,9 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
         onConflict: 'user_id',
       });
     if (error) console.error('[markLessonComplete] error:', error);
+    if(!(completedLessons.includes(lessonId))){
+      await get()._updateXp(50);
+    }
   },
 
   // ── Initialize ──

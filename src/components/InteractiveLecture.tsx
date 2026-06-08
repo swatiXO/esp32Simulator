@@ -548,7 +548,7 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
         >
           <div className="flex items-center gap-2 mb-3">
             <span className="text-base">{isLeftNegative ? '⚠️' : '📌'}</span>
-            <h3 className="font-extrabold text-xs md:text-sm text-slate-800 uppercase tracking-wider">
+            <h3 className="font-extrabold text-xs md:text-sm text-white uppercase tracking-wider">
               {leftTitle.replace(/:$/, '')}
             </h3>
           </div>
@@ -577,7 +577,7 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
         >
           <div className="flex items-center gap-2 mb-3">
             <span className="text-base">{isRightPositive ? '✨' : '🔥'}</span>
-            <h3 className="font-extrabold text-xs md:text-sm text-slate-800 uppercase tracking-wider">
+            <h3 className="font-extrabold text-xs md:text-sm text-white uppercase tracking-wider">
               {rightTitle.replace(/:$/, '')}
             </h3>
           </div>

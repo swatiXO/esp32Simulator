@@ -155,7 +155,7 @@ const xpMax = mounted
                     <I.arrow width={15} height={15} className="bm-arrow" />
                   </button>
                 )}
-                <button onClick={() => router.push('/')} className="bm-ghost" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 13, background: 'rgba(255,255,255,0.04)', color: TEXT, border: `1px solid rgba(255,255,255,0.14)`, padding: '12px 22px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                <button onClick={() => router.push('/playground')} className="bm-ghost" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, borderRadius: 13, background: 'rgba(255,255,255,0.04)', color: TEXT, border: `1px solid rgba(255,255,255,0.14)`, padding: '12px 22px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                   <I.blocks width={16} height={16} /> Open Playground
                 </button>
               </div>
