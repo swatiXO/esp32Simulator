@@ -222,7 +222,8 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
 
 markActivityComplete: async (activityId) => {
   const supabase = createClient();
-
+  const state = get()
+  const alreadyCompleted = state.completed.includes(activityId);
   const newCompleted = get().completed.includes(activityId)
     ? get().completed
     : [...get().completed, activityId];
@@ -251,7 +252,8 @@ markActivityComplete: async (activityId) => {
   // 3. update systems
   await get()._updateStreak();
   await get()._updateOverallProgress();
-  await get()._updateXp(activity.reward ?? 0);
+  if (!alreadyCompleted){
+  await get()._updateXp(activity.reward ?? 0);}
 },
   getProgress: (activityId, totalSteps) => {
     if (get().completed.includes(activityId)) return 100;
