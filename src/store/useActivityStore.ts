@@ -242,7 +242,7 @@ markActivityComplete: async (activityId) => {
     .select('reward')
     .eq('id', activityId)
     .single();
-
+    
   if (error || !activity) {
     console.error('[reward fetch error]', error);
     return;

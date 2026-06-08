@@ -33,6 +33,7 @@ export type PlaygroundBlock = {
 
 export type Activity = {
   id: string;
+  reward: number;
   title: string;
   description: string;
   difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
@@ -154,6 +155,7 @@ export const ACTIVITIES: Activity[] = [
   // ── 1. DHT Sensor ──────────────────────────────────────────────────────────
   {
     id: 'dht_sensor',
+    reward: 100,
     title: 'Read Temperature & Humidity',
     description:
       'Connect a DHT22 sensor to your ESP32 and read real temperature and humidity data every 2 seconds.',
@@ -351,6 +353,7 @@ void loop() {
   // ── 2. Blink LED ───────────────────────────────────────────────────────────
   {
     id: 'blink_led',
+    reward: 100,
     title: 'Blink an LED',
     description:
       'The classic first ESP32 project. Make an LED blink on and off every 500ms using GPIO pins.',
@@ -490,6 +493,7 @@ void loop() {
   // ── 3. Button Controls LED ─────────────────────────────────────────────────
   {
     id: 'button_led',
+    reward: 100,
     title: 'Button Controls LED',
     description:
       'Press a physical button to toggle an LED on and off. Learn digital input and if/else logic.',
@@ -655,6 +659,7 @@ void loop() {
   // ── 4. Traffic Light System (Intermediate) ─────────────────────────────────
   {
     id: 'traffic_light',
+    reward: 100,
     title: 'Traffic Light System',
     description:
       'Build a working traffic light with 3 LEDs! Red, yellow, and green blink in sequence just like a real traffic signal.',
@@ -900,6 +905,7 @@ void loop() {
   // ── 5. Distance Alarm (Advanced) ───────────────────────────────────────────
   {
     id: 'distance_alarm',
+    reward: 100,
     title: 'Distance Alarm',
     description:
       'Use an ultrasonic sensor to measure distance. When something gets too close, a buzzer goes off — just like a parking sensor!',
