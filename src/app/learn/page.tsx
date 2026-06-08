@@ -106,23 +106,22 @@ export default function LearnPage() {
     });
   };
 
-  /* ── total XP earned across all lessons ── */
   const totalXP = mounted
     ? LEVELS.reduce((acc, level) =>
-        acc + level.lessons.filter(l => isLessonCompleted(l.id)).length * XP_PER_LESSON, 0)
+      acc + level.lessons.filter(l => isLessonCompleted(l.id)).length * XP_PER_LESSON, 0)
     : 0;
 
   if (!mounted || isCheckingSub) {
     return (
       <>
         <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-        <main style={{ minHeight: '100vh', background: '#04080f', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Inter",sans-serif' }}>
+        <div style={{ minHeight: '100vh', background: '#04080f', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Inter",sans-serif' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ width: 36, height: 36, borderRadius: '50%', border: '2.5px solid rgba(59,130,246,0.15)', borderTop: '2.5px solid #3b82f6', animation: 'lp-spin 0.8s linear infinite', margin: '0 auto' }} />
             <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(240,244,255,0.45)', fontFamily: '"JetBrains Mono",monospace', letterSpacing: '0.05em' }}>Loading learning path...</p>
           </div>
           <style>{`@keyframes lp-spin { to { transform: rotate(360deg); } }`}</style>
-        </main>
+        </div>
       </>
     );
   }
@@ -137,14 +136,16 @@ export default function LearnPage() {
         @keyframes lp-fadein { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
         @keyframes lp-drop   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
         @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+        @keyframes lp-pad    { 0%,100%{opacity:.25} 50%{opacity:.9} }
+        @keyframes bm-pad    { 0%,100%{opacity:.25} 50%{opacity:.9} }
 
         .lp-level-card {
           border-radius: 18px; position: relative; overflow: hidden;
           animation: lp-fadein .5s ease both;
           transition: border-color .25s, box-shadow .3s;
         }
-        .lp-level-card.accessible { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); }
-        .lp-level-card.locked     { background: rgba(255,255,255,0.01);  border: 1px solid rgba(255,255,255,0.05); }
+        .lp-level-card.accessible { background: linear-gradient(135deg,#0a1422,#0f1c30); border: 1px solid rgba(255,255,255,0.08); }
+        .lp-level-card.locked     { background: linear-gradient(135deg,#0a1422,#0f1c30); border: 1px solid rgba(255,255,255,0.05); }
         .lp-level-card.open       { box-shadow: 0 20px 56px rgba(0,0,0,.4); }
 
         .lp-accent-bar { position: absolute; top: 0; left: 0; width: 3px; height: 100%; border-radius: 18px 0 0 18px; }
@@ -176,12 +177,12 @@ export default function LearnPage() {
         .lp-back-btn:hover    { color: #f0f4ff !important; }
         .lp-unlock-link:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,158,11,0.35) !important; }
         .lp-unlock-sm:hover   { background: rgba(245,158,11,0.13) !important; border-color: rgba(245,158,11,0.3) !important; }
-        @keyframes lp-pad { 0%,100%{opacity:.25} 50%{opacity:.9} }
-        @keyframes bm-pad { 0%,100%{opacity:.25} 50%{opacity:.9} }
+         body { background: #04080f; }
       `}</style>
 
-      <div style={{ minHeight: '100vh', background: '#04080f' }}>
-        <CircuitBg />
+      {/* CircuitBg is fixed/zIndex:0, outer div has the bg color, main is transparent with zIndex:1 */}
+      <CircuitBg />
+      <div style={{ minHeight: '100vh', position: 'relative', zIndex: 1 }}>
         <main style={{ minHeight: '100vh', background: 'transparent', color: '#f0f4ff', fontFamily: '"Inter",sans-serif' }}>
           <Header />
           <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 28px 80px' }}>
@@ -199,22 +200,13 @@ export default function LearnPage() {
                 <span style={{ fontSize: 10, fontWeight: 600, color: '#fbbf24', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: '"JetBrains Mono",monospace' }}>Structured Learning</span>
               </div>
 
-              {/* Title row + XP pill */}
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
                 <div>
                   <h1 style={{ fontFamily: '"Space Grotesk",sans-serif', fontSize: 32, fontWeight: 700, letterSpacing: -1, lineHeight: 1.1, color: '#f0f4ff' }}>Learning Path</h1>
                   <p style={{ marginTop: 8, fontSize: 14, color: 'rgba(240,244,255,0.45)', lineHeight: 1.6 }}>Master ESP32 from basics to IoT cloud projects</p>
                 </div>
-
-                {/* XP earned pill — same style as activities stat cards */}
                 {mounted && (
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '10px 16px', borderRadius: 14,
-                    background: 'rgba(245,158,11,0.08)',
-                    border: '1px solid rgba(245,158,11,0.2)',
-                    flexShrink: 0,
-                  }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderRadius: 14, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', flexShrink: 0 }}>
                     <span style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(245,158,11,0.14)', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <BoltIcon size={15} />
                     </span>
@@ -262,19 +254,16 @@ export default function LearnPage() {
                   >
                     <div className="lp-accent-bar" style={{ background: levelAccessible ? accent : 'rgba(255,255,255,0.08)' }} />
 
-                    {/* ── Header row ── */}
                     <button
                       type="button"
                       disabled={!levelAccessible}
                       onClick={() => levelAccessible && toggleLevel(level.id)}
                       className="lp-header-btn"
                     >
-                      {/* Number badge */}
                       <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: levelAccessible ? (accent + '18') : 'rgba(255,255,255,0.04)', border: `1px solid ${levelAccessible ? (accent + '28') : 'rgba(255,255,255,0.07)'}`, fontFamily: '"Space Grotesk",sans-serif', fontSize: 16, fontWeight: 700, color: levelAccessible ? accent : 'rgba(240,244,255,0.25)', transition: 'all .3s' }}>
                         {level.id}
                       </div>
 
-                      {/* Text block */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
                           <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: '"JetBrains Mono",monospace', color: levelAccessible ? accent : 'rgba(240,244,255,0.2)' }}>
@@ -290,7 +279,6 @@ export default function LearnPage() {
                               <LockIcon /> Locked
                             </span>
                           )}
-                          {/* XP badge on level header */}
                           {levelAccessible && levelXP > 0 && (
                             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 99, background: `${accent}12`, border: `1px solid ${accent}28`, fontSize: 9.5, fontWeight: 700, color: accent, fontFamily: '"JetBrains Mono",monospace' }}>
                               <BoltIcon size={8} /> {levelXP} XP
@@ -318,7 +306,6 @@ export default function LearnPage() {
                         )}
                       </div>
 
-                      {/* Right: count + xp potential + chevron */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                         <div style={{ textAlign: 'right' }}>
                           <p style={{ margin: '0 0 2px', fontSize: 10, color: 'rgba(240,244,255,0.28)', fontFamily: '"JetBrains Mono",monospace', whiteSpace: 'nowrap' }}>
@@ -336,7 +323,7 @@ export default function LearnPage() {
                       </div>
                     </button>
 
-                    {/* ── Lesson dropdown ── */}
+                    {/* Lesson dropdown */}
                     {isOpen && levelAccessible && (
                       <div style={{ padding: '0 16px 16px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                         <div style={{ paddingTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 8 }}>
@@ -361,22 +348,16 @@ export default function LearnPage() {
                                   display: 'flex', gap: 14, alignItems: 'flex-start',
                                 }}
                               >
-                                {/* Left accent bar */}
                                 <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: lessonToneColor, opacity: done ? 0.7 : 0.5, borderRadius: '16px 0 0 16px' }} />
-
-                                {/* Glow */}
                                 <div className="lp-lesson-glow" style={{ position: 'absolute', top: -30, right: -20, width: 120, height: 120, borderRadius: '50%', background: `radial-gradient(circle,${lessonToneColor}40,transparent 65%)`, opacity: 0, transition: 'opacity .35s', pointerEvents: 'none' }} />
 
-                                {/* Icon badge */}
                                 <div className="lp-lesson-icon" style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 12, background: done ? 'rgba(16,185,129,0.15)' : (accent + '18'), border: `1px solid ${done ? 'rgba(16,185,129,0.25)' : (accent + '28')}`, color: done ? '#34d399' : accent, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform .35s cubic-bezier(0.16,1,0.3,1)', position: 'relative' }}>
                                   {done ? <CheckIcon size={16} /> : !accessible ? <LockIcon size={14} /> : (
                                     <span style={{ fontSize: 13, fontWeight: 700, fontFamily: '"Space Grotesk",sans-serif' }}>{li + 1}</span>
                                   )}
                                 </div>
 
-                                {/* Text content */}
                                 <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
-                                  {/* Title row + tags */}
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
                                     <h3 style={{ fontFamily: '"Space Grotesk",sans-serif', fontSize: 14, fontWeight: 700, color: accessible ? '#f0f4ff' : 'rgba(240,244,255,0.35)', margin: 0, letterSpacing: -0.2, lineHeight: 1.2 }}>
                                       {lesson.title}
@@ -387,7 +368,6 @@ export default function LearnPage() {
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, color: 'rgba(240,244,255,0.3)', fontFamily: '"JetBrains Mono",monospace', padding: '2px 7px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
                                       <ClockIcon /> {lesson.estimatedMinutes}m
                                     </span>
-                                    {/* XP per lesson */}
                                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, fontWeight: 700, fontFamily: '"JetBrains Mono",monospace', padding: '2px 7px', borderRadius: 99, background: done ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.07)', border: `1px solid ${done ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.15)'}`, color: done ? '#fbbf24' : 'rgba(245,158,11,0.55)', flexShrink: 0 }}>
                                       <BoltIcon size={8} /> +{XP_PER_LESSON} XP
                                     </span>
@@ -397,7 +377,6 @@ export default function LearnPage() {
                                     {lesson.description}
                                   </p>
 
-                                  {/* Steps bar + CTA arrow */}
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                     <div style={{ flex: 1 }}>
                                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
@@ -415,7 +394,6 @@ export default function LearnPage() {
                                     )}
                                   </div>
 
-                                  {/* Locked lesson CTA */}
                                   {!accessible && (
                                     <div style={{ marginTop: 10 }}>
                                       {!hasEsp32 ? (
