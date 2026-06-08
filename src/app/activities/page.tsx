@@ -320,9 +320,10 @@ export default function ActivitiesPage() {
     return mf && ms;
   });
 
-const xpMax = mounted
-  ? activities.reduce((sum, a) => sum + (a.reward ?? 0), 0)
-  : 0;
+  const xpMax = 1900
+// const xpMax = mounted
+//   ? activities.reduce((sum, a) => sum + (a.reward ?? 0), 0)
+//   : 0;
   const xpPct = Math.min(100, Math.round(xp / xpMax * 100));
   const lvl   = completedCount === 0 ? 1 : completedCount <= 2 ? 2 : 3;
   const lvlN  = ['', 'Beginner', 'Explorer', 'Maker'][lvl];
