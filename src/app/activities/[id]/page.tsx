@@ -11,6 +11,7 @@ import { runLoop, stopSimulation } from '@/lib/simulatorEngine';
 import { deriveHardwareLayout } from '@/lib/hardwareParser';
 import HardwareBoard from '@/components/HardwareBoard';
 import DynamicWiringSimulator from '@/components/DynamicWiringSimulator';
+import { createClient } from '@/utils/supabase/client';
 type Activity = any;
 
 /* ── tokens — exact dashboard ── */
@@ -535,15 +536,19 @@ export default function ActivityDetailPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [completed, setCompleted] = useState<number[]>([]);
   const [justCompleted, setJustDone] = useState<number | null>(null);
-
+  
   useEffect(() => { initialize(); }, []);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch('/api/activities');
-        const data = await res.json();
-        const act = data.find((a: any) => a.id === activityId);
+        const supabase = createClient();
+      const { data, error } = await supabase
+      .from('activities')
+      .select('*');
+      console.log(data);
+      const tempData = data || [];
+        const act = tempData.find((a: any) => a.id === activityId);
         setActivity(act ?? null);
         const last = getLastStep(activityId);
         setCurrentStep(last);

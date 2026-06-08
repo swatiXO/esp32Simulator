@@ -303,10 +303,12 @@ export default function ActivitiesPage() {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user?.id) await initialize();
-      const res  = await fetch('/api/activities');
-      const data = await res.json();
-      setActivities(data);
-      if (user?.id) setDone(data.filter((a: Activity) => isCompleted(a.id)).length);
+      const { data, error } = await supabase
+      .from('activities')
+      .select('*');
+
+    setActivities(data || []);
+      if (user?.id) setDone(activities.filter((a: Activity) => isCompleted(a.id)).length);
       setLoading(false);
       setMounted(true);
     };
@@ -319,7 +321,6 @@ export default function ActivitiesPage() {
       a.tags.some((t: string) => t.toLowerCase().includes(search.toLowerCase()));
     return mf && ms;
   });
-
   const xpMax = 1900
 // const xpMax = mounted
 //   ? activities.reduce((sum, a) => sum + (a.reward ?? 0), 0)
@@ -328,14 +329,9 @@ export default function ActivitiesPage() {
   const lvl   = completedCount === 0 ? 1 : completedCount <= 2 ? 2 : 3;
   const lvlN  = ['', 'Beginner', 'Explorer', 'Maker'][lvl];
 
-  const safeNav = (a: Activity) => {
-    if (calcLocked(a, activities, mounted, hasEsp32, isCompleted)) {
-      if (!hasEsp32) router.push('/redeem');
-      return;
-    }
-    router.push(`/activities/${a.id}`);
-  };
-
+const safeNav = (a: Activity) => {
+  router.push(`/activities/${a.id}`);
+};
   const next = mounted
     ? activities.find(a => !isCompleted(a.id) && !calcLocked(a, activities, mounted, hasEsp32, isCompleted))
     : null;
