@@ -515,7 +515,7 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
 ══════════════════════════════════ */
 export default function ActivitiesPage() {
   const router = useRouter();
-  const { isCompleted, getProgress, initialize, hasAccess, streak } = useActivityStore();
+  const { isCompleted, getProgress, initialize, hasAccess, streak, xp } = useActivityStore();
   const hasEsp32 = hasAccess('esp32');
 
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -547,8 +547,9 @@ export default function ActivitiesPage() {
     return mf && ms;
   });
 
-  const xp = completedCount * 250;
-  const xpMax = 1000;
+const xpMax = mounted
+  ? activities.reduce((sum, a) => sum + (a.reward ?? 0), 0)
+  : 0;
   const xpPct = Math.min(100, Math.round(xp / xpMax * 100));
   const lvl = completedCount === 0 ? 1 : completedCount <= 2 ? 2 : 3;
   const lvlN = ['', 'Beginner', 'Explorer', 'Maker'][lvl];

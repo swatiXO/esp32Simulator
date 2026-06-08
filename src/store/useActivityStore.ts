@@ -16,6 +16,8 @@ type ActivityStore = {
   totalActivities: number;
   userId: string;
   courseId: string;
+  isIntialized: boolean;
+  xp: number;
 
   // Kit subscription tracking
   redeemedKits: string[];
@@ -39,8 +41,9 @@ type ActivityStore = {
   getLastStep: (activityId: string) => number;
   resetActivity: (activityId: string) => Promise<void>;
   resetAll: () => Promise<void>;
-  _updateStreak: (userId: string) => Promise<void>;
+  _updateStreak: () => Promise<void>;
   _updateOverallProgress: () => Promise<void>;
+  _updateXp : (toBeAdded: number) => Promise<void>;
 };
 
 // ─── Shared upsert payload builder ────────────────────────────────────────────
@@ -50,15 +53,31 @@ const buildPayload = (state: ActivityStore, overrides: Partial<any> = {}) => ({
   completed: state.completed,
   step_progress: state.stepProgress,
   completed_lessons: state.completedLessons,
-  streak: state.streak,
   last_active: state.lastActive,
   user_progress: state.overallProgress,
   ...overrides,
 });
+//Stats
 
 // ─── Store ────────────────────────────────────────────────────────────────────
 
-export const useActivityStore = create<ActivityStore>()((set, get) => ({
+export const useActivityStore = create<ActivityStore>()((set, get) => {
+   const updateStats= async (patch: Partial<{ xp: number; streak: number }>)=>{
+    const supabase = createClient();
+  const { userId } = get();
+
+  await supabase.from('user_stats').upsert(
+    {
+      user_id: userId,
+      user_xp: get().xp,
+      user_streak: get().streak,
+      ...patch,
+    },
+    { onConflict: 'user_id' }
+  );
+
+  };
+ return{ 
   completed: [],
   stepProgress: {},
   completedLessons: [],
@@ -70,6 +89,9 @@ export const useActivityStore = create<ActivityStore>()((set, get) => ({
   redeemedKits: [],
   isCheckingSub: true,
   courseId: '',
+  isIntialized: false,
+  xp: 0,
+
 
   // ── Kit access ──
   hasAccess: (courseId) => get().redeemedKits.includes(courseId),
@@ -141,7 +163,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => ({
       return;
     }
 
-    const [{ data: userData }, { count }, { data: activeCodes }] = await Promise.all([
+    const [{ data: userData }, { count }, { data: activeCodes }, { data: statsData }] = await Promise.all([
       supabase.from('user_activities').select('*').eq('user_id', userId).single(),
       supabase.from('activities').select('id', { count: 'exact', head: true }),
       supabase
@@ -150,8 +172,9 @@ export const useActivityStore = create<ActivityStore>()((set, get) => ({
         .eq('redeemed_by', userId)
         .eq('is_active', true)
         .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`),
+        supabase.from('user_stats').select('*').eq('user_id', userId).single()
+        
     ]);
-
     const redeemedKits = activeCodes ? activeCodes.map((c) => c.kit_type) : [];
 
     if (userData) {
@@ -161,15 +184,19 @@ export const useActivityStore = create<ActivityStore>()((set, get) => ({
         stepProgress: userData.step_progress || {},
         completedLessons: userData.completed_lessons || [],
         overallProgress: userData.user_progress || 0,
-        streak: userData.streak || 0,
+
+          streak: statsData?.user_streak || 0,
+          xp: statsData?.user_xp || 0,
+
         lastActive: userData.last_active || null,
         totalActivities: count ?? 0,
         redeemedKits,
         isCheckingSub: false,
       });
     } else {
-      set({ userId, totalActivities: count ?? 0, redeemedKits, isCheckingSub: false });
+      set({ userId, totalActivities: count ?? 0, redeemedKits, isCheckingSub: false, isIntialized: true });
     }
+
   },
 
   // ── Activity progress ──
@@ -193,19 +220,39 @@ export const useActivityStore = create<ActivityStore>()((set, get) => ({
     await get()._updateOverallProgress();
   },
 
-  markActivityComplete: async (activityId) => {
-    const newCompleted = get().completed.includes(activityId)
-      ? get().completed
-      : [...get().completed, activityId];
-    set({ completed: newCompleted });
-    const supabase = createClient();
-    await supabase
-      .from('user_activities')
-      .upsert(buildPayload(get(), { completed: newCompleted }), { onConflict: 'user_id' });
-    await get()._updateStreak(get().userId);
-    await get()._updateOverallProgress();
-  },
+markActivityComplete: async (activityId) => {
+  const supabase = createClient();
 
+  const newCompleted = get().completed.includes(activityId)
+    ? get().completed
+    : [...get().completed, activityId];
+
+  set({ completed: newCompleted });
+
+  // 1. save progress
+  await supabase
+    .from('user_activities')
+    .upsert(buildPayload(get(), { completed: newCompleted }), {
+      onConflict: 'user_id',
+    });
+
+  // 2. fetch activity reward
+  const { data: activity, error } = await supabase
+    .from('activities')
+    .select('reward')
+    .eq('id', activityId)
+    .single();
+
+  if (error || !activity) {
+    console.error('[reward fetch error]', error);
+    return;
+  }
+
+  // 3. update systems
+  await get()._updateStreak();
+  await get()._updateOverallProgress();
+  await get()._updateXp(activity.reward ?? 0);
+},
   getProgress: (activityId, totalSteps) => {
     if (get().completed.includes(activityId)) return 100;
     const lastStep = get().stepProgress[activityId] ?? 0;
@@ -228,21 +275,46 @@ export const useActivityStore = create<ActivityStore>()((set, get) => ({
         onConflict: 'user_id',
       });
   },
+_updateStreak: async () => {
+  const today = new Date().toISOString().split('T')[0];
+  const { lastActive, streak } = get();
 
-  _updateStreak: async (userId) => {
-    const today = new Date().toISOString().split('T')[0];
-    const { lastActive, streak } = get();
-    if (lastActive === today) return;
-    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
-    const newStreak = lastActive === yesterday ? streak + 1 : 1;
-    set({ lastActive: today, streak: newStreak });
-    const supabase = createClient();
-    await supabase
-      .from('user_activities')
-      .upsert(buildPayload(get(), { last_active: today, streak: newStreak }), {
-        onConflict: 'user_id',
-      });
-  },
+  if (lastActive === today) return;
+
+  const yesterday = new Date(Date.now() - 86400000)
+    .toISOString()
+    .split('T')[0];
+
+  const newStreak = lastActive === yesterday ? streak + 1 : 1;
+
+  set({ lastActive: today, streak: newStreak });
+
+  await updateStats({ streak: newStreak });
+},
+_updateXp: async (toBeAdded: number) => {
+  const supabase = createClient();
+  const userId = get().userId;
+
+  if (!userId) return;
+
+  // 1. get current xp from store
+  const currentXp = get().xp;
+  console.log("current XP: ", currentXp)
+  const newXp = currentXp + toBeAdded;
+
+  // 2. update local state immediately
+  set({ xp: newXp });
+console.log("new XP: ", get().xp)
+  // 3. update DB safely
+  const { error } = await supabase
+    .from('user_stats')
+    .update({ user_xp: newXp })
+    .eq('user_id', userId);
+
+  if (error) {
+    console.error('[XP UPDATE ERROR]', error);
+  }
+},
 
   resetAll: async () => {
     set({ completed: [], stepProgress: {}, completedLessons: [], streak: 0, lastActive: null, overallProgress: 0 });
@@ -260,7 +332,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => ({
       { onConflict: 'user_id' }
     );
   },
-
+ 
   _updateOverallProgress: async () => {
     const total = get().totalActivities;
     const completedCount = get().completed.length;
@@ -271,4 +343,5 @@ export const useActivityStore = create<ActivityStore>()((set, get) => ({
       .from('user_activities')
       .upsert(buildPayload(get(), { user_progress: overall }), { onConflict: 'user_id' });
   },
-}));
+
+}});

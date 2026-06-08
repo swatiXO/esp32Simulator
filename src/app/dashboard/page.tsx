@@ -6,6 +6,8 @@ import Header from '@/components/Header';
 import { ACTIVITIES } from '@/lib/activitiesData';
 import { useAppStore } from '@/store/useAppStore';
 import { useActivityStore } from '@/store/useActivityStore';
+import ActivityStoreInitializer from '@/components/ActivityStoreInitializer'
+
 
 /* ════════════════════════════════════════════════════════════════════════
    BUILD MIND — DASHBOARD
@@ -103,9 +105,8 @@ export default function DashboardPage() {
           .bm-split{ grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:28px; }
         }
       `}</style>
-
+      <ActivityStoreInitializer/>
       <Header />
-
       {/* brand accent line under header */}
       <div style={{ height: 3, width: '100%', background: `linear-gradient(90deg,${BLUE},${VIOLET} 45%,${AMBER})` }} />
 
