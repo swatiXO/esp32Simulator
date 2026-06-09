@@ -2,6 +2,52 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 
+const BG = '#04080f';
+const PANEL = '#0a1422';
+const CARD = '#0f1c30';
+const LINE = 'rgba(255,255,255,0.08)';
+const TEXT = '#ffffff';
+const MUTED = 'rgba(234,240,250,0.55)';
+const FAINT = 'rgba(234,240,250,0.35)';
+const BLUE = '#3b82f6';
+const BLUE_LT = '#93c5fd';
+const AMBER = '#f59e0b';
+const GREEN = '#10b981';
+const GREEN_LT = '#34d399';
+const SANS = '"Space Grotesk",sans-serif';
+const INTER = '"Inter",system-ui,sans-serif';
+const MONO = '"JetBrains Mono",monospace';
+
+function hexA(hex: string, a: number) {
+  if (hex.startsWith('rgba')) return hex;
+  const h = hex.replace('#', '');
+  return `rgba(${parseInt(h.slice(0, 2), 16)},${parseInt(h.slice(2, 4), 16)},${parseInt(h.slice(4, 6), 16)},${a})`;
+}
+
+const Ic = {
+  book: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M4 19V6a2 2 0 0 1 2-2h13v15M4 19a2 2 0 0 0 2 2h13M4 19a2 2 0 0 1 2-2h13" /></svg>,
+  terminal: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><polyline points="4 17 10 11 4 5" /><line x1="12" y1="19" x2="20" y2="19" /></svg>,
+  pin: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="12" cy="10" r="3" /><path d="M12 2a8 8 0 0 0-8 8c0 5.4 8 12 8 12s8-6.6 8-12a8 8 0 0 0-8-8z" /></svg>,
+  bolt: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" /></svg>,
+  check: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M4 12l5 5L20 6" /></svg>,
+  warn: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z" /><path d="M12 9v4M12 17h.01" /></svg>,
+  play: (p: any) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><polygon points="5 3 19 12 5 21 5 3" /></svg>,
+  stop: (p: any) => <svg viewBox="0 0 24 24" fill="currentColor" {...p}><rect x="4" y="4" width="16" height="16" rx="2" /></svg>,
+  refresh: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5" /></svg>,
+  arrow: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M5 12h14M12 5l7 7-7 7" /></svg>,
+  arrowL: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M19 12H5M12 19l-7-7 7-7" /></svg>,
+  ground: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M12 3v9M5 12h14M7.5 16h9M10 20h4" /></svg>,
+  dataArrows: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><path d="M8 7l-5 5 5 5M16 7l5 5-5 5" /></svg>,
+  wire: (p: any) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...p}><circle cx="5" cy="6" r="2" /><circle cx="19" cy="18" r="2" /><path d="M7 6h6a4 4 0 0 1 4 4v6" /></svg>,
+};
+
+function pinMeta(name: string): { icon: (p: any) => JSX.Element; tag: string; color: string } {
+  const n = name.toUpperCase();
+  if (n.includes('GND') || n === '-') return { icon: Ic.ground, tag: 'Ground', color: FAINT };
+  if (['VCC', '3V3', '5V', 'VIN', '+'].some(k => n.includes(k))) return { icon: Ic.bolt, tag: 'Power', color: '#ef4444' };
+  return { icon: Ic.dataArrows, tag: 'Data', color: AMBER };
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 export type WirePin = {
   name: string;
@@ -1488,7 +1534,7 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
   const [cur, setCur] = useState(0);
   const [drawn, setDrawn] = useState<Set<number>>(new Set());
   const [running, setRunning] = useState(false);
-  const [tab, setTab] = useState<'learn' | 'log' | 'serial'>('learn');
+  const [tab, setTab] = useState<'learn' | 'connections' | 'serial'>('learn');
   const [split, setSplit] = useState(52);
   const [logs, setLogs] = useState([{ c: '#48bb78', t: 'ESP32 WROOM-32 ready.', ts: tn() }]);
   const [serial, setSerial] = useState<string[]>([]);
@@ -1615,18 +1661,18 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
   const cName = compLabel(component.type);
 
   return (
-    <div style={{ background: '#0f1117', borderRadius: 14, overflow: 'hidden', border: '1px solid #1e2a3a', fontFamily: 'Inter, system-ui, sans-serif', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}>
+    <div style={{ background: BG, borderRadius: 14, overflow: 'hidden', border: '1px solid #1e2a3a', fontFamily: INTER, boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}>
       <style>{`@keyframes ping{0%{transform:scale(1);opacity:.7}100%{transform:scale(2.4);opacity:0}} @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}`}</style>
-
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');`}</style>
       {/* ── Toolbar ── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: '#0a0f18', borderBottom: '1px solid #1e2a3a' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', background: PANEL, borderBottom: '1px solid #1e2a3a' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ display: 'flex', gap: 6 }}>
             {['#ff5f57', '#febc2e', '#28c840'].map(c => (
               <div key={c} style={{ width: 11, height: 11, borderRadius: '50%', background: c }} />
             ))}
           </div>
-          <div style={{ width: 1, height: 16, background: '#1e2a3a' }} />
+          <div style={{ width: 1, height: 16, background: BG }} />
           <span style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0', letterSpacing: -0.2 }}>
             {cName}
           </span>
@@ -1644,18 +1690,32 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
           )}
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={reset} style={{ background: 'transparent', border: '1px solid #1e2a3a', color: '#64748b', fontSize: 12, fontWeight: 600, padding: '6px 14px', borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit' }}>
-            ↺ Reset
+          <button onClick={reset} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+            background: 'transparent', border: `1px solid ${LINE}`, color: MUTED,
+            fontSize: 12, fontWeight: 600, padding: '8px 16px', borderRadius: 9,
+            cursor: 'pointer', fontFamily: SANS, transition: 'all .15s',
+          }}>
+            <Ic.refresh width={13} height={13} /> Reset
           </button>
           <button onClick={() => { if (allDone || running) setRunning(r => !r); }}
-            style={{ background: running ? '#450a0a' : allDone ? '#052e16' : '#1a2f4a', border: `1px solid ${running ? '#7f1d1d' : allDone ? '#166534' : '#2a4a6a'}`, color: running ? '#f87171' : allDone ? '#4ade80' : '#60a5fa', fontSize: 12, fontWeight: 700, padding: '6px 18px', borderRadius: 8, cursor: allDone || running ? 'pointer' : 'default', opacity: allDone || running ? 1 : .4, fontFamily: 'inherit' }}>
-            {running ? '⏹ Stop' : '▶ Run'}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+              background: running ? hexA('#ef4444', 0.12) : allDone ? `linear-gradient(135deg,#065f46,${GREEN})` : PANEL,
+              border: `1px solid ${running ? hexA('#ef4444', 0.4) : allDone ? 'transparent' : LINE}`,
+              color: running ? '#f87171' : allDone ? '#fff' : FAINT,
+              fontSize: 12, fontWeight: 700, padding: '8px 20px', borderRadius: 9,
+              cursor: allDone || running ? 'pointer' : 'default', opacity: allDone || running ? 1 : .45,
+              fontFamily: SANS, transition: 'all .15s',
+              boxShadow: allDone && !running ? `0 4px 16px -4px ${hexA(GREEN, 0.5)}` : 'none',
+            }}>
+            {running ? <><Ic.stop width={11} height={11} /> Stop</> : <><Ic.play width={11} height={11} /> Run</>}
           </button>
         </div>
       </div>
 
       {/* ── Progress bar ── */}
-      <div style={{ height: 2, background: '#1e2a3a' }}>
+      <div style={{ height: 2, background: BG }}>
         <div style={{ height: '100%', background: allDone ? '#4ade80' : '#3b82f6', width: `${Math.round((connectedCount / Math.max(tw, 1)) * 100)}%`, transition: 'width .4s ease' }} />
       </div>
 
@@ -1663,7 +1723,7 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
       <div ref={contRef} style={{ display: 'flex', height: 460, position: 'relative' }}>
 
         {/* Left: Circuit */}
-        <div style={{ width: `${split}%`, flexShrink: 0, background: '#060a12', overflow: 'hidden' }}>
+        <div style={{ width: `${split}%`, flexShrink: 0, background: BG, overflow: 'hidden' }}>
           <svg viewBox="0 0 720 440" width="100%" height="460" style={{ display: 'block' }} preserveAspectRatio="xMidYMid meet">
             <defs>
               <filter id="esp-shadow">
@@ -1692,19 +1752,18 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
 
         {/* Drag handle */}
         <div onMouseDown={drag}
-          style={{ width: 3, flexShrink: 0, background: '#1e2a3a', cursor: 'col-resize', transition: 'background .15s' }}
+          style={{ width: 3, flexShrink: 0, background: BG, cursor: 'col-resize', transition: 'background .15s' }}
           onMouseEnter={e => (e.currentTarget.style.background = '#3b82f6')}
-          onMouseLeave={e => (e.currentTarget.style.background = '#1e2a3a')}
+          onMouseLeave={e => (e.currentTarget.style.background = BG)}
         />
 
         {/* Right: Panels */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, background: '#0a0f18' }}>
-
-          {/* Tab bar */}
-          <div style={{ display: 'flex', borderBottom: '1px solid #1e2a3a', background: '#0a0f18' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0, minHeight: 0, position: 'relative', background: PANEL }}>          {/* Tab bar */}
+          <div style={{ display: 'flex', borderBottom: '1px solid #1e2a3a', background: PANEL }}>
             {([
-              { id: 'learn', label: 'Learn', icon: '📖' },
-              { id: 'serial', label: 'Serial', icon: '📟' },
+              { id: 'learn', label: 'Learn', icon: Ic.book },
+              { id: 'connections', label: 'Connections', icon: Ic.wire },
+              { id: 'serial', label: 'Serial', icon: Ic.terminal },
             ] as const).map(t => (
               <button key={t.id} onClick={() => setTab(t.id as any)} style={{
                 flex: 1, padding: '11px 8px', fontSize: 12, fontWeight: 600,
@@ -1714,25 +1773,41 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
                 cursor: 'pointer', transition: 'all .15s',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
               }}>
-                {t.icon} {t.label}
+                <t.icon width={13} height={13} /> {t.label}
               </button>
             ))}
           </div>
 
           {/* ── Learn Tab ── */}
           {tab === 'learn' && (
-            <div style={{ flex: 1, overflowY: 'auto', padding: '14px 14px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ position: 'absolute', top: 42, left: 0, right: 0, bottom: 0, overflowY: 'scroll', padding: 14 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
-              {/* Why card */}
-              <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #1e3a5a' }}>
-                <div style={{ padding: '8px 14px', background: '#0d1e38', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z" />
-                  </svg>
-                  <span style={{ fontSize: 11, color: '#60a5fa', fontWeight: 700, letterSpacing: 0.5 }}>Why this connection?</span>
-                </div>
-                <div style={{ padding: '12px 14px', background: '#080f1e' }}>
-                  <p style={{ fontSize: 12, color: '#94b8d8', lineHeight: 1.85, margin: 0 }}>{s.why}</p>
+                {/* Why card */}
+                <div style={{
+                  borderRadius: 14,
+                  border: `1px solid ${hexA(BLUE, 0.22)}`,
+                  background: `linear-gradient(135deg,${hexA(BLUE, 0.08)},transparent 70%)`,
+                  padding: 16,
+                  display: 'flex',
+                  gap: 12,
+                  alignItems: 'flex-start',
+                }}>
+                  <span style={{
+                    width: 36, height: 36, flexShrink: 0, borderRadius: 10,
+                    background: hexA(BLUE, 0.14), color: BLUE_LT,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <Ic.bolt width={17} height={17} />
+                  </span>
+                  <div style={{ minWidth: 0 }}>
+                    <p style={{ margin: '0 0 5px', fontSize: 13, fontWeight: 700, color: BLUE_LT, fontFamily: SANS }}>
+                      Why this connection?
+                    </p>
+                    <p style={{ margin: 0, fontSize: 12.5, color: MUTED, lineHeight: 1.7, fontFamily: INTER }}>
+                      {s.why}
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -1740,8 +1815,10 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
               {s.wire?.hasR && (
                 <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #92400e' }}>
                   <div style={{ padding: '8px 14px', background: '#1c1000', display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 14 }}>⚡</span>
+
+                    <Ic.warn width={14} height={14} style={{ color: AMBER }} />
                     <span style={{ fontSize: 11, color: '#f59e0b', fontWeight: 700, letterSpacing: 0.5 }}>220Ω Resistor Required</span>
+
                   </div>
                   <div style={{ padding: '12px 14px', background: '#0f0a00' }}>
                     <p style={{ fontSize: 12, color: '#b45309', lineHeight: 1.85, margin: 0 }}>
@@ -1753,20 +1830,24 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
               )}
 
               {/* Pin guide */}
-              <div style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #1e2a3a' }}>
-                <div style={{ padding: '8px 14px', background: '#0d1525', display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ fontSize: 14 }}>📌</span>
-                  <span style={{ fontSize: 11, color: '#64748b', fontWeight: 700, letterSpacing: 0.5 }}>Pin Guide</span>
+              <div style={{ borderRadius: 14, overflow: 'hidden', border: `1px solid ${LINE}`, background: CARD }}>
+                <div style={{ padding: '12px 18px', borderBottom: `1px solid ${LINE}`, display: 'flex', alignItems: 'center', gap: 9 }}>
+                  <Ic.pin width={13} height={13} style={{ color: FAINT }} />
+                  <span style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: '0.1em', fontFamily: SANS, textTransform: 'uppercase' }}>Pin Guide</span>
                 </div>
-                <div style={{ padding: '10px 14px', background: '#080f1e', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                <div style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {(CPINS[component.type] || []).filter(p => p.name !== 'NC').map(p => {
+                    const meta = pinMeta(p.name);
                     const isDone = dp.has(p.name.toUpperCase());
                     return (
-                      <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 10px', borderRadius: 8, background: isDone ? `${p.color}18` : '#0d1525', border: `1px solid ${isDone ? p.color + '40' : '#1e2a3a'}`, transition: 'all .3s' }}>
-                        <div style={{ width: 10, height: 10, borderRadius: '50%', background: p.color, boxShadow: isDone ? `0 0 7px ${p.color}` : 'none', flexShrink: 0, transition: 'all .3s' }} />
-                        <span style={{ fontSize: 12, color: isDone ? '#f1f5f9' : '#7dd3fc', fontWeight: 700, minWidth: 40 }}>{p.name}</span>
-                        <span style={{ fontSize: 11, color: '#4a6a8a', flex: 1, lineHeight: 1.4 }}>{p.tip}</span>
-                        {isDone && <span style={{ fontSize: 13, color: '#4ade80', flexShrink: 0 }}>✓</span>}
+                      <div key={p.name} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 14px', borderRadius: 11, background: isDone ? hexA(GREEN, 0.07) : PANEL, border: `1px solid ${isDone ? hexA(GREEN, 0.25) : LINE}`, transition: 'all .3s' }}>
+                        <span style={{ width: 36, height: 36, flexShrink: 0, borderRadius: 10, background: hexA(meta.color, 0.15), color: meta.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <meta.icon width={17} height={17} />
+                        </span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: TEXT, fontFamily: SANS, minWidth: 50, flexShrink: 0 }}>{p.name}</span>
+                        <span style={{ fontSize: 9.5, fontWeight: 700, padding: '4px 10px', borderRadius: 99, background: hexA(meta.color, 0.14), color: meta.color, fontFamily: INTER, flexShrink: 0 }}>{meta.tag}</span>
+                        <span style={{ fontSize: 11.5, color: MUTED, flex: 1, lineHeight: 1.5, fontFamily: INTER, textAlign: 'right', paddingLeft: 8 }}>{p.tip}</span>
+                        {isDone && <Ic.check width={14} height={14} style={{ color: GREEN_LT, flexShrink: 0 }} />}
                       </div>
                     );
                   })}
@@ -1778,7 +1859,7 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
 
           {/* ── Serial Tab ── */}
           {(tab as string) === 'serial' && (
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#020408', overflow: 'hidden' }}>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: BG, overflow: 'hidden' }}>
               <div style={{ padding: '8px 14px', borderBottom: '1px solid #0a1a0a', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ display: 'flex', gap: 4 }}>
@@ -1786,13 +1867,13 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
                       <div key={c} style={{ width: 8, height: 8, borderRadius: '50%', background: c }} />
                     ))}
                   </div>
-                  <span style={{ fontSize: 10, color: '#1a3a1a', fontFamily: 'monospace', fontWeight: 600, letterSpacing: 0.5 }}>
+                  <span style={{ fontSize: 10, color: '#1a3a1a', fontFamily: MONO, fontWeight: 600, letterSpacing: 0.5 }}>
                     115200 BAUD · {component.type}
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: running ? '#4ade80' : '#1a3a1a', boxShadow: running ? '0 0 5px #4ade80' : 'none', animation: running ? 'pulse 1.5s infinite' : 'none' }} />
-                  <span style={{ fontSize: 10, color: running ? '#4ade80' : '#1a3a1a', fontFamily: 'monospace', fontWeight: 700 }}>
+                  <span style={{ fontSize: 10, color: running ? '#4ade80' : '#1a3a1a', fontFamily: MONO, fontWeight: 700 }}>
                     {running ? 'LIVE' : 'IDLE'}
                   </span>
                 </div>
@@ -1800,62 +1881,61 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
               <div ref={serEl} style={{ flex: 1, overflowY: 'auto', padding: '10px 14px' }}>
                 {serial.length === 0 ? (
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 10, opacity: 0.4 }}>
-                    <span style={{ fontSize: 28 }}>📟</span>
-                    <span style={{ fontSize: 12, color: '#1a3a1a', fontFamily: 'monospace' }}>
+                    <span style={{ fontSize: 28 }}><Ic.terminal width={26} height={26} /></span>
+                    <span style={{ fontSize: 12, color: '#1a3a1a', fontFamily: MONO }}>
                       {allDone ? 'Click ▶ Run to start...' : 'Wire all pins first...'}
                     </span>
                   </div>
                 ) : serial.map((l, i) => (
                   <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', marginBottom: 4 }}>
-                    <span style={{ color: '#1a4a1a', fontSize: 11, fontFamily: 'monospace', flexShrink: 0, marginTop: 2 }}>›</span>
-                    <span style={{ fontSize: 11, lineHeight: 1.8, fontFamily: 'monospace', color: i === serial.length - 1 ? '#4ade80' : '#16a34a' }}>{l}</span>
+                    <span style={{ color: '#1a4a1a', fontSize: 11, fontFamily: MONO, flexShrink: 0, marginTop: 2 }}>›</span>
+                    <span style={{ fontSize: 11, lineHeight: 1.8, fontFamily: MONO, color: i === serial.length - 1 ? '#4ade80' : '#16a34a' }}>{l}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
-          {/* ── Connections (always visible) ── */}
-          <div style={{ borderTop: '1px solid #1e2a3a', background: '#0a0f18', padding: '10px 14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <span style={{ fontSize: 11, color: '#64748b', fontWeight: 700, letterSpacing: 0.5 }}>CONNECTIONS</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ height: 4, width: 64, borderRadius: 99, background: '#1e2a3a', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', borderRadius: 99, background: connectedCount === tw ? '#4ade80' : '#3b82f6', width: `${tw > 0 ? (connectedCount / tw) * 100 : 0}%`, transition: 'width .4s ease' }} />
-                </div>
-                <span style={{ fontSize: 11, color: connectedCount === tw ? '#4ade80' : '#60a5fa', fontWeight: 700 }}>{connectedCount}/{tw}</span>
+
+          {/* ── Connections Tab ── */}
+          {(tab as string) === 'connections' && (
+            <div style={{ maxHeight: 400, overflowY: 'auto', padding: 14 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <span style={{ fontSize: 11, color: MUTED, fontWeight: 700, letterSpacing: '0.08em', fontFamily: SANS, textTransform: 'uppercase' }}>Connections Summary</span>
+                <span style={{ fontSize: 12, color: connectedCount === tw ? GREEN_LT : BLUE_LT, fontWeight: 700, fontFamily: SANS }}>{connectedCount}/{tw}</span>
               </div>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {steps.filter(st => st.wire).map((st, i) => {
+                  if (!st.wire) return null;
+                  const meta = pinMeta(st.wire.cpName);
+                  const done = dp.has(st.wire.cpName.toUpperCase());
+                  return (
+                    <div key={i} style={{ flex: '1 1 80px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, padding: '12px 8px', borderRadius: 11, background: done ? hexA(meta.color, 0.08) : PANEL, border: `1px solid ${done ? hexA(meta.color, 0.3) : LINE}`, transition: 'all .3s' }}>
+                      <span style={{ color: done ? meta.color : FAINT }}><meta.icon width={20} height={20} /></span>
+                      <span style={{ fontSize: 9.5, color: FAINT, fontFamily: INTER, fontWeight: 600 }}>{st.wire.cpName}</span>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: done ? TEXT : MUTED, fontFamily: SANS }}>{st.wire.epKey}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <p style={{ margin: '14px 0 0', textAlign: 'center', fontSize: 11, color: FAINT, fontFamily: INTER }}>
+                {connectedCount === tw ? 'All connections complete' : 'Make all connections to continue'}
+              </p>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {steps.filter(st => st.wire).map((st, i) => {
-                if (!st.wire) return null;
-                const done = dp.has(st.wire.cpName.toUpperCase());
-                return (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '5px 8px', borderRadius: 7, background: done ? `${st.wire.color}14` : 'transparent', transition: 'background .3s' }}>
-                    <div style={{ width: 22, height: 5, borderRadius: 3, background: done ? st.wire.color : '#1e2a3a', boxShadow: done ? `0 0 6px ${st.wire.color}` : 'none', flexShrink: 0, transition: 'all .3s' }} />
-                    {st.wire.hasR && (
-                      <span style={{ fontSize: 8, color: '#f59e0b', background: '#1c1000', padding: '1px 5px', borderRadius: 3, border: '1px solid #92400e', fontWeight: 700, flexShrink: 0 }}>Ω</span>
-                    )}
-                    <span style={{ fontSize: 11, fontFamily: 'monospace', fontWeight: 700, color: done ? '#f1f5f9' : '#334155', flexShrink: 0 }}>{st.wire.cpName}</span>
-                    <span style={{ fontSize: 10, color: '#334155', flexShrink: 0 }}>→</span>
-                    <span style={{ fontSize: 11, fontFamily: 'monospace', color: done ? '#60a5fa' : '#334155', flex: 1 }}>{st.wire.epKey}</span>
-                    <span style={{ fontSize: 13, color: done ? '#4ade80' : '#1e2a3a', transition: 'color .3s' }}>{done ? '✓' : '○'}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          )}
 
         </div>
       </div>
 
       {/* ── Bottom Bar ── */}
-      <div style={{ background: '#0a0f18', borderTop: '1px solid #1e2a3a', padding: '12px 16px' }}>
+      <div style={{ background: PANEL, borderTop: '1px solid #1e2a3a', padding: '12px 16px' }}>
 
         {/* All done banner */}
         {allDone && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'rgba(74,222,128,0.07)', border: '1px solid rgba(74,222,128,0.2)', borderRadius: 10, marginBottom: 12 }}>
-            <span style={{ fontSize: 16 }}>✅</span>
+            <span style={{ fontSize: 16 }}>
+              <Ic.check width={15} height={15} style={{ color: GREEN_LT }} />
+            </span>
             <span style={{ fontSize: 12, color: '#4ade80', fontWeight: 600 }}>All connections verified — click ▶ Run to simulate!</span>
           </div>
         )}
@@ -1872,10 +1952,10 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
 
         {/* Wire indicator */}
         {s.wire && !allDone && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, padding: '6px 10px', background: '#0d1525', borderRadius: 8 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, padding: '6px 10px', background: BG, borderRadius: 8 }}>
             <div style={{ height: 5, width: 28, borderRadius: 3, background: s.wire.color, boxShadow: `0 0 8px ${s.wire.color}`, flexShrink: 0 }} />
             {s.wire.hasR && (
-              <span style={{ fontSize: 10, color: '#f59e0b', background: '#1c1000', padding: '2px 8px', borderRadius: 5, border: '1px solid #92400e', fontWeight: 700 }}>⚡ 220Ω</span>
+              <span style={{ fontSize: 10, color: '#f59e0b', background: '#1c1000', padding: '2px 8px', borderRadius: 5, border: '1px solid #92400e', fontWeight: 700 }}> <Ic.bolt width={9} height={9} /> 220Ω </span>
             )}
             <span style={{ fontSize: 11, color: '#64748b' }}>{s.wire.label}</span>
           </div>
@@ -1884,7 +1964,7 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
         {/* Progress dots */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 12 }}>
           {steps.map((_, i) => (
-            <div key={i} style={{ height: 4, borderRadius: 99, transition: 'all .3s', width: i === cur ? 22 : 4, background: drawn.has(i) ? '#4ade80' : i === cur ? '#3b82f6' : '#1e2a3a', boxShadow: i === cur ? '0 0 8px #3b82f6' : 'none' }} />
+            <div key={i} style={{ height: 4, borderRadius: 99, transition: 'all .3s', width: i === cur ? 22 : 4, background: drawn.has(i) ? '#4ade80' : i === cur ? '#3b82f6' : BG, boxShadow: i === cur ? '0 0 8px #3b82f6' : 'none' }} />
           ))}
         </div>
 
@@ -1896,12 +1976,35 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
             setDrawn(p => { const s = new Set(p); s.delete(prevIdx); return s; });
             setCur(prevIdx);
           }} disabled={cur === 0}
-            style={{ background: 'transparent', border: '1px solid #1e2a3a', color: '#64748b', fontSize: 12, fontWeight: 600, padding: '9px 18px', borderRadius: 10, cursor: cur === 0 ? 'default' : 'pointer', opacity: cur === 0 ? .25 : 1, fontFamily: 'inherit' }}>
-            ← Back
+            onMouseEnter={e => { if (cur !== 0) e.currentTarget.style.background = 'rgba(255,255,255,0.09)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.05)'; e.currentTarget.style.transform = 'none'; }}
+            onMouseDown={e => { if (cur !== 0) { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.transform = 'scale(0.97)'; } }}
+            onMouseUp={e => { if (cur !== 0) { e.currentTarget.style.background = 'rgba(255,255,255,0.09)'; e.currentTarget.style.transform = 'none'; } }}
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              background: 'rgba(255,255,255,0.05)', border: `1px solid ${LINE}`, color: MUTED,
+              fontSize: 13, fontWeight: 600, padding: '11px 20px', borderRadius: 11,
+              cursor: cur === 0 ? 'default' : 'pointer', opacity: cur === 0 ? .3 : 1,
+              fontFamily: SANS, transition: 'transform .1s, background .15s',
+            }}>
+            <Ic.arrowL width={14} height={14} /> Back
           </button>
           <button onClick={next} disabled={isLast && allDone}
-            style={{ flex: 1, background: isLast && allDone ? 'transparent' : s.wire && !drawn.has(cur) ? '#1d4ed8' : '#1a2f4a', border: `1px solid ${isLast && allDone ? '#1e2a3a' : s.wire && !drawn.has(cur) ? '#2563eb' : '#2a4a6a'}`, color: isLast && allDone ? '#334155' : '#f1f5f9', fontSize: 12, fontWeight: 700, padding: '9px 0', borderRadius: 10, cursor: isLast && allDone ? 'default' : 'pointer', opacity: isLast && allDone ? .3 : 1, fontFamily: 'inherit', transition: 'all .15s', boxShadow: s.wire && !drawn.has(cur) && !isLast ? '0 0 16px #1d4ed855' : 'none' }}>
-            {isLast && allDone ? '✓ Complete' : s.wire && !drawn.has(cur) ? 'Connect Wire →' : 'Next →'}
+            style={{
+              flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7,
+              background: isLast && allDone ? 'transparent' : s.wire && !drawn.has(cur) ? `linear-gradient(135deg,#1a3a8a,${BLUE})` : PANEL,
+              border: `1px solid ${isLast && allDone ? LINE : s.wire && !drawn.has(cur) ? 'transparent' : LINE}`,
+              color: isLast && allDone ? FAINT : '#fff',
+              fontSize: 13, fontWeight: 700, padding: '11px 0', borderRadius: 11,
+              cursor: isLast && allDone ? 'default' : 'pointer', opacity: isLast && allDone ? .4 : 1,
+              fontFamily: SANS, transition: 'all .15s',
+              boxShadow: s.wire && !drawn.has(cur) && !isLast ? `0 4px 16px -4px ${hexA(BLUE, 0.6)}` : 'none',
+            }}>
+            {isLast && allDone
+              ? <><Ic.check width={14} height={14} /> Complete</>
+              : s.wire && !drawn.has(cur)
+                ? <>Connect Wire <Ic.arrow width={14} height={14} /></>
+                : <>Next <Ic.arrow width={14} height={14} /></>}
           </button>
         </div>
       </div>

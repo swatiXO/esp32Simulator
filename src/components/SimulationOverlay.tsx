@@ -4,6 +4,21 @@ import React from 'react';
 import type { Block } from '@/types';
 import { BLOCK_COLOURS } from '@/lib/blockCatalogue';
 
+const BG = '#04080f';
+const PANEL = '#0a1422';
+const CARD = '#0f1c30';
+const LINE = 'rgba(255,255,255,0.08)';
+const LINE_S = 'rgba(255,255,255,0.05)';
+const TEXT = '#f0f4ff';
+const MUTED = 'rgba(240,244,255,0.55)';
+const FAINT = 'rgba(240,244,255,0.3)';
+const GREEN = '#10b981';
+const GREEN_LT = '#34d399';
+const BLUE = '#3b82f6';
+const SANS = '"Space Grotesk",sans-serif';
+const INTER = '"Inter",system-ui,sans-serif';
+const MONO = '"JetBrains Mono",monospace';
+
 interface SimulationOverlayProps {
   isOpen: boolean;
   onContinue: () => void;
@@ -22,45 +37,92 @@ export default function SimulationOverlay({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-[90vw] max-w-5xl max-h-[85vh] bg-[#EDEDED] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 50,
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)',
+      animation: 'so-fade .2s ease both',
+    }}>
+      <style>{`
+        @keyframes so-fade { from{opacity:0} to{opacity:1} }
+        @keyframes so-rise { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+      `}</style>
+
+      <div style={{
+        position: 'relative', width: '90vw', maxWidth: 1024, maxHeight: '85vh',
+        background: BG, borderRadius: 18, border: `1px solid ${LINE}`,
+        boxShadow: '0 24px 70px rgba(0,0,0,0.6)',
+        display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        animation: 'so-rise .3s cubic-bezier(0.16,1,0.3,1) both',
+      }}>
 
         {/* Header */}
-        <div className="flex items-center justify-between bg-white border-b border-gray-200 px-6 py-4 flex-shrink-0">
-          <div>
-            <div className="flex items-center gap-2 mb-0.5">
-              <span className="text-green-500 text-lg">✅</span>
-              <h2 className="text-base font-bold text-[#2E4862]">Challenge Complete!</h2>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: PANEL, borderBottom: `1px solid ${LINE}`, padding: '16px 22px', flexShrink: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 11 }}>
+            <span style={{
+              width: 34, height: 34, borderRadius: 10, flexShrink: 0,
+              background: 'rgba(16,185,129,0.14)', color: GREEN,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12l5 5L20 6" /></svg>
+            </span>
+            <div>
+              <h2 style={{ margin: '0 0 2px', fontSize: 15, fontWeight: 700, color: TEXT, fontFamily: SANS }}>Challenge Complete!</h2>
+              <p style={{ margin: 0, fontSize: 11.5, color: MUTED, fontFamily: INTER }}>{title}</p>
             </div>
-            <p className="text-xs text-gray-500">{title}</p>
           </div>
           <button
             type="button"
             onClick={onContinue}
-            className="bg-[#2E4862] hover:bg-[#3a5a7a] text-white text-sm font-semibold px-5 py-2 rounded-lg transition-colors"
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = `0 8px 22px -6px ${BLUE}99`; }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = `0 4px 16px -6px ${BLUE}80`; }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 7,
+              background: `linear-gradient(135deg,#1a3a8a,${BLUE})`, color: '#fff',
+              fontSize: 13, fontWeight: 700, fontFamily: SANS,
+              padding: '9px 20px', borderRadius: 10, border: 'none', cursor: 'pointer',
+              boxShadow: `0 4px 16px -6px ${BLUE}80`, transition: 'transform .15s, box-shadow .15s',
+            }}
           >
-            Continue →
+            Continue
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
           </button>
         </div>
 
         {/* Body */}
-        <div className="flex flex-1 gap-4 p-5 overflow-hidden">
+        <div style={{ display: 'flex', flex: 1, gap: 16, padding: 20, overflow: 'hidden' }}>
 
           {/* Left: read-only blocks */}
-          <div className="w-[220px] flex-shrink-0 flex flex-col">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-gray-400 mb-2 px-1">
+          <div style={{ width: 220, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+            <p style={{
+              margin: '0 0 10px', padding: '0 4px',
+              fontSize: 9.5, fontWeight: 700, color: FAINT, fontFamily: MONO,
+              textTransform: 'uppercase', letterSpacing: '0.12em',
+            }}>
               Your Solution
             </p>
-            <div className="flex-1 overflow-y-auto flex flex-col gap-1.5">
+            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
               {blocks.map((block) => {
-                const colourClass = BLOCK_COLOURS[block.type] ?? 'bg-gray-400';
+                const colour = BLOCK_COLOURS[block.type] ?? '#64748b';
+                const isHex = typeof colour === 'string' && colour.startsWith('#');
                 return (
                   <div
                     key={block.id}
-                    className={`${colourClass} text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-2`}
+                    className={isHex ? undefined : colour}
+                    style={{
+                      ...(isHex ? { background: colour } : {}),
+                      color: '#fff', padding: '9px 12px', borderRadius: 11,
+                      fontSize: 12, fontWeight: 600, fontFamily: SANS,
+                      display: 'flex', alignItems: 'center', gap: 8,
+                    }}
                   >
                     <span>{block.icon}</span>
-                    <span className="truncate">{block.label.replace(/<[^>]+>/g, '…')}</span>
+                    <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {block.label.replace(/<[^>]+>/g, '…')}
+                    </span>
                   </div>
                 );
               })}
@@ -68,10 +130,10 @@ export default function SimulationOverlay({
           </div>
 
           {/* Divider */}
-          <div className="w-px bg-gray-200 flex-shrink-0" />
+          <div style={{ width: 1, background: LINE, flexShrink: 0 }} />
 
           {/* Right: simulation */}
-          <div className="flex-1 overflow-y-auto">
+          <div style={{ flex: 1, overflowY: 'auto' }}>
             {children}
           </div>
 

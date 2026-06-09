@@ -21,54 +21,54 @@ import { LECTURES_STRUCTURED_DATA } from '@/lib/lecturesStructuredData';
 
 /* ── shared design tokens ── */
 const T = {
-  bg:          '#04080f',
-  bgSidebar:   '#060d19',
-  bgCard:      'rgba(255,255,255,0.025)',
-  bgCardHov:   'rgba(255,255,255,0.04)',
-  border:      'rgba(255,255,255,0.07)',
-  borderHov:   'rgba(255,255,255,0.13)',
+  bg: '#04080f',
+  bgSidebar: '#060d19',
+  bgCard: 'rgba(255,255,255,0.025)',
+  bgCardHov: 'rgba(255,255,255,0.04)',
+  border: 'rgba(255,255,255,0.07)',
+  borderHov: 'rgba(255,255,255,0.13)',
   textPrimary: '#f0f4ff',
-  textSec:     'rgba(240,244,255,0.55)',
-  textMuted:   'rgba(240,244,255,0.3)',
-  textTiny:    'rgba(240,244,255,0.18)',
-  blue:        '#3b82f6',
-  amber:       '#f59e0b',
-  green:       '#10b981',
-  mono:        '"JetBrains Mono", monospace',
-  sans:        '"Inter", sans-serif',
-  display:     '"Space Grotesk", sans-serif',
+  textSec: 'rgba(240,244,255,0.55)',
+  textMuted: 'rgba(240,244,255,0.3)',
+  textTiny: 'rgba(240,244,255,0.18)',
+  blue: '#3b82f6',
+  amber: '#f59e0b',
+  green: '#10b981',
+  mono: '"JetBrains Mono", monospace',
+  sans: '"Inter", sans-serif',
+  display: '"Space Grotesk", sans-serif',
 };
 
-const LEVEL_ACCENTS = ['#3b82f6','#f59e0b','#10b981','#8b5cf6','#ef4444'];
+const LEVEL_ACCENTS = ['#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#ef4444'];
 const getAccent = (id: number) => LEVEL_ACCENTS[(id - 1) % LEVEL_ACCENTS.length];
 
 const STEP_TYPE_LABEL: Record<string, string> = {
-  content:   'Read',
-  concept:   'Concept',
-  explore:   'Explore',
+  content: 'Read',
+  concept: 'Concept',
+  explore: 'Explore',
   challenge: 'Challenge',
-  mapping:   'Mapping',
+  mapping: 'Mapping',
 };
 
 /* ── inline SVG icons ── */
 const ChevronLeft = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="15 18 9 12 15 6"/>
+    <polyline points="15 18 9 12 15 6" />
   </svg>
 );
 const Check = ({ size = 12 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12"/>
+    <polyline points="20 6 9 17 4 12" />
   </svg>
 );
 const Lock = () => (
   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+    <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
   </svg>
 );
 const ArrowRight = () => (
   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M5 12h14M12 5l7 7-7 7"/>
+    <path d="M5 12h14M12 5l7 7-7 7" />
   </svg>
 );
 
@@ -124,15 +124,15 @@ function NotFoundScreen({ onBack }: { onBack: () => void }) {
 export default function LessonPage() {
   const router = useRouter();
   const params = useParams<{ levelId: string; lessonId: string }>();
-  const blocks    = useAppStore((s) => s.blocks);
+  const blocks = useAppStore((s) => s.blocks);
   const clearBlocks = useAppStore((s) => s.clearBlocks);
 
-  const levelId  = Number(params.levelId);
+  const levelId = Number(params.levelId);
   const lessonId = params.lessonId;
-  const accent   = getAccent(levelId);
+  const accent = getAccent(levelId);
 
   const { hasAccess, isCheckingSub, initialize, markLessonComplete } = useActivityStore();
-  const hasEsp32      = hasAccess('esp32');
+  const hasEsp32 = hasAccess('esp32');
   const isFreePreview = levelId === 1 && lessonId === '1-1';
 
   React.useEffect(() => { initialize(); }, [initialize]);
@@ -145,23 +145,23 @@ export default function LessonPage() {
     }
   }, [isCheckingSub, hasEsp32, levelId, lessonId, isFreePreview, router]);
 
-  const level  = LEVELS.find((l) => l.id === levelId);
+  const level = LEVELS.find((l) => l.id === levelId);
   const lesson = level?.lessons.find((l) => l.id === lessonId);
 
   const [currentStepIndex, setCurrentStepIndex] = React.useState(0);
-  const [completedSteps,   setCompletedSteps]   = React.useState<Set<number>>(new Set());
-  const [challengeError,   setChallengeError]   = React.useState<string | null>(null);
-  const [challengePassed,  setChallengePassed]  = React.useState(false);
-  const [contentReady,     setContentReady]     = React.useState(false);
-  const [contentWarning,   setContentWarning]   = React.useState(false);
-  const [quizReady,        setQuizReady]        = React.useState(false);
+  const [completedSteps, setCompletedSteps] = React.useState<Set<number>>(new Set());
+  const [challengeError, setChallengeError] = React.useState<string | null>(null);
+  const [challengePassed, setChallengePassed] = React.useState(false);
+  const [contentReady, setContentReady] = React.useState(false);
+  const [contentWarning, setContentWarning] = React.useState(false);
+  const [quizReady, setQuizReady] = React.useState(false);
 
-  const totalSteps  = lesson?.steps.length ?? 0;
+  const totalSteps = lesson?.steps.length ?? 0;
   const currentStep = lesson?.steps[currentStepIndex];
 
-  const lectureKey  = `${levelId}-${lessonId}-${currentStep?.id}`;
+  const lectureKey = `${levelId}-${lessonId}-${currentStep?.id}`;
   const stepLecture = LECTURES_STRUCTURED_DATA[lectureKey];
-  const hasQuiz     = !!(stepLecture?.quiz && stepLecture.quiz.length > 0);
+  const hasQuiz = !!(stepLecture?.quiz && stepLecture.quiz.length > 0);
   const progressPct = totalSteps > 0 ? ((currentStepIndex + 1) / totalSteps) * 100 : 0;
 
   React.useEffect(() => {
@@ -175,12 +175,12 @@ export default function LessonPage() {
 
   React.useEffect(() => {
     const onLecture = () => setContentReady(true);
-    const onQuiz    = () => setQuizReady(true);
+    const onQuiz = () => setQuizReady(true);
     window.addEventListener('lecture-complete', onLecture);
-    window.addEventListener('quiz-complete',    onQuiz);
+    window.addEventListener('quiz-complete', onQuiz);
     return () => {
       window.removeEventListener('lecture-complete', onLecture);
-      window.removeEventListener('quiz-complete',    onQuiz);
+      window.removeEventListener('quiz-complete', onQuiz);
     };
   }, []);
 
@@ -193,7 +193,7 @@ export default function LessonPage() {
 
   const validateChallenge = (): boolean => {
     if (!currentStep.challengeBlocks) return true;
-    const studentTypes  = blocks.map((b) => b.type);
+    const studentTypes = blocks.map((b) => b.type);
     const requiredTypes = currentStep.challengeBlocks;
     setChallengePassed(false);
 
@@ -203,7 +203,7 @@ export default function LessonPage() {
       const ok = studentTypes.length === requiredTypes.length && requiredTypes.every((t, i) => studentTypes[i] === t);
       if (!ok) { setChallengeError('Good start! Try reordering your blocks — check the hint for the right sequence.'); return false; }
     } else {
-      const blockNames: Record<string, string> = { pinMode:'Set Pin Mode', dw_high:'Turn ON LED', dw_low:'Turn OFF LED', delay_ms:'Wait (ms)', delay_sec:'Wait (seconds)', serial_begin:'Start Serial', btn_read:'Read Button', if_block:'If condition', end_if:'End If' };
+      const blockNames: Record<string, string> = { pinMode: 'Set Pin Mode', dw_high: 'Turn ON LED', dw_low: 'Turn OFF LED', delay_ms: 'Wait (ms)', delay_sec: 'Wait (seconds)', serial_begin: 'Start Serial', btn_read: 'Read Button', if_block: 'If condition', end_if: 'End If' };
       const missing = requiredTypes.filter(r => {
         if (r === 'delay_ms' || r === 'delay_sec') return !studentTypes.includes('delay_ms') && !studentTypes.includes('delay_sec');
         return !studentTypes.includes(r);
@@ -274,95 +274,117 @@ export default function LessonPage() {
             borderRight: `1px solid ${T.border}`,
           }}>
             {/* Lesson meta */}
-            <div style={{ padding: '18px 16px 14px', borderBottom: `1px solid ${T.border}` }}>
+            <div style={{ padding: '16px 16px 16px', borderBottom: `1px solid ${T.border}` }}>
               <button
                 type="button"
                 onClick={() => router.push('/learn')}
                 className="lp-back-btn"
                 style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
-                  background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                  fontSize: 11, color: T.textMuted, fontFamily: T.sans, transition: 'color .15s',
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: 'rgba(255,255,255,0.02)', border: `1px solid ${T.border}`,
+                  cursor: 'pointer', padding: '8px 11px', borderRadius: 10, marginBottom: 16,
+                  fontSize: 11.5, fontWeight: 600, color: T.textSec, fontFamily: T.sans, transition: 'background .15s, color .15s',
                 }}
               >
                 <ChevronLeft /> All levels
               </button>
 
-              <h2 style={{ fontFamily: T.display, fontSize: 14, fontWeight: 700, color: T.textPrimary, margin: '12px 0 4px', letterSpacing: -0.2, lineHeight: 1.3 }}>
+              <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 700, color: accent, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.14em' }}>Lesson</p>
+              <h2 style={{ fontFamily: T.display, fontSize: 15, fontWeight: 700, color: T.textPrimary, margin: '0 0 6px', letterSpacing: -0.2, lineHeight: 1.3 }}>
                 {lesson.title}
               </h2>
-              <p style={{ fontSize: 11.5, color: T.textSec, margin: '0 0 12px', lineHeight: 1.55 }}>
+              <p style={{ fontSize: 11.5, color: T.textSec, margin: '0 0 14px', lineHeight: 1.55 }}>
                 {lesson.description}
               </p>
 
-              {/* Progress bar */}
-              <div style={{ height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.06)', marginBottom: 6 }}>
-                <div style={{
-                  height: 3, borderRadius: 99, background: accent,
-                  width: `${progressPct}%`, transition: 'width .5s cubic-bezier(0.16,1,0.3,1)',
-                }} />
+              {/* Progress card */}
+              <div style={{ padding: '11px 12px', borderRadius: 12, background: 'rgba(255,255,255,0.02)', border: `1px solid ${T.border}` }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <span style={{ fontSize: 9.5, fontWeight: 600, color: T.textMuted, fontFamily: T.mono, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Progress</span>
+                  <span style={{ fontSize: 12.5, fontWeight: 800, color: accent, fontFamily: T.display, lineHeight: 1 }}>{Math.round(progressPct)}%</span>
+                </div>
+                <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%', borderRadius: 99, background: accent,
+                    width: `${progressPct}%`, transition: 'width .5s cubic-bezier(0.16,1,0.3,1)',
+                    boxShadow: `0 0 8px ${accent}80`,
+                  }} />
+                </div>
+                <p style={{ margin: '7px 0 0', fontSize: 9.5, color: T.textMuted, fontFamily: T.mono }}>
+                  {currentStepIndex + 1} / {totalSteps} steps
+                </p>
               </div>
-              <p style={{ fontSize: 10, color: T.textMuted, fontFamily: T.mono }}>
-                {currentStepIndex + 1} / {totalSteps} steps
-              </p>
             </div>
 
             {/* Step list */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '10px 10px' }}>
+            <div style={{ flex: 1, overflowY: 'auto', padding: '14px 14px' }}>
               {lesson.steps.map((step, i) => {
-                const isActive    = i === currentStepIndex;
+                const isActive = i === currentStepIndex;
                 const isCompleted = completedSteps.has(i);
-                const isLocked    = i > completedSteps.size;
+                const isLocked = i > completedSteps.size;
 
                 return (
-                  <button
-                    key={step.id}
-                    type="button"
-                    disabled={isLocked}
-                    onClick={() => setCurrentStepIndex(i)}
-                    className="lp-step-btn"
-                    style={{
-                      width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '9px 11px', borderRadius: 10, marginBottom: 4, textAlign: 'left',
-                      cursor: isLocked ? 'not-allowed' : 'pointer',
-                      border: `1px solid ${isActive ? accent + '35' : 'transparent'}`,
-                      background: isActive ? (accent + '12') : 'transparent',
-                      opacity: isLocked ? 0.35 : 1,
-                      transition: 'all .18s',
-                    }}
-                  >
-                    {/* Icon badge */}
-                    <div style={{
-                      width: 24, height: 24, borderRadius: 7, flexShrink: 0,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      background: isActive   ? accent
-                                : isCompleted ? 'rgba(16,185,129,0.15)'
-                                : isLocked   ? 'rgba(255,255,255,0.04)'
-                                :              'rgba(255,255,255,0.05)',
-                      border: `1px solid ${isActive ? accent + '50' : isCompleted ? 'rgba(16,185,129,0.25)' : T.border}`,
-                      color: isActive ? '#fff' : isCompleted ? '#34d399' : T.textTiny,
-                      transition: 'all .18s',
-                    }}>
-                      {isCompleted ? <Check size={10} /> : isLocked ? <Lock /> : (
-                        <span style={{ fontSize: 9, fontWeight: 700, fontFamily: T.mono }}>{i + 1}</span>
-                      )}
-                    </div>
+                  <div key={step.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                    <button
+                      type="button"
+                      disabled={isLocked}
+                      onClick={() => setCurrentStepIndex(i)}
+                      className="lp-step-btn"
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: 11,
+                        padding: '8px 9px', borderRadius: 11, textAlign: 'left',
+                        cursor: isLocked ? 'not-allowed' : 'pointer',
+                        border: 'none',
+                        boxShadow: isActive ? `inset 0 0 0 1px ${accent}40` : 'none',
+                        background: isActive ? (accent + '14') : 'transparent',
+                        opacity: isLocked ? 0.4 : 1,
+                        transition: 'background .18s, box-shadow .18s',
+                      }}
+                    >
+                      {/* Round icon badge */}
+                      <div style={{
+                        width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: isActive ? accent
+                          : isCompleted ? '#10b981'
+                            : 'rgba(255,255,255,0.06)',
+                        border: isActive || isCompleted ? 'none' : `1px solid ${T.border}`,
+                        color: isActive ? '#fff' : isCompleted ? '#fff' : T.textTiny,
+                        boxShadow: isActive ? `0 0 12px ${accent}55` : 'none',
+                        transition: 'all .18s',
+                      }}>
+                        {isCompleted && !isActive ? <Check size={13} /> : isLocked ? <Lock /> : (
+                          <span style={{ fontSize: 11, fontWeight: 800, fontFamily: T.mono }}>{i + 1}</span>
+                        )}
+                      </div>
 
-                    <div style={{ minWidth: 0, flex: 1 }}>
-                      <p style={{
-                        fontSize: 12, fontWeight: 600, margin: 0, lineHeight: 1.3,
-                        color: isActive ? T.textPrimary : isCompleted ? '#6ee7b7' : T.textSec,
-                        overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                        transition: 'color .18s',
-                      }}>{step.title}</p>
-                      <p style={{
-                        fontSize: 9.5, margin: '2px 0 0', fontFamily: T.mono,
-                        letterSpacing: '0.07em', textTransform: 'uppercase',
-                        color: isActive ? accent : T.textTiny,
-                        transition: 'color .18s',
-                      }}>{STEP_TYPE_LABEL[step.type] ?? step.type}</p>
-                    </div>
-                  </button>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <p style={{
+                          fontSize: 12.5, fontWeight: 700, margin: 0, lineHeight: 1.3,
+                          color: isActive ? T.textPrimary : isCompleted ? '#6ee7b7' : T.textSec,
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                          transition: 'color .18s',
+                        }}>{step.title}</p>
+                        <p style={{
+                          fontSize: 9.5, margin: '2px 0 0', fontFamily: T.mono,
+                          letterSpacing: '0.07em', textTransform: 'uppercase',
+                          color: isActive ? accent : T.textTiny,
+                          transition: 'color .18s',
+                        }}>{STEP_TYPE_LABEL[step.type] ?? step.type}</p>
+                      </div>
+
+                      {isActive && <span style={{ width: 6, height: 6, borderRadius: '50%', background: accent, flexShrink: 0, animation: 'bm-pulse 1.5s infinite' }} />}
+                    </button>
+
+                    {/* Connecting line */}
+                    {i < lesson.steps.length - 1 && (
+                      <div style={{
+                        marginLeft: 24, width: 2, height: 12, borderRadius: 1,
+                        background: isCompleted ? 'rgba(16,185,129,0.6)' : 'rgba(255,255,255,0.07)',
+                        transition: 'background .3s',
+                      }} />
+                    )}
+                  </div>
                 );
               })}
             </div>
@@ -529,9 +551,9 @@ export default function LessonPage() {
                                 {[
                                   { label: 'Set Pin 2 as OUTPUT', color: '#f97316' },
                                   { label: 'Turn ON LED on Pin 2', color: '#f97316' },
-                                  { label: 'Wait 1000 ms',         color: '#eab308' },
-                                  { label: 'Turn OFF LED on Pin 2',color: '#f97316' },
-                                  { label: 'Wait 1000 ms',         color: '#eab308' },
+                                  { label: 'Wait 1000 ms', color: '#eab308' },
+                                  { label: 'Turn OFF LED on Pin 2', color: '#f97316' },
+                                  { label: 'Wait 1000 ms', color: '#eab308' },
                                 ].map((b, i) => (
                                   <div key={i} style={{
                                     padding: '9px 13px', borderRadius: 10,
@@ -602,7 +624,7 @@ export default function LessonPage() {
               {/* Step dots */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 {lesson.steps.map((_, i) => {
-                  const isActive    = i === currentStepIndex;
+                  const isActive = i === currentStepIndex;
                   const isCompleted = completedSteps.has(i);
                   return (
                     <span key={i} style={{

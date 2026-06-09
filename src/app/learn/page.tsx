@@ -228,7 +228,7 @@ export default function LearnPage() {
 
   const totalXP = mounted
     ? LEVELS.reduce((acc, level) =>
-        acc + level.lessons.filter(l => isLessonCompleted(l.id)).length * XP_PER_LESSON, 0)
+      acc + level.lessons.filter(l => isLessonCompleted(l.id)).length * XP_PER_LESSON, 0)
     : 0;
 
   const completedLessons = mounted
@@ -253,27 +253,79 @@ export default function LearnPage() {
   if (!mounted || isCheckingSub) {
     return (
       <>
-        <GoogleFonts />
-        <main style={{ minHeight: '100vh', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: MONO }}>
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+        <div style={{ minHeight: '100vh', background: '#04080f', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Inter",sans-serif' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ width: 36, height: 36, borderRadius: '50%', border: '2.5px solid rgba(59,130,246,0.15)', borderTop: '2.5px solid #3b82f6', animation: 'lp-spin 0.8s linear infinite', margin: '0 auto' }} />
-            <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(240,244,255,0.4)', letterSpacing: '0.05em' }}>Loading learning path…</p>
+            <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(240,244,255,0.45)', fontFamily: '"Inter", system-ui, sans-serif', letterSpacing: '0.05em' }}>Loading learning path...</p>
           </div>
-          <style>{`@keyframes lp-spin { to { transform: rotate(360deg); } }`}</style>
-        </main>
+          <style>{`@keyframes lp-spin { to { transform: rotate(360deg); } }`}
+            
+          </style>
+        </div>
       </>
     );
   }
 
   return (
     <>
-      <GoogleFonts />
-      <PageStyles />
+      <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 
-      <div style={{ minHeight: '100vh', background: BG, position: 'relative' }}>
-        <CircuitCanvas />
+      <style suppressHydrationWarning>{`
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        @keyframes lp-spin   { to { transform: rotate(360deg); } }
+        @keyframes lp-fadein { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
+        @keyframes lp-drop   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+        @keyframes lp-pad    { 0%,100%{opacity:.25} 50%{opacity:.9} }
+        @keyframes bm-pad    { 0%,100%{opacity:.25} 50%{opacity:.9} }
+        @keyframes bm-pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
 
-        <main style={{ position: 'relative', zIndex: 1, color: '#f0f4ff', fontFamily: SANS }}>
+        .lp-level-card {
+          border-radius: 18px; position: relative; overflow: hidden;
+          animation: lp-fadein .5s ease both;
+          transition: border-color .25s, box-shadow .3s;
+        }
+        .lp-level-card.accessible { background: linear-gradient(135deg,#0a1422,#0f1c30); border: 1px solid rgba(255,255,255,0.08); }
+        .lp-level-card.locked     { background: linear-gradient(135deg,#0a1422,#0f1c30); border: 1px solid rgba(255,255,255,0.05); }
+        .lp-level-card.open       { box-shadow: 0 20px 56px rgba(0,0,0,.4); }
+
+        .lp-accent-bar { position: absolute; top: 0; left: 0; width: 3px; height: 100%; border-radius: 18px 0 0 18px; }
+
+        .lp-header-btn {
+          width: 100%; background: none; border: none; cursor: pointer;
+          padding: 22px 26px 22px 30px; text-align: left;
+          display: flex; align-items: center; gap: 18px;
+          transition: background .18s;
+        }
+        .lp-header-btn:hover:not(:disabled) { background: rgba(255,255,255,0.015); }
+        .lp-header-btn:disabled { cursor: not-allowed; }
+
+        .lp-lesson-card {
+          border-radius: 16px; overflow: hidden; position: relative;
+          transition: transform .3s cubic-bezier(0.16,1,0.3,1), border-color .25s, box-shadow .3s, background .2s;
+          animation: lp-drop .3s ease both;
+        }
+        .lp-lesson-card.clickable { cursor: pointer; }
+        .lp-lesson-card.clickable:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 24px 56px -20px rgba(0,0,0,0.8);
+          border-color: rgba(255,255,255,0.16) !important;
+        }
+        .lp-lesson-card.clickable:hover .lp-lesson-arrow { opacity: 1 !important; transform: translateX(4px) !important; }
+        .lp-lesson-card.clickable:hover .lp-lesson-icon { transform: scale(1.08) rotate(-4deg) !important; }
+        .lp-lesson-card.clickable:hover .lp-lesson-glow { opacity: 1 !important; }
+
+        .lp-back-btn:hover    { color: #f0f4ff !important; }
+        .lp-unlock-link:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,158,11,0.35) !important; }
+        .lp-unlock-sm:hover   { background: rgba(245,158,11,0.13) !important; border-color: rgba(245,158,11,0.3) !important; }
+         body { background: #04080f; }
+      `}</style>
+
+      {/* CircuitBg is fixed/zIndex:0, outer div has the bg color, main is transparent with zIndex:1 */}
+      <CircuitBg />
+      <div style={{ minHeight: '100vh', position: 'relative', zIndex: 1 }}>
+        <main style={{ minHeight: '100vh', background: 'transparent', color: '#f0f4ff', fontFamily: '"Inter",sans-serif' }}>
           <Header />
 
           <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px 80px' }}>
@@ -288,30 +340,14 @@ export default function LearnPage() {
               ← Dashboard
             </button>
 
-            {/* ══════════════════════════════
-                HERO
-            ══════════════════════════════ */}
-            <div style={{
-              borderRadius: 20, overflow: 'hidden', marginBottom: 24,
-              border: `1px solid ${LINE}`,
-              background: 'linear-gradient(160deg,#050c1a 0%,#060d19 60%,#050c1a 100%)',
-              position: 'relative',
-            }}>
-              {/* Grid overlay */}
-              <div style={{
-                position: 'absolute', inset: 0, pointerEvents: 'none',
-                backgroundImage: `linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px)`,
-                backgroundSize: '48px 48px',
-                maskImage: 'radial-gradient(ellipse 65% 100% at 70% 0%,black,transparent)',
-                WebkitMaskImage: 'radial-gradient(ellipse 65% 100% at 70% 0%,black,transparent)',
-              }} />
+            {/* Heading */}
+            <div style={{ marginTop: 28, marginBottom: 8 }}>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 99, padding: '5px 15px', marginBottom: 16 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', animation: 'bm-pulse 2s infinite', display: 'inline-block' }} />
+                <span style={{ fontSize: 10, fontWeight: 600, color: '#fbbf24', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: '"Inter", system-ui, sans-serif' }}>Structured Learning</span>
+              </div>
 
-              {/* Glow orb */}
-              <div style={{ position: 'absolute', top: -90, right: -30, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle,rgba(59,130,246,0.1),transparent 60%)', pointerEvents: 'none' }} />
-
-              <div style={{ padding: '26px 30px 28px', position: 'relative', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20 }}>
-
-                {/* Left: title + CTA */}
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
                 <div>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', borderRadius: 99, marginBottom: 12, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.18)' }}>
                     <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#f59e0b', animation: 'lp-pulse 2s infinite', display: 'inline-block' }} />
@@ -345,21 +381,14 @@ export default function LearnPage() {
                     </button>
                   )}
                 </div>
-
-                {/* Right: XP ring + stats */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end' }}>
-                  {/* XP ring card */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: `1px solid ${LINE}` }}>
-                    <XpRing xp={totalXP} />
+                {mounted && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderRadius: 14, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', flexShrink: 0 }}>
+                    <span style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(245,158,11,0.14)', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <BoltIcon size={15} />
+                    </span>
                     <div>
-                      <p style={{ margin: '0 0 2px', fontSize: 9, color: 'rgba(240,244,255,0.3)', fontFamily: MONO, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>XP Earned</p>
-                      <p style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 900, color: '#f0f4ff', fontFamily: SANS }}>
-                        {totalXP.toLocaleString()}
-                        <span style={{ fontSize: 10, color: 'rgba(240,244,255,0.3)', fontWeight: 400 }}> / {totalLessons * XP_PER_LESSON}</span>
-                      </p>
-                      <div style={{ width: 100, height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-                        <div style={{ height: '100%', width: `${Math.round((totalXP / (totalLessons * XP_PER_LESSON)) * 100)}%`, borderRadius: 99, background: 'linear-gradient(90deg,#f59e0b,#fbbf24)', transition: 'width 1.2s ease' }} />
-                      </div>
+                      <p style={{ margin: '0 0 1px', fontSize: 17, fontWeight: 700, color: '#fbbf24', fontFamily: '"Space Grotesk",sans-serif', lineHeight: 1 }}>{totalXP}</p>
+                      <p style={{ margin: 0, fontSize: 9, color: 'rgba(245,158,11,0.6)', fontFamily: '"Inter", system-ui, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>XP Earned</p>
                     </div>
                   </div>
 
@@ -419,7 +448,6 @@ export default function LearnPage() {
                     {/* Accent bar */}
                     <div style={{ position: 'absolute', top: 0, left: 0, width: 3, height: '100%', borderRadius: '18px 0 0 18px', background: levelAccessible ? accent : 'rgba(255,255,255,0.08)' }} />
 
-                    {/* Header button */}
                     <button
                       type="button"
                       disabled={!levelAccessible}
@@ -428,29 +456,27 @@ export default function LearnPage() {
                       style={{background:'rgba(255,255,255,0.01)'}}
 
                     >
-                      {/* Number badge */}
-                      <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: levelAccessible ? `${accent}18` : 'rgba(255,255,255,0.04)', border: `1px solid ${levelAccessible ? `${accent}28` : 'rgba(255,255,255,0.07)'}`, fontFamily: SANS, fontSize: 16, fontWeight: 700, color: levelAccessible ? accent : 'rgba(240,244,255,0.25)', transition: 'all .3s' }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: levelAccessible ? (accent + '18') : 'rgba(255,255,255,0.04)', border: `1px solid ${levelAccessible ? (accent + '28') : 'rgba(255,255,255,0.07)'}`, fontFamily: '"Space Grotesk",sans-serif', fontSize: 16, fontWeight: 700, color: levelAccessible ? accent : 'rgba(240,244,255,0.25)', transition: 'all .3s' }}>
                         {level.id}
                       </div>
 
-                      {/* Text block */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, flexWrap: 'wrap' }}>
-                          <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, fontFamily: MONO, color: levelAccessible ? accent : 'rgba(240,244,255,0.2)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
+                          <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: '"Inter", system-ui, sans-serif', color: levelAccessible ? accent : 'rgba(240,244,255,0.2)' }}>
                             Level {level.id}
                           </span>
                           {levelDone && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', fontSize: 10, fontWeight: 600, color: '#6ee7b7', fontFamily: MONO }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', fontSize: 10, fontWeight: 600, color: '#6ee7b7', fontFamily: '"Inter", system-ui, sans-serif' }}>
                               <CheckIcon /> Completed
                             </span>
                           )}
                           {!levelAccessible && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', fontSize: 10, fontWeight: 500, color: 'rgba(240,244,255,0.28)', fontFamily: MONO }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', fontSize: 10, fontWeight: 500, color: 'rgba(240,244,255,0.28)', fontFamily: '"Inter", system-ui, sans-serif' }}>
                               <LockIcon /> Locked
                             </span>
                           )}
                           {levelAccessible && levelXP > 0 && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 99, background: `${accent}12`, border: `1px solid ${accent}28`, fontSize: 9.5, fontWeight: 700, color: accent, fontFamily: MONO }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 99, background: `${accent}12`, border: `1px solid ${accent}28`, fontSize: 9.5, fontWeight: 700, color: accent, fontFamily: '"Inter", system-ui, sans-serif' }}>
                               <BoltIcon size={8} /> {levelXP} XP
                             </span>
                           )}
@@ -466,8 +492,8 @@ export default function LearnPage() {
                         {levelAccessible && completedCount > 0 && (
                           <div style={{ marginTop: 12, maxWidth: 300 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                              <span style={{ fontSize: 10, color: 'rgba(240,244,255,0.35)', fontFamily: MONO }}>{completedCount} / {level.lessons.length} lessons</span>
-                              <span style={{ fontSize: 10, color: accent, fontFamily: MONO, fontWeight: 700 }}>{levelProgress}%</span>
+                              <span style={{ fontSize: 10, color: 'rgba(240,244,255,0.35)', fontFamily: '"Inter", system-ui, sans-serif' }}>{completedCount} / {level.lessons.length} lessons</span>
+                              <span style={{ fontSize: 10, color: accent, fontFamily: '"Inter", system-ui, sans-serif', fontWeight: 700 }}>{levelProgress}%</span>
                             </div>
                             <div style={{ height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.05)' }}>
                               <div style={{ height: 3, borderRadius: 99, background: accent, width: `${levelProgress}%`, transition: 'width .7s cubic-bezier(0.16,1,0.3,1)', opacity: 0.85 }} />
@@ -476,11 +502,14 @@ export default function LearnPage() {
                         )}
                       </div>
 
-                      {/* Right: counts + chevron */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                         <div style={{ textAlign: 'right' }}>
-                          <p style={{ margin: '0 0 2px', fontSize: 10, color: 'rgba(240,244,255,0.28)', fontFamily: MONO, whiteSpace: 'nowrap' }}>{level.lessons.length} lessons</p>
-                          <p style={{ margin: 0, fontSize: 9.5, color: 'rgba(245,158,11,0.5)', fontFamily: MONO, whiteSpace: 'nowrap' }}>{level.lessons.length * XP_PER_LESSON} XP total</p>
+                          <p style={{ margin: '0 0 2px', fontSize: 10, color: 'rgba(240,244,255,0.28)', fontFamily: '"Inter", system-ui, sans-serif', whiteSpace: 'nowrap' }}>
+                            {level.lessons.length} lessons
+                          </p>
+                          <p style={{ margin: 0, fontSize: 9.5, color: 'rgba(245,158,11,0.5)', fontFamily: '"Inter", system-ui, sans-serif', whiteSpace: 'nowrap' }}>
+                            {level.lessons.length * XP_PER_LESSON} XP total
+                          </p>
                         </div>
                         {levelAccessible && (
                           <div style={{ color: isOpen ? accent : 'rgba(240,244,255,0.28)', transition: 'color .2s' }}>
@@ -490,7 +519,7 @@ export default function LearnPage() {
                       </div>
                     </button>
 
-                    {/* ── Lesson dropdown ── */}
+                    {/* Lesson dropdown */}
                     {isOpen && levelAccessible && (
                       <div style={{ padding: '0 16px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
                         <div style={{ paddingTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 8 }}>
@@ -513,32 +542,27 @@ export default function LearnPage() {
                                   display: 'flex', gap: 14, alignItems: 'flex-start',
                                 }}
                               >
-                                {/* Left accent bar */}
-                                <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: toneColor, opacity: done ? 0.7 : 0.5, borderRadius: '16px 0 0 16px' }} />
+                                <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: lessonToneColor, opacity: done ? 0.7 : 0.5, borderRadius: '16px 0 0 16px' }} />
+                                <div className="lp-lesson-glow" style={{ position: 'absolute', top: -30, right: -20, width: 120, height: 120, borderRadius: '50%', background: `radial-gradient(circle,${lessonToneColor}40,transparent 65%)`, opacity: 0, transition: 'opacity .35s', pointerEvents: 'none' }} />
 
-                                {/* Hover glow */}
-                                <div className="lp-lesson-glow" style={{ position: 'absolute', top: -30, right: -20, width: 120, height: 120, borderRadius: '50%', background: `radial-gradient(circle,${toneColor}40,transparent 65%)`, opacity: 0, transition: 'opacity .35s', pointerEvents: 'none' }} />
-
-                                {/* Icon */}
-                                <div className="lp-lesson-icon" style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 12, background: done ? 'rgba(16,185,129,0.15)' : `${accent}18`, border: `1px solid ${done ? 'rgba(16,185,129,0.25)' : `${accent}28`}`, color: done ? '#34d399' : accent, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform .35s cubic-bezier(0.16,1,0.3,1)', position: 'relative' }}>
+                                <div className="lp-lesson-icon" style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 12, background: done ? 'rgba(16,185,129,0.15)' : (accent + '18'), border: `1px solid ${done ? 'rgba(16,185,129,0.25)' : (accent + '28')}`, color: done ? '#34d399' : accent, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform .35s cubic-bezier(0.16,1,0.3,1)', position: 'relative' }}>
                                   {done ? <CheckIcon size={16} /> : !accessible ? <LockIcon size={14} /> : (
                                     <span style={{ fontSize: 13, fontWeight: 700, fontFamily: SANS }}>{li + 1}</span>
                                   )}
                                 </div>
 
-                                {/* Body */}
                                 <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
                                     <h3 style={{ fontFamily: SANS, fontSize: 14, fontWeight: 700, color: accessible ? '#f0f4ff' : 'rgba(240,244,255,0.35)', margin: 0, letterSpacing: -0.2, lineHeight: 1.2 }}>
                                       {lesson.title}
                                     </h3>
                                     {done && (
-                                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', fontFamily: MONO, padding: '2px 8px', borderRadius: 99, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.22)', color: '#34d399', textTransform: 'uppercase' as const, flexShrink: 0 }}>Done</span>
+                                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', fontFamily: '"Inter", system-ui, sans-serif', padding: '2px 8px', borderRadius: 99, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.22)', color: '#34d399', textTransform: 'uppercase', flexShrink: 0 }}>Done</span>
                                     )}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, color: 'rgba(240,244,255,0.3)', fontFamily: MONO, padding: '2px 7px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, color: 'rgba(240,244,255,0.3)', fontFamily: '"Inter", system-ui, sans-serif', padding: '2px 7px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
                                       <ClockIcon /> {lesson.estimatedMinutes}m
                                     </span>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, fontWeight: 700, fontFamily: MONO, padding: '2px 7px', borderRadius: 99, background: done ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.07)', border: `1px solid ${done ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.15)'}`, color: done ? '#fbbf24' : 'rgba(245,158,11,0.55)', flexShrink: 0 }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, fontWeight: 700, fontFamily: '"Inter", system-ui, sans-serif', padding: '2px 7px', borderRadius: 99, background: done ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.07)', border: `1px solid ${done ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.15)'}`, color: done ? '#fbbf24' : 'rgba(245,158,11,0.55)', flexShrink: 0 }}>
                                       <BoltIcon size={8} /> +{XP_PER_LESSON} XP
                                     </span>
                                   </div>
@@ -550,8 +574,8 @@ export default function LearnPage() {
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                     <div style={{ flex: 1 }}>
                                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                        <span style={{ fontSize: 9.5, color: 'rgb(240, 244, 255)', fontFamily: MONO }}>{lesson.steps.length} steps</span>
-                                        {done && <span style={{ fontSize: 9.5, color: '#34d399', fontFamily: MONO }}>100%</span>}
+                                        <span style={{ fontSize: 9.5, color: 'rgba(240,244,255,0.22)', fontFamily: '"Inter", system-ui, sans-serif' }}>{lesson.steps.length} steps</span>
+                                        {done && <span style={{ fontSize: 9.5, color: '#34d399', fontFamily: '"Inter", system-ui, sans-serif' }}>100%</span>}
                                       </div>
                                       <div style={{ height: 2, borderRadius: 99, background: 'rgba(255,255,255,0.06)' }}>
                                         <div style={{ height: 2, borderRadius: 99, background: done ? '#10b981' : accent, width: done ? '100%' : '0%', transition: 'width .5s ease' }} />
@@ -571,7 +595,7 @@ export default function LearnPage() {
                                           <LockIcon /> Unlock →
                                         </Link>
                                       ) : (
-                                        <p style={{ fontSize: 10, color: 'rgba(240,244,255,0.22)', fontFamily: MONO, margin: 0 }}>Complete previous lesson first</p>
+                                        <p style={{ fontSize: 10, color: 'rgba(240,244,255,0.22)', fontFamily: '"Inter", system-ui, sans-serif', margin: 0 }}>Complete previous lesson first</p>
                                       )}
                                     </div>
                                   )}
@@ -591,7 +615,7 @@ export default function LearnPage() {
                             <LockIcon size={11} /> Unlock Full Access →
                           </Link>
                         ) : (
-                          <p style={{ fontSize: 11, color: 'rgba(240,244,255,0.28)', fontFamily: MONO, margin: 0 }}>Complete the previous level to unlock</p>
+                          <p style={{ fontSize: 11, color: 'rgba(240,244,255,0.28)', fontFamily: '"Inter", system-ui, sans-serif', margin: 0 }}>Complete the previous level to unlock</p>
                         )}
                       </div>
                     )}

@@ -71,6 +71,8 @@ export default function LevelPage() {
   const hasEsp32 = hasAccess('esp32');
   const [mounted, setMounted] = useState(false);
 
+  if (!params) return <LoadingScreen />;
+
   const levelId = Number(params.levelId);
   const level   = LEVELS.find((l) => l.id === levelId);
   const accent  = getAccent(levelId);

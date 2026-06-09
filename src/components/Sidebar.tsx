@@ -12,6 +12,7 @@ import { useAppStore } from '@/store/useAppStore';
 
 // ── Category SVG icons ────────────────────────────────────────────────────────
 const CatIco: Record<string, React.ReactNode> = {
+  Setup:     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>,
   Output:    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>,
   PWM:       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M2 12h4l2-8 4 16 2-8h8"/></svg>,
   Sensors:   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>,
@@ -27,7 +28,8 @@ const CatIco: Record<string, React.ReactNode> = {
 type Category = { title: string; types: string[] };
 
 const CATEGORIES: Category[] = [
-  { title: 'Output',    types: ['pinMode', 'dw_high', 'dw_low', 'blink', 'tone_on', 'tone_off'] },
+  { title: 'Setup',     types: ['pinMode'] },
+  { title: 'Output',    types: ['dw_high', 'dw_low', 'blink', 'tone_on', 'tone_off'] },
   { title: 'PWM',       types: ['pwm_setup', 'pwm_write', 'servo_write'] },
   { title: 'Sensors',   types: ['dht_setup', 'dht_temp', 'dht_hum', 'btn_read', 'pir_read', 'analog_read', 'ultrasonic', 'map_val'] },
   { title: 'Control',   types: ['delay_ms', 'delay_sec', 'for_loop', 'while_loop', 'end_loop', 'if_block', 'else_block', 'end_if'] },
@@ -40,6 +42,7 @@ const CATEGORIES: Category[] = [
 
 // ── Accent colors per category ────────────────────────────────────────────────
 const CAT_ACCENT: Record<string, string> = {
+  Setup:     '#3b82f6',
   Output:    '#f59e0b',
   PWM:       '#f97316',
   Sensors:   '#10b981',

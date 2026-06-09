@@ -51,7 +51,7 @@ const playSound = (type: 'correct' | 'incorrect') => {
   try {
     const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
     const ctx = new AudioContextClass();
-    
+
     if (type === 'correct') {
       // High quality happy chime: C5 -> E5 -> G5
       const now = ctx.currentTime;
@@ -61,13 +61,13 @@ const playSound = (type: 'correct' | 'incorrect') => {
         const gain = ctx.createGain();
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(freq, now + idx * 0.08);
-        
+
         gain.gain.setValueAtTime(0.12, now + idx * 0.08);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.08 + 0.4);
-        
+
         osc.connect(gain);
         gain.connect(ctx.destination);
-        
+
         osc.start(now + idx * 0.08);
         osc.stop(now + idx * 0.08 + 0.4);
       });
@@ -79,13 +79,13 @@ const playSound = (type: 'correct' | 'incorrect') => {
         const gain = ctx.createGain();
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(freq, now);
-        
+
         gain.gain.setValueAtTime(0.08, now);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
-        
+
         osc.connect(gain);
         gain.connect(ctx.destination);
-        
+
         osc.start(now);
         osc.stop(now + 0.35);
       });
@@ -192,13 +192,13 @@ function Callout({
   return (
     <div
       className="flex items-start gap-4 rounded-2xl px-5 py-4 text-xs md:text-sm shadow-sm transition-all duration-300 hover:shadow-md border-l-4"
-      style={{ 
-        background: bg, 
+      style={{
+        background: bg,
         borderTop: `1px solid ${border}`,
         borderRight: `1px solid ${border}`,
         borderBottom: `1px solid ${border}`,
         borderLeftColor: border,
-        color: text 
+        color: text
       }}
     >
       <span className="text-xl flex-shrink-0 mt-0.5 animate-bounce-slow">{icon}</span>
@@ -236,7 +236,7 @@ function BulletIcon({ styleIndex, color, blockIndex }: { styleIndex: number; col
         </div>
       );
     case 4:
-      default: // High-Tech Hexagon
+    default: // High-Tech Hexagon
       return (
         <div className="flex-shrink-0 mt-1.5 w-2.5 h-2.5 flex items-center justify-center transition-all duration-300 hover:scale-110">
           <svg viewBox="0 0 100 100" className="w-2.5 h-2.5" fill={color}>
@@ -263,18 +263,18 @@ const getBulletStyleIndex = (text: string) => {
   return Math.abs(hash) % 6; // Shuffled across 6 indices
 };
 
-function BulletItem({ 
-  text, 
-  blockIndex, 
+function BulletItem({
+  text,
+  blockIndex,
   styleIndex,
-  color, 
-  highlightText 
-}: { 
-  text: string; 
-  blockIndex: number; 
+  color,
+  highlightText
+}: {
+  text: string;
+  blockIndex: number;
   styleIndex: number;
-  color: string; 
-  highlightText: (t: string) => React.ReactNode 
+  color: string;
+  highlightText: (t: string) => React.ReactNode
 }) {
   return (
     <div className="flex items-start gap-3.5 pl-1 my-2.5 animate-fadeIn group">
@@ -363,22 +363,22 @@ function RevealBlock({ question, answer, accentColor }: { question: string; answ
 
 
 /* ─── Preprocessed Render Type for Side-by-Side Comparison Grid ─── */
-type RenderItem = 
+type RenderItem =
   | { type: 'block'; block: LectureBlock; blockIndex: number }
-  | { 
-      type: 'list'; 
-      bullets: Array<{ text: string; blockIndex: number }>;
-      styleIndex: number;
-    }
-  | { 
-      type: 'comparison'; 
-      leftTitle: string; 
-      leftBullets: Array<{ text: string; blockIndex: number }>;
-      leftStyleIndex: number;
-      rightTitle: string; 
-      rightBullets: Array<{ text: string; blockIndex: number }>;
-      rightStyleIndex: number;
-    };
+  | {
+    type: 'list';
+    bullets: Array<{ text: string; blockIndex: number }>;
+    styleIndex: number;
+  }
+  | {
+    type: 'comparison';
+    leftTitle: string;
+    leftBullets: Array<{ text: string; blockIndex: number }>;
+    leftStyleIndex: number;
+    rightTitle: string;
+    rightBullets: Array<{ text: string; blockIndex: number }>;
+    rightStyleIndex: number;
+  };
 
 /* ─── Collapsible Panel Section ─── */
 interface SectionProps {
@@ -410,20 +410,20 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
   const preprocessBlocks = (blocks: LectureBlock[]): RenderItem[] => {
     const items: RenderItem[] = [];
     let i = 0;
-    
+
     while (i < blocks.length) {
       const block = blocks[i];
       const textClean = block.text.trim().toLowerCase();
-      
+
       // Look for negative counterpart (Without, Before, Instead, Option A, Incorrect, Poor)
-      const isLeftHeader = 
+      const isLeftHeader =
         (block.type === 'bullet' || block.type === 'paragraph') &&
-        (textClean.startsWith('without') || 
-         textClean.startsWith('before') ||
-         textClean.startsWith('instead') ||
-         textClean.startsWith('option a') ||
-         textClean.startsWith('incorrect') ||
-         textClean.startsWith('poor'));
+        (textClean.startsWith('without') ||
+          textClean.startsWith('before') ||
+          textClean.startsWith('instead') ||
+          textClean.startsWith('option a') ||
+          textClean.startsWith('incorrect') ||
+          textClean.startsWith('poor'));
 
       if (isLeftHeader) {
         // Collect bullets belonging to the left side
@@ -431,8 +431,8 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
         const leftBullets: Array<{ text: string; blockIndex: number }> = [];
         let j = i + 1;
         while (
-          j < blocks.length && 
-          blocks[j].type === 'bullet' && 
+          j < blocks.length &&
+          blocks[j].type === 'bullet' &&
           !blocks[j].text.trim().toLowerCase().startsWith('with') &&
           !blocks[j].text.trim().toLowerCase().startsWith('after') &&
           !blocks[j].text.trim().toLowerCase().startsWith('option b') &&
@@ -443,19 +443,19 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
           leftBullets.push({ text: blocks[j].text, blockIndex: j });
           j++;
         }
-        
+
         // Check if there is a direct positive counterpart following (With, After, Option B, Correct, Better)
         if (j < blocks.length) {
           const nextBlock = blocks[j];
           const nextTextClean = nextBlock.text.trim().toLowerCase();
-          
-          const isRightHeader = 
+
+          const isRightHeader =
             (nextBlock.type === 'bullet' || nextBlock.type === 'paragraph') &&
-            (nextTextClean.startsWith('with') || 
-             nextTextClean.startsWith('after') ||
-             nextTextClean.startsWith('option b') ||
-             nextTextClean.startsWith('correct') ||
-             nextTextClean.startsWith('better'));
+            (nextTextClean.startsWith('with') ||
+              nextTextClean.startsWith('after') ||
+              nextTextClean.startsWith('option b') ||
+              nextTextClean.startsWith('correct') ||
+              nextTextClean.startsWith('better'));
 
           if (isRightHeader) {
             const rightTitle = nextBlock.text.trim();
@@ -465,7 +465,7 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
               rightBullets.push({ text: blocks[k].text, blockIndex: k });
               k++;
             }
-            
+
             // If both sides have bullets, form a comparison group
             if (leftBullets.length > 0 || rightBullets.length > 0) {
               const leftStyleIndex = leftBullets.length > 0 ? getBulletStyleIndex(leftBullets[0].text) : 0;
@@ -486,7 +486,7 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
           }
         }
       }
-      
+
       // Group consecutive standard bullets
       if (block.type === 'bullet') {
         const bullets: Array<{ text: string; blockIndex: number }> = [];
@@ -495,14 +495,14 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
           bullets.push({ text: blocks[j].text, blockIndex: j });
           j++;
         }
-        
+
         const styleIndex = bullets.length > 0 ? getBulletStyleIndex(bullets[0].text) : 0;
         items.push({
           type: 'list',
           bullets,
           styleIndex
         });
-        
+
         i = j;
         continue;
       }
@@ -510,37 +510,37 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
       items.push({ type: 'block', block, blockIndex: i });
       i++;
     }
-    
+
     return items;
   };
 
   const currentThemeColor = isRead ? '#10B981' : sec.accent;
-  const subtleThemeBg = currentThemeColor + '08'; 
+  const subtleThemeBg = currentThemeColor + '08';
   const subtleThemeBorder = currentThemeColor + '22';
 
   const preprocessedItems = preprocessBlocks(sec.blocks || []);
 
   // Comparison Grid Builder
   const renderComparison = (
-    leftTitle: string, 
+    leftTitle: string,
     leftBullets: Array<{ text: string; blockIndex: number }>,
     leftStyleIndex: number,
-    rightTitle: string, 
+    rightTitle: string,
     rightBullets: Array<{ text: string; blockIndex: number }>,
     rightStyleIndex: number
   ) => {
     const isLeftNegative = leftTitle.toLowerCase().includes('without') || leftTitle.toLowerCase().includes('poor') || leftTitle.toLowerCase().includes('incorrect') || leftTitle.toLowerCase().includes('instead');
     const isRightPositive = rightTitle.toLowerCase().includes('with') || rightTitle.toLowerCase().includes('correct') || rightTitle.toLowerCase().includes('better');
 
-    const leftAccent = isLeftNegative ? '#EF4444' : '#64748B'; 
-    const rightAccent = isRightPositive ? '#10B981' : currentThemeColor; 
+    const leftAccent = isLeftNegative ? '#EF4444' : '#64748B';
+    const rightAccent = isRightPositive ? '#10B981' : currentThemeColor;
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 my-6 animate-fadeIn">
         {/* Left Card: Negatives / Comparative baseline */}
-        <div 
+        <div
           className="rounded-2xl border p-5 transition-all duration-300 hover:shadow-md"
-          style={{ 
+          style={{
             borderColor: leftAccent + '22',
             background: leftAccent + '04',
             borderTop: `4px solid ${leftAccent}`
@@ -554,22 +554,22 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
           </div>
           <div className="space-y-1">
             {leftBullets.map(b => (
-              <BulletItem 
-                key={b.blockIndex} 
-                text={b.text} 
-                blockIndex={b.blockIndex} 
+              <BulletItem
+                key={b.blockIndex}
+                text={b.text}
+                blockIndex={b.blockIndex}
                 styleIndex={leftStyleIndex}
-                color={leftAccent} 
-                highlightText={highlightText} 
+                color={leftAccent}
+                highlightText={highlightText}
               />
             ))}
           </div>
         </div>
 
         {/* Right Card: Positives / Better Approach */}
-        <div 
+        <div
           className="rounded-2xl border p-5 transition-all duration-300 hover:shadow-md"
-          style={{ 
+          style={{
             borderColor: rightAccent + '22',
             background: rightAccent + '04',
             borderTop: `4px solid ${rightAccent}`
@@ -583,13 +583,13 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
           </div>
           <div className="space-y-1">
             {rightBullets.map(b => (
-              <BulletItem 
-                key={b.blockIndex} 
-                text={b.text} 
-                blockIndex={b.blockIndex} 
+              <BulletItem
+                key={b.blockIndex}
+                text={b.text}
+                blockIndex={b.blockIndex}
                 styleIndex={rightStyleIndex}
-                color={rightAccent} 
-                highlightText={highlightText} 
+                color={rightAccent}
+                highlightText={highlightText}
               />
             ))}
           </div>
@@ -601,52 +601,52 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
   return (
     <div
       className="rounded-3xl border border-slate-100 bg-white shadow-sm overflow-hidden transition-all duration-500 hover:shadow-md"
-      style={{ 
+      style={{
         borderLeft: `6px solid ${currentThemeColor}`,
         boxShadow: isOpen ? '0 10px 25px -5px rgba(0, 0, 0, 0.02), 0 8px 10px -6px rgba(0, 0, 0, 0.02)' : 'none'
       }}
     >
-    <button
-  type="button"
-  onClick={() => setIsOpen(o => !o)}
-  style={{
-    borderBottom: isOpen ? `1px solid ${subtleThemeBorder}` : 'none',
-  }}
-  className="group w-full flex bg-[#0f1b2e] items-center gap-3.5 px-6 py-5 text-left transition-all duration-300 hover:bg-[#14233a] hover:shadow-lg hover:-translate-y-0.5"
->
-  <span
-    className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black shadow-sm transition-all duration-500 group-hover:scale-110"
-    style={{
-      background: currentThemeColor,
-      color: '#ffffff',
-      transform: isRead ? 'scale(1.08) rotate(360deg)' : undefined,
-    }}
-  >
-    {isRead ? '✓' : sec.number}
-  </span>
+      <button
+        type="button"
+        onClick={() => setIsOpen(o => !o)}
+        style={{
+          borderBottom: isOpen ? `1px solid ${subtleThemeBorder}` : 'none',
+        }}
+        className="group w-full flex bg-[#0f1b2e] items-center gap-3.5 px-6 py-5 text-left transition-all duration-300 hover:bg-[#14233a] hover:shadow-lg hover:-translate-y-0.5"
+      >
+        <span
+          className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black shadow-sm transition-all duration-500 group-hover:scale-110"
+          style={{
+            background: currentThemeColor,
+            color: '#ffffff',
+            transform: isRead ? 'scale(1.08) rotate(360deg)' : undefined,
+          }}
+        >
+          {isRead ? '✓' : sec.number}
+        </span>
 
-  <span className="text-lg flex-shrink-0 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-6">
-    {sec.icon}
-  </span>
+        <span className="text-lg flex-shrink-0 transition-transform duration-300 group-hover:scale-125 group-hover:rotate-6">
+          {sec.icon}
+        </span>
 
-  <span className="flex-1 font-extrabold text-white text-sm md:text-base leading-snug transition-colors duration-300">
-    {sec.title}
-  </span>
+        <span className="flex-1 font-extrabold text-white text-sm md:text-base leading-snug transition-colors duration-300">
+          {sec.title}
+        </span>
 
-  <span
-    className="text-slate-400 text-xs md:text-sm font-black transition-all duration-300 group-hover:text-white"
-    style={{
-      transform: isOpen ? 'rotate(180deg)' : 'none',
-    }}
-  >
-    ▼
-  </span>
-</button>
+        <span
+          className="text-slate-400 text-xs md:text-sm font-black transition-all duration-300 group-hover:text-white"
+          style={{
+            transform: isOpen ? 'rotate(180deg)' : 'none',
+          }}
+        >
+          ▼
+        </span>
+      </button>
 
       {isOpen && (
         <div className="px-6 pb-6 pt-5 text-xs md:text-sm text-slate-100 leading-relaxed space-y-4 animate-slideDown bg-[#16243a]">
           {preprocessedItems.map((item, idx) => {
-            const stagger = { animationDelay: `${idx * 45}ms`, animationFillMode: 'forwards' as const, opacity: 0, color : 'white' };
+            const stagger = { animationDelay: `${idx * 45}ms`, animationFillMode: 'forwards' as const, opacity: 0, color: 'white' };
 
             if (item.type === 'comparison') {
               return (
@@ -794,16 +794,16 @@ function QuizCard({ quiz, onQuizComplete }: { quiz: QuizQuestion[], onQuizComple
     playSound(isCorrect ? 'correct' : 'incorrect');
     setRevealed(prev => {
       const next = { ...prev, [qIdx]: true };
-      
+
       // Calculate score based on new state
       const nextScore = Object.entries(next).filter(
         ([idx, done]) => done && answers[Number(idx)] === quiz[Number(idx)].correct
       ).length;
-      
+
       if (Object.keys(next).length === quiz.length) {
         onQuizComplete?.(nextScore);
       }
-      
+
       return next;
     });
   };
@@ -1002,11 +1002,11 @@ export default function InteractiveLecture({ levelId, lessonId, stepId }: Intera
   // Reset and fetch progress when step changes
   useEffect(() => {
     let currentUser: any = null;
-    
+
     supabase.auth.getUser().then(({ data }) => {
       currentUser = data.user;
       setUser(currentUser);
-      
+
       if (currentUser) {
         // Fetch saved progress
         supabase.from('user_progress').select('read_sections, quiz_score').match({
@@ -1085,32 +1085,32 @@ export default function InteractiveLecture({ levelId, lessonId, stepId }: Intera
           }
         }, 150);
       }
-      
+
       // Save to Supabase asynchronously
       console.log(next);
       // Save to Supabase asynchronously
-if (user) {
-  supabase
-    .from('user_progress')
-    .upsert(
-      {
-        user_id: user.id,
-        level_id: levelId.toString(),
-        lesson_id: lessonId,
-        step_id: stepId,
-        read_sections: Array.from(next),
-        completed_at: new Date().toISOString(),
-      },
-      {
-        onConflict: 'user_id,course_id,level_id,lesson_id,step_id'
+      if (user) {
+        supabase
+          .from('user_progress')
+          .upsert(
+            {
+              user_id: user.id,
+              level_id: levelId.toString(),
+              lesson_id: lessonId,
+              step_id: stepId,
+              read_sections: Array.from(next),
+              completed_at: new Date().toISOString(),
+            },
+            {
+              onConflict: 'user_id,course_id,level_id,lesson_id,step_id'
+            }
+          )
+          .then(({ error }) => {
+            if (error) {
+              console.error('Failed to save progress:', error);
+            }
+          });
       }
-    )
-    .then(({ error }) => {
-      if (error) {
-        console.error('Failed to save progress:', error);
-      }
-    });
-}
 
       return next;
     });
@@ -1126,15 +1126,15 @@ if (user) {
   };
 
   // Hero Card gradient based on Level ID
-const getHeroGradient = () => {
-  const l = Number(levelId);
+  const getHeroGradient = () => {
+    const l = Number(levelId);
 
-  if (l === 1) return 'from-[#0f1b2e] to-[#16243a]';
-  if (l === 2) return 'from-[#122033] to-[#1a2b44]';
-  if (l === 3) return 'from-[#15263d] to-[#1e3150]';
+    if (l === 1) return 'from-[#0f1b2e] to-[#16243a]';
+    if (l === 2) return 'from-[#122033] to-[#1a2b44]';
+    if (l === 3) return 'from-[#15263d] to-[#1e3150]';
 
-  return 'from-[#182b45] to-[#24385c]';
-};
+    return 'from-[#182b45] to-[#24385c]';
+  };
   return (
     <div className="min-h-full bg-[#04080f] pb-16 relative">
       {/* ── Sticky Mini Progress Bar ──
@@ -1195,7 +1195,7 @@ const getHeroGradient = () => {
       <div className={`mb-6 rounded-[32px] bg-gradient-to-br ${getHeroGradient()} px-8 py-8 text-white shadow-lg relative overflow-hidden`}>
         <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/5 -translate-y-16 translate-x-16 pointer-events-none blur-sm" />
         <div className="absolute bottom-0 left-0 w-44 h-44 rounded-full bg-white/5 translate-y-12 -translate-x-12 pointer-events-none blur-sm" />
-        
+
         <div className="flex flex-wrap items-center gap-2 mb-2">
           <p className="text-[10px] md:text-xs font-black uppercase tracking-widest text-white/80">
             Level {levelId} · Lesson {lessonId} · {renderMarkdownInline(lecture.stepType)}
@@ -1204,7 +1204,7 @@ const getHeroGradient = () => {
             ⏱️ {readTime} min read
           </span>
         </div>
-        
+
         <h1 className="text-xl md:text-3xl font-black mb-2 leading-tight text-white flex items-center gap-2 drop-shadow-sm">
           {renderMarkdownInline(lecture.levelTitle)}
         </h1>
@@ -1243,8 +1243,8 @@ const getHeroGradient = () => {
       {/* ── Interactive Quiz Section ── */}
       {lecture.quiz && lecture.quiz.length > 0 && (
         <div className="mb-6 animate-fadeIn">
-          <QuizCard 
-            quiz={lecture.quiz} 
+          <QuizCard
+            quiz={lecture.quiz}
             onQuizComplete={(score) => {
               window.dispatchEvent(new CustomEvent('quiz-complete'));
               if (user) {
@@ -1270,12 +1270,40 @@ const getHeroGradient = () => {
 
       {/* ── Congratulations Complete Banner ── */}
       {allRead && (
-        <div className="rounded-3xl bg-gradient-to-r from-[#0f1b2e] to-[#16243a] p-8 text-white text-center shadow-lg animate-fadeIn shadow-emerald-100 flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="rounded-3xl p-8 text-white text-center flex flex-col items-center justify-center relative overflow-hidden animate-fadeIn"
+          style={{
+            background: 'linear-gradient(135deg,#0a1422,#0f1c30)',
+            border: '1px solid rgba(16,185,129,0.25)',
+            boxShadow: '0 0 0 1px rgba(16,185,129,0.08), 0 20px 50px -20px rgba(0,0,0,0.6)',
+          }}>
+          {/* soft green glow blooms (replace white glow) */}
+          <div style={{ position: 'absolute', top: -60, left: '50%', transform: 'translateX(-50%)', width: 280, height: 160, borderRadius: '50%', background: 'radial-gradient(ellipse,rgba(16,185,129,0.18),transparent 65%)', pointerEvents: 'none' }} />
           <ConfettiShower />
-          <div className="text-5xl mb-3 animate-bounce relative z-10">🎉</div>
-          <h2 className="text-xl md:text-2xl font-black leading-snug relative z-10">Section complete! Amazing effort!</h2>
-          <p className="text-xs md:text-sm text-emerald-50 mt-1.5 max-w-md leading-relaxed font-semibold relative z-10">
-            You have marked all {totalSections} sections of this lesson as read. Click the <strong>Next →</strong> button in the sidebar to advance to your next task!
+
+          {/* icon badge */}
+          <div className="relative z-10" style={{
+            width: 54, height: 54, borderRadius: 16, marginBottom: 16,
+            background: 'rgba(16,185,129,0.14)', border: '1px solid rgba(16,185,129,0.3)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 12l5 5L20 6" />
+            </svg>
+          </div>
+
+          <h2 className="relative z-10" style={{
+            margin: 0, fontSize: 'clamp(1.15rem,2.2vw,1.5rem)', fontWeight: 800,
+            lineHeight: 1.25, color: '#f0f4ff', fontFamily: '"Space Grotesk",sans-serif',
+          }}>
+            Section complete!
+          </h2>
+
+          <p className="relative z-10" style={{
+            margin: '8px 0 0', maxWidth: 420, fontSize: 12.5, lineHeight: 1.65,
+            fontWeight: 500, color: 'rgba(240,244,255,0.6)', fontFamily: '"Inter",system-ui,sans-serif',
+          }}>
+            You've marked all {totalSections} section{totalSections === 1 ? '' : 's'} as read.
+            Hit <strong style={{ color: '#34d399', fontWeight: 700 }}>Next</strong> in the sidebar to move on to your next task.
           </p>
         </div>
       )}
