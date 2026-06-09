@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -8,89 +8,209 @@ import Header from '@/components/Header';
 import { LEVELS } from '@/lib/lessonConfig';
 import { useActivityStore } from '@/store/useActivityStore';
 
-/* ── SVG icons ── */
+/* ─────────────────────────────────────────
+   SVG icons
+───────────────────────────────────────── */
 const ChevronDown = ({ open }: { open: boolean }) => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
     style={{ transition: 'transform .3s cubic-bezier(0.16,1,0.3,1)', transform: open ? 'rotate(180deg)' : 'none', flexShrink: 0 }}>
     <polyline points="6 9 12 15 18 9" />
   </svg>
 );
 const CheckIcon = ({ size = 10 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
 const LockIcon = ({ size = 9 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="11" width="18" height="11" rx="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
   </svg>
 );
 const ClockIcon = () => (
-  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" />
   </svg>
 );
 const ArrowRight = () => (
-  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M5 12h14M12 5l7 7-7 7" />
   </svg>
 );
 const BoltIcon = ({ size = 9 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" />
   </svg>
 );
+const PlayIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+    <polygon points="5 3 19 12 5 21 5 3" />
+  </svg>
+);
 
+/* ─────────────────────────────────────────
+   Constants
+───────────────────────────────────────── */
 const LEVEL_ACCENTS = ['#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#ef4444'];
 const XP_PER_LESSON = 50;
+const BG = '#04080f';
+const LINE = 'rgba(59,130,246,0.12)';
+const MONO = '"JetBrains Mono",monospace';
+const SANS = '"Space Grotesk",sans-serif';
 
-function CircuitBg() {
+/* ─────────────────────────────────────────
+   Animated circuit canvas background
+───────────────────────────────────────── */
+function CircuitCanvas() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d')!;
+
+    type Node = { x: number; y: number };
+    type Line = [number, number];
+    type Pulse = { line: Line; t: number; speed: number };
+
+    let nodes: Node[] = [];
+    let lines: Line[] = [];
+    let pulses: Pulse[] = [];
+    let animId: number;
+
+    function resize() {
+      canvas!.width  = canvas!.offsetWidth;
+      canvas!.height = canvas!.offsetHeight;
+    }
+
+    function initCircuit() {
+      nodes = []; lines = []; pulses = [];
+      const W = canvas!.width, H = canvas!.height;
+      const cols = Math.ceil(W / 90);
+      const rows = Math.ceil(H / 90);
+      for (let c = 0; c <= cols; c++) {
+        for (let r = 0; r <= rows; r++) {
+          if (Math.random() > 0.45) continue;
+          nodes.push({
+            x: c * 90 + (Math.random() - 0.5) * 20,
+            y: r * 90 + (Math.random() - 0.5) * 20,
+          });
+        }
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = nodes[i].x - nodes[j].x;
+          const dy = nodes[i].y - nodes[j].y;
+          const d  = Math.sqrt(dx * dx + dy * dy);
+          if (d < 130 && Math.random() > 0.55) {
+            lines.push([i, j]);
+            if (Math.random() > 0.55) {
+              pulses.push({ line: [i, j], t: Math.random(), speed: 0.003 + Math.random() * 0.005 });
+            }
+          }
+        }
+      }
+    }
+
+    function draw() {
+      const W = canvas!.width, H = canvas!.height;
+      ctx.clearRect(0, 0, W, H);
+
+      /* traces */
+      ctx.strokeStyle = 'rgba(59,130,246,0.1)';
+      ctx.lineWidth   = 1;
+      for (const [a, b] of lines) {
+        const ax = nodes[a].x, ay = nodes[a].y;
+        const bx = nodes[b].x, by = nodes[b].y;
+        const mx = (ax + bx) / 2, my = (ay + by) / 2;
+        ctx.beginPath();
+        if (Math.abs(ax - bx) > Math.abs(ay - by)) {
+          ctx.moveTo(ax, ay); ctx.lineTo(mx, ay); ctx.lineTo(mx, by); ctx.lineTo(bx, by);
+        } else {
+          ctx.moveTo(ax, ay); ctx.lineTo(ax, my); ctx.lineTo(bx, my); ctx.lineTo(bx, by);
+        }
+        ctx.stroke();
+      }
+
+      /* pulses */
+      for (const p of pulses) {
+        p.t += p.speed;
+        if (p.t > 1) p.t = 0;
+        const [ai, bi] = p.line;
+        const ax = nodes[ai].x, ay = nodes[ai].y;
+        const bx = nodes[bi].x, by = nodes[bi].y;
+        const mx = (ax + bx) / 2, my = (ay + by) / 2;
+        let px = ax, py = ay;
+        const horiz = Math.abs(ax - bx) > Math.abs(ay - by);
+        if (p.t < 0.33) {
+          const lt = p.t / 0.33;
+          px = horiz ? ax + (mx - ax) * lt : ax;
+          py = horiz ? ay : ay + (my - ay) * lt;
+        } else if (p.t < 0.66) {
+          const lt = (p.t - 0.33) / 0.33;
+          px = horiz ? mx : ax + (bx - ax) * lt;
+          py = horiz ? ay + (by - ay) * lt : my;
+        } else {
+          const lt = (p.t - 0.66) / 0.34;
+          px = horiz ? mx + (bx - mx) * lt : bx;
+          py = horiz ? by : my + (by - my) * lt;
+        }
+        const g = ctx.createRadialGradient(px, py, 0, px, py, 7);
+        g.addColorStop(0, 'rgba(59,130,246,0.9)');
+        g.addColorStop(1, 'rgba(59,130,246,0)');
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(px, py, 7, 0, Math.PI * 2); ctx.fill();
+      }
+
+      /* pads */
+      for (const n of nodes) {
+        ctx.beginPath(); ctx.arc(n.x, n.y, 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(59,130,246,0.28)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(n.x, n.y, 1.2, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(59,130,246,0.65)'; ctx.fill();
+      }
+
+      animId = requestAnimationFrame(draw);
+    }
+
+    const ro = new ResizeObserver(() => { resize(); initCircuit(); });
+    ro.observe(canvas);
+    resize();
+    initCircuit();
+    animId = requestAnimationFrame(draw);
+
+    return () => { cancelAnimationFrame(animId); ro.disconnect(); };
+  }, []);
+
   return (
-    <div aria-hidden style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-      <svg width="100%" height="100%" preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 600" style={{
-        position: 'absolute', inset: 0, width: '100%', height: '100%',
-        maskImage: 'linear-gradient(180deg, black 0%, rgba(0,0,0,0.5) 45%, transparent 85%)',
-        WebkitMaskImage: 'linear-gradient(180deg, black 0%, rgba(0,0,0,0.5) 45%, transparent 85%)',
-      }}>
-        <defs>
-          <pattern id="bm-circuit" width="200" height="200" patternUnits="userSpaceOnUse" patternTransform="rotate(0)">
-            <g fill="none" stroke="#3b82f6" strokeWidth="1.4" strokeLinecap="round" strokeOpacity="0.16">
-              <path d="M10 30 H70 a10 10 0 0 0 10 -10 V0" />
-              <path d="M0 90 H50 a12 12 0 0 1 12 12 V150" />
-              <path d="M200 40 H150 a10 10 0 0 1 -10 10 V120 a14 14 0 0 0 14 14 H200" />
-              <path d="M30 200 V150 a10 10 0 0 1 10 -10 H110" />
-              <path d="M120 0 V40 a10 10 0 0 0 10 10 H180 a12 12 0 0 1 12 12 V120" />
-              <path d="M70 200 V170 H140 a10 10 0 0 0 10 -10 V110" />
-              <path d="M0 150 H30" />
-              <path d="M160 200 V175 a8 8 0 0 1 8 -8 H200" />
-            </g>
-            <g fill="#3b82f6">
-              {[
-                [10, 30], [80, 0], [0, 90], [62, 150], [150, 40], [200, 134],
-                [30, 200], [110, 140], [120, 0], [192, 120], [70, 200], [150, 110],
-                [0, 150], [160, 200], [200, 167],
-              ].map(([x, y], i) => (
-                <g key={i} style={{ animation: `bm-pad ${5 + (i % 5)}s ease-in-out ${i * 0.4}s infinite` }}>
-                  <circle cx={x} cy={y} r="3.4" fillOpacity="0.22" />
-                  <circle cx={x} cy={y} r="1.5" fillOpacity="0.5" />
-                </g>
-              ))}
-            </g>
-          </pattern>
-        </defs>
-        <rect width="8000" height="6000" fill="url(#bm-circuit)" />
-      </svg>
-    </div>
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'fixed', inset: 0, width: '100%', height: '100%',
+        pointerEvents: 'none', zIndex: 0, opacity: 0.55,
+      }}
+    />
   );
 }
 
+/* ─────────────────────────────────────────
+   Main page
+───────────────────────────────────────── */
 export default function LearnPage() {
   const router = useRouter();
   const {
     hasAccess, isLessonCompleted, canAccessLevel,
     canAccessLesson, isLevelCompleted, initialize, isCheckingSub,
   } = useActivityStore();
-  const hasEsp32 = hasAccess('esp32');
+
+  const hasEsp32       = hasAccess('esp32');
   const [mounted, setMounted] = useState(false);
   const [openLevels, setOpenLevels] = useState<Set<number>>(new Set());
 
@@ -106,20 +226,38 @@ export default function LearnPage() {
     });
   };
 
-  /* ── total XP earned across all lessons ── */
   const totalXP = mounted
     ? LEVELS.reduce((acc, level) =>
         acc + level.lessons.filter(l => isLessonCompleted(l.id)).length * XP_PER_LESSON, 0)
     : 0;
 
+  const completedLessons = mounted
+    ? LEVELS.reduce((acc, level) => acc + level.lessons.filter(l => isLessonCompleted(l.id)).length, 0)
+    : 0;
+
+  const totalLessons = LEVELS.reduce((acc, level) => acc + level.lessons.length, 0);
+
+  /* first incomplete accessible lesson */
+  const nextLesson = mounted ? (() => {
+    for (const level of LEVELS) {
+      for (const lesson of level.lessons) {
+        if (canAccessLesson(level.id, lesson.id) && !isLessonCompleted(lesson.id)) {
+          return { level, lesson };
+        }
+      }
+    }
+    return null;
+  })() : null;
+
+  /* ── Loading ── */
   if (!mounted || isCheckingSub) {
     return (
       <>
-        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-        <main style={{ minHeight: '100vh', background: '#04080f', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Inter",sans-serif' }}>
+        <GoogleFonts />
+        <main style={{ minHeight: '100vh', background: BG, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: MONO }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ width: 36, height: 36, borderRadius: '50%', border: '2.5px solid rgba(59,130,246,0.15)', borderTop: '2.5px solid #3b82f6', animation: 'lp-spin 0.8s linear infinite', margin: '0 auto' }} />
-            <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(240,244,255,0.45)', fontFamily: '"JetBrains Mono",monospace', letterSpacing: '0.05em' }}>Loading learning path...</p>
+            <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(240,244,255,0.4)', letterSpacing: '0.05em' }}>Loading learning path…</p>
           </div>
           <style>{`@keyframes lp-spin { to { transform: rotate(360deg); } }`}</style>
         </main>
@@ -129,130 +267,148 @@ export default function LearnPage() {
 
   return (
     <>
-      <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+      <GoogleFonts />
+      <PageStyles />
 
-      <style suppressHydrationWarning>{`
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes lp-spin   { to { transform: rotate(360deg); } }
-        @keyframes lp-fadein { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
-        @keyframes lp-drop   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
-        @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+      <div style={{ minHeight: '100vh', background: BG, position: 'relative' }}>
+        <CircuitCanvas />
 
-        .lp-level-card {
-          border-radius: 18px; position: relative; overflow: hidden;
-          animation: lp-fadein .5s ease both;
-          transition: border-color .25s, box-shadow .3s;
-        }
-        .lp-level-card.accessible { background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); }
-        .lp-level-card.locked     { background: rgba(255,255,255,0.01);  border: 1px solid rgba(255,255,255,0.05); }
-        .lp-level-card.open       { box-shadow: 0 20px 56px rgba(0,0,0,.4); }
-
-        .lp-accent-bar { position: absolute; top: 0; left: 0; width: 3px; height: 100%; border-radius: 18px 0 0 18px; }
-
-        .lp-header-btn {
-          width: 100%; background: none; border: none; cursor: pointer;
-          padding: 22px 26px 22px 30px; text-align: left;
-          display: flex; align-items: center; gap: 18px;
-          transition: background .18s;
-        }
-        .lp-header-btn:hover:not(:disabled) { background: rgba(255,255,255,0.015); }
-        .lp-header-btn:disabled { cursor: not-allowed; }
-
-        .lp-lesson-card {
-          border-radius: 16px; overflow: hidden; position: relative;
-          transition: transform .3s cubic-bezier(0.16,1,0.3,1), border-color .25s, box-shadow .3s, background .2s;
-          animation: lp-drop .3s ease both;
-        }
-        .lp-lesson-card.clickable { cursor: pointer; }
-        .lp-lesson-card.clickable:hover {
-          transform: translateY(-5px);
-          box-shadow: 0 24px 56px -20px rgba(0,0,0,0.8);
-          border-color: rgba(255,255,255,0.16) !important;
-        }
-        .lp-lesson-card.clickable:hover .lp-lesson-arrow { opacity: 1 !important; transform: translateX(4px) !important; }
-        .lp-lesson-card.clickable:hover .lp-lesson-icon { transform: scale(1.08) rotate(-4deg) !important; }
-        .lp-lesson-card.clickable:hover .lp-lesson-glow { opacity: 1 !important; }
-
-        .lp-back-btn:hover    { color: #f0f4ff !important; }
-        .lp-unlock-link:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,158,11,0.35) !important; }
-        .lp-unlock-sm:hover   { background: rgba(245,158,11,0.13) !important; border-color: rgba(245,158,11,0.3) !important; }
-        @keyframes lp-pad { 0%,100%{opacity:.25} 50%{opacity:.9} }
-        @keyframes bm-pad { 0%,100%{opacity:.25} 50%{opacity:.9} }
-      `}</style>
-
-      <div style={{ minHeight: '100vh', background: '#04080f' }}>
-        <CircuitBg />
-        <main style={{ minHeight: '100vh', background: 'transparent', color: '#f0f4ff', fontFamily: '"Inter",sans-serif' }}>
+        <main style={{ position: 'relative', zIndex: 1, color: '#f0f4ff', fontFamily: SANS }}>
           <Header />
-          <div style={{ maxWidth: 860, margin: '0 auto', padding: '40px 28px 80px' }}>
 
-            {/* Back */}
-            <button type="button" onClick={() => router.push('/dashboard')} className="lp-back-btn"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: 'rgba(240,244,255,0.4)', fontFamily: '"Inter",sans-serif', display: 'flex', alignItems: 'center', gap: 6, transition: 'color .15s', padding: 0 }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px 80px' }}>
+
+            {/* ── Back ── */}
+            <button
+              type="button"
+              onClick={() => router.push('/dashboard')}
+              className="lp-back-btn"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, color: 'rgba(240,244,255,0.38)', fontFamily: SANS, display: 'flex', alignItems: 'center', gap: 6, padding: 0, transition: 'color .15s', marginBottom: 28 }}
+            >
               ← Dashboard
             </button>
 
-            {/* Heading */}
-            <div style={{ marginTop: 28, marginBottom: 8 }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 99, padding: '5px 15px', marginBottom: 16 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', animation: 'pulse-dot 2s infinite', display: 'inline-block' }} />
-                <span style={{ fontSize: 10, fontWeight: 600, color: '#fbbf24', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: '"JetBrains Mono",monospace' }}>Structured Learning</span>
-              </div>
+            {/* ══════════════════════════════
+                HERO
+            ══════════════════════════════ */}
+            <div style={{
+              borderRadius: 20, overflow: 'hidden', marginBottom: 24,
+              border: `1px solid ${LINE}`,
+              background: 'linear-gradient(160deg,#050c1a 0%,#060d19 60%,#050c1a 100%)',
+              position: 'relative',
+            }}>
+              {/* Grid overlay */}
+              <div style={{
+                position: 'absolute', inset: 0, pointerEvents: 'none',
+                backgroundImage: `linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px)`,
+                backgroundSize: '48px 48px',
+                maskImage: 'radial-gradient(ellipse 65% 100% at 70% 0%,black,transparent)',
+                WebkitMaskImage: 'radial-gradient(ellipse 65% 100% at 70% 0%,black,transparent)',
+              }} />
 
-              {/* Title row + XP pill */}
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+              {/* Glow orb */}
+              <div style={{ position: 'absolute', top: -90, right: -30, width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle,rgba(59,130,246,0.1),transparent 60%)', pointerEvents: 'none' }} />
+
+              <div style={{ padding: '26px 30px 28px', position: 'relative', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20 }}>
+
+                {/* Left: title + CTA */}
                 <div>
-                  <h1 style={{ fontFamily: '"Space Grotesk",sans-serif', fontSize: 32, fontWeight: 700, letterSpacing: -1, lineHeight: 1.1, color: '#f0f4ff' }}>Learning Path</h1>
-                  <p style={{ marginTop: 8, fontSize: 14, color: 'rgba(240,244,255,0.45)', lineHeight: 1.6 }}>Master ESP32 from basics to IoT cloud projects</p>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', borderRadius: 99, marginBottom: 12, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.18)' }}>
+                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#f59e0b', animation: 'lp-pulse 2s infinite', display: 'inline-block' }} />
+                    <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase' as const, color: '#93c5fd', fontFamily: MONO }}>Structured Learning</span>
+                  </div>
+
+                  <h1 style={{ margin: '0 0 6px', fontSize: 'clamp(1.8rem,3.5vw,2.4rem)', fontWeight: 900, color: '#f0f4ff', letterSpacing: '-0.025em', lineHeight: 1.05, fontFamily: SANS }}>
+                    Learning Path
+                  </h1>
+                  <p style={{ margin: '0 0 18px', fontSize: 13, color: 'rgba(240,244,255,0.48)', fontFamily: MONO, lineHeight: 1.65, maxWidth: 400 }}>
+                    Master ESP32 from bare metal to full IoT cloud deployments.
+                  </p>
+
+                  {nextLesson && (
+                    <button
+                      type="button"
+                      className="lp-hero-cta"
+                      onClick={() => router.push(`/learn/level/${nextLesson.level.id}/lesson/${nextLesson.lesson.id}`)}
+                      style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 8,
+                        padding: '10px 20px', borderRadius: 11,
+                        background: 'cadetblue',
+                        border: 'none', cursor: 'pointer', color: '#fff',
+                        fontSize: 13, fontWeight: 700, fontFamily: SANS,
+                        boxShadow: '0 6px 20px -6px rgba(59,130,246,0.6)',
+                        transition: 'transform .2s, box-shadow .2s',
+                      }}
+                    >
+                      <PlayIcon />
+                      {completedLessons > 0 ? `Continue — ${nextLesson.lesson.title}` : `Start — ${nextLesson.lesson.title}`}
+                    </button>
+                  )}
                 </div>
 
-                {/* XP earned pill — same style as activities stat cards */}
-                {mounted && (
-                  <div style={{
-                    display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '10px 16px', borderRadius: 14,
-                    background: 'rgba(245,158,11,0.08)',
-                    border: '1px solid rgba(245,158,11,0.2)',
-                    flexShrink: 0,
-                  }}>
-                    <span style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(245,158,11,0.14)', color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <BoltIcon size={15} />
-                    </span>
+                {/* Right: XP ring + stats */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end' }}>
+                  {/* XP ring card */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: `1px solid ${LINE}` }}>
+                    <XpRing xp={totalXP} />
                     <div>
-                      <p style={{ margin: '0 0 1px', fontSize: 17, fontWeight: 700, color: '#fbbf24', fontFamily: '"Space Grotesk",sans-serif', lineHeight: 1 }}>{totalXP}</p>
-                      <p style={{ margin: 0, fontSize: 9, color: 'rgba(245,158,11,0.6)', fontFamily: '"JetBrains Mono",monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>XP Earned</p>
+                      <p style={{ margin: '0 0 2px', fontSize: 9, color: 'rgba(240,244,255,0.3)', fontFamily: MONO, textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>XP Earned</p>
+                      <p style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 900, color: '#f0f4ff', fontFamily: SANS }}>
+                        {totalXP.toLocaleString()}
+                        <span style={{ fontSize: 10, color: 'rgba(240,244,255,0.3)', fontWeight: 400 }}> / {totalLessons * XP_PER_LESSON}</span>
+                      </p>
+                      <div style={{ width: 100, height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', width: `${Math.round((totalXP / (totalLessons * XP_PER_LESSON)) * 100)}%`, borderRadius: 99, background: 'linear-gradient(90deg,#f59e0b,#fbbf24)', transition: 'width 1.2s ease' }} />
+                      </div>
                     </div>
                   </div>
-                )}
+
+                  {/* Stat pills */}
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {[
+                      { val: completedLessons,              label: 'Done',   color: '#10b981' },
+                      { val: totalLessons,                  label: 'Total',  color: '#3b82f6' },
+                      { val: LEVELS.filter(l => isLevelCompleted(l.id)).length + 1, label: 'Levels', color: '#8b5cf6' },
+                      { val: completedLessons * 4,          label: 'Skills', color: '#f59e0b' },
+                    ].map(s => (
+                      <div key={s.label} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: `1px solid ${LINE}`, textAlign: 'center', minWidth: 50 }}>
+                        <p style={{ margin: '0 0 1px', fontSize: 16, fontWeight: 900, color: s.color, fontFamily: SANS, lineHeight: 1 }}>{s.val}</p>
+                        <p style={{ margin: 0, fontSize: 8, color: 'rgba(240,244,255,0.3)', fontFamily: MONO, textTransform: 'uppercase' as const, letterSpacing: '0.06em' }}>{s.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
 
-            {/* Unlock banner */}
+            {/* ── Unlock banner ── */}
             {!hasEsp32 && (
-              <div style={{ marginTop: 28, borderRadius: 16, padding: '18px 22px', background: 'linear-gradient(135deg,rgba(245,158,11,0.08),rgba(217,119,6,0.06))', border: '1px solid rgba(245,158,11,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+              <div style={{ marginBottom: 20, borderRadius: 16, padding: '16px 20px', background: 'linear-gradient(135deg,rgba(245,158,11,0.07),rgba(217,119,6,0.05))', border: '1px solid rgba(245,158,11,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-                    <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b' }} />
-                    <p style={{ fontSize: 13, fontWeight: 700, color: '#fbbf24', fontFamily: '"Space Grotesk",sans-serif' }}>Limited Preview Mode</p>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', display: 'inline-block' }} />
+                    <p style={{ fontSize: 13, fontWeight: 700, color: '#fbbf24', fontFamily: SANS }}>Limited Preview Mode</p>
                   </div>
-                  <p style={{ fontSize: 12.5, color: 'rgba(245,158,11,0.7)', lineHeight: 1.6 }}>Only Lesson 1-1 is available. Activate your hardware kit to unlock all levels and lessons.</p>
+                  <p style={{ fontSize: 12.5, color: 'rgba(245,158,11,0.65)', lineHeight: 1.6 }}>Only Lesson 1-1 is available. Activate your hardware kit to unlock all levels.</p>
                 </div>
-                <Link href="/redeem" className="lp-unlock-link" style={{ flexShrink: 0, borderRadius: 11, padding: '10px 22px', background: 'linear-gradient(135deg,#d97706,#f59e0b)', fontSize: 12.5, fontWeight: 700, color: '#fff', boxShadow: '0 4px 18px rgba(245,158,11,0.28)', textDecoration: 'none', display: 'inline-block', transition: 'all .22s' }}>
+                <Link href="/redeem" className="lp-unlock-link" style={{ flexShrink: 0, borderRadius: 11, padding: '10px 22px', background: 'linear-gradient(135deg,#d97706,#f59e0b)', fontSize: 12.5, fontWeight: 700, color: '#fff', boxShadow: '0 4px 18px rgba(245,158,11,0.25)', textDecoration: 'none', display: 'inline-block', transition: 'all .22s' }}>
                   Unlock Full Access →
                 </Link>
               </div>
             )}
 
-            {/* Level cards */}
-            <section style={{ marginTop: 32, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {/* ══════════════════════════════
+                LEVEL CARDS
+            ══════════════════════════════ */}
+            <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {LEVELS.map((level, idx) => {
                 const levelAccessible = canAccessLevel(level.id);
-                const levelDone = isLevelCompleted(level.id);
-                const completedCount = level.lessons.filter(l => isLessonCompleted(l.id)).length;
-                const levelProgress = level.lessons.length > 0 ? Math.round((completedCount / level.lessons.length) * 100) : 0;
-                const levelXP = completedCount * XP_PER_LESSON;
-                const accent = LEVEL_ACCENTS[(level.id - 1) % LEVEL_ACCENTS.length];
-                const isOpen = openLevels.has(level.id);
+                const levelDone       = isLevelCompleted(level.id);
+                const completedCount  = level.lessons.filter(l => isLessonCompleted(l.id)).length;
+                const levelProgress   = level.lessons.length > 0 ? Math.round((completedCount / level.lessons.length) * 100) : 0;
+                const levelXP         = completedCount * XP_PER_LESSON;
+                const accent          = LEVEL_ACCENTS[(level.id - 1) % LEVEL_ACCENTS.length];
+                const isOpen          = openLevels.has(level.id);
 
                 return (
                   <div
@@ -260,45 +416,47 @@ export default function LearnPage() {
                     className={`lp-level-card ${levelAccessible ? 'accessible' : 'locked'} ${isOpen ? 'open' : ''}`}
                     style={{ animationDelay: `${idx * 55}ms` }}
                   >
-                    <div className="lp-accent-bar" style={{ background: levelAccessible ? accent : 'rgba(255,255,255,0.08)' }} />
+                    {/* Accent bar */}
+                    <div style={{ position: 'absolute', top: 0, left: 0, width: 3, height: '100%', borderRadius: '18px 0 0 18px', background: levelAccessible ? accent : 'rgba(255,255,255,0.08)' }} />
 
-                    {/* ── Header row ── */}
+                    {/* Header button */}
                     <button
                       type="button"
                       disabled={!levelAccessible}
                       onClick={() => levelAccessible && toggleLevel(level.id)}
                       className="lp-header-btn"
+                      style={{background:'rgba(255,255,255,0.01)'}}
+
                     >
                       {/* Number badge */}
-                      <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: levelAccessible ? (accent + '18') : 'rgba(255,255,255,0.04)', border: `1px solid ${levelAccessible ? (accent + '28') : 'rgba(255,255,255,0.07)'}`, fontFamily: '"Space Grotesk",sans-serif', fontSize: 16, fontWeight: 700, color: levelAccessible ? accent : 'rgba(240,244,255,0.25)', transition: 'all .3s' }}>
+                      <div style={{ width: 40, height: 40, borderRadius: 12, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: levelAccessible ? `${accent}18` : 'rgba(255,255,255,0.04)', border: `1px solid ${levelAccessible ? `${accent}28` : 'rgba(255,255,255,0.07)'}`, fontFamily: SANS, fontSize: 16, fontWeight: 700, color: levelAccessible ? accent : 'rgba(240,244,255,0.25)', transition: 'all .3s' }}>
                         {level.id}
                       </div>
 
                       {/* Text block */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-                          <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: '"JetBrains Mono",monospace', color: levelAccessible ? accent : 'rgba(240,244,255,0.2)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' as const, fontFamily: MONO, color: levelAccessible ? accent : 'rgba(240,244,255,0.2)' }}>
                             Level {level.id}
                           </span>
                           {levelDone && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', fontSize: 10, fontWeight: 600, color: '#6ee7b7', fontFamily: '"JetBrains Mono",monospace' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', fontSize: 10, fontWeight: 600, color: '#6ee7b7', fontFamily: MONO }}>
                               <CheckIcon /> Completed
                             </span>
                           )}
                           {!levelAccessible && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', fontSize: 10, fontWeight: 500, color: 'rgba(240,244,255,0.28)', fontFamily: '"JetBrains Mono",monospace' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', fontSize: 10, fontWeight: 500, color: 'rgba(240,244,255,0.28)', fontFamily: MONO }}>
                               <LockIcon /> Locked
                             </span>
                           )}
-                          {/* XP badge on level header */}
                           {levelAccessible && levelXP > 0 && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 99, background: `${accent}12`, border: `1px solid ${accent}28`, fontSize: 9.5, fontWeight: 700, color: accent, fontFamily: '"JetBrains Mono",monospace' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 99, background: `${accent}12`, border: `1px solid ${accent}28`, fontSize: 9.5, fontWeight: 700, color: accent, fontFamily: MONO }}>
                               <BoltIcon size={8} /> {levelXP} XP
                             </span>
                           )}
                         </div>
 
-                        <h2 style={{ fontFamily: '"Space Grotesk",sans-serif', fontSize: 16, fontWeight: 700, color: levelAccessible ? '#f0f4ff' : 'rgba(240,244,255,0.3)', letterSpacing: -0.3, margin: '0 0 4px', lineHeight: 1.2, transition: 'color .3s' }}>
+                        <h2 style={{ fontFamily: SANS, fontSize: 16, fontWeight: 700, color: levelAccessible ? '#f0f4ff' : 'rgba(240,244,255,0.3)', letterSpacing: -0.3, margin: '0 0 4px', lineHeight: 1.2, transition: 'color .3s' }}>
                           {level.title}
                         </h2>
                         <p style={{ fontSize: 12.5, lineHeight: 1.6, margin: 0, color: levelAccessible ? 'rgba(240,244,255,0.42)' : 'rgba(240,244,255,0.18)', transition: 'color .3s' }}>
@@ -308,8 +466,8 @@ export default function LearnPage() {
                         {levelAccessible && completedCount > 0 && (
                           <div style={{ marginTop: 12, maxWidth: 300 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                              <span style={{ fontSize: 10, color: 'rgba(240,244,255,0.35)', fontFamily: '"JetBrains Mono",monospace' }}>{completedCount} / {level.lessons.length} lessons</span>
-                              <span style={{ fontSize: 10, color: accent, fontFamily: '"JetBrains Mono",monospace', fontWeight: 700 }}>{levelProgress}%</span>
+                              <span style={{ fontSize: 10, color: 'rgba(240,244,255,0.35)', fontFamily: MONO }}>{completedCount} / {level.lessons.length} lessons</span>
+                              <span style={{ fontSize: 10, color: accent, fontFamily: MONO, fontWeight: 700 }}>{levelProgress}%</span>
                             </div>
                             <div style={{ height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.05)' }}>
                               <div style={{ height: 3, borderRadius: 99, background: accent, width: `${levelProgress}%`, transition: 'width .7s cubic-bezier(0.16,1,0.3,1)', opacity: 0.85 }} />
@@ -318,15 +476,11 @@ export default function LearnPage() {
                         )}
                       </div>
 
-                      {/* Right: count + xp potential + chevron */}
+                      {/* Right: counts + chevron */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                         <div style={{ textAlign: 'right' }}>
-                          <p style={{ margin: '0 0 2px', fontSize: 10, color: 'rgba(240,244,255,0.28)', fontFamily: '"JetBrains Mono",monospace', whiteSpace: 'nowrap' }}>
-                            {level.lessons.length} lessons
-                          </p>
-                          <p style={{ margin: 0, fontSize: 9.5, color: 'rgba(245,158,11,0.5)', fontFamily: '"JetBrains Mono",monospace', whiteSpace: 'nowrap' }}>
-                            {level.lessons.length * XP_PER_LESSON} XP total
-                          </p>
+                          <p style={{ margin: '0 0 2px', fontSize: 10, color: 'rgba(240,244,255,0.28)', fontFamily: MONO, whiteSpace: 'nowrap' }}>{level.lessons.length} lessons</p>
+                          <p style={{ margin: 0, fontSize: 9.5, color: 'rgba(245,158,11,0.5)', fontFamily: MONO, whiteSpace: 'nowrap' }}>{level.lessons.length * XP_PER_LESSON} XP total</p>
                         </div>
                         {levelAccessible && (
                           <div style={{ color: isOpen ? accent : 'rgba(240,244,255,0.28)', transition: 'color .2s' }}>
@@ -338,12 +492,12 @@ export default function LearnPage() {
 
                     {/* ── Lesson dropdown ── */}
                     {isOpen && levelAccessible && (
-                      <div style={{ padding: '0 16px 16px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                        <div style={{ paddingTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 8 }}>
+                      <div style={{ padding: '0 16px 16px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div style={{ paddingTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 8 }}>
                           {level.lessons.map((lesson, li) => {
-                            const accessible = canAccessLesson(level.id, lesson.id);
-                            const done = isLessonCompleted(lesson.id);
-                            const lessonToneColor = done ? '#10b981' : accessible ? accent : 'rgba(255,255,255,0.15)';
+                            const accessible      = canAccessLesson(level.id, lesson.id);
+                            const done            = isLessonCompleted(lesson.id);
+                            const toneColor       = done ? '#10b981' : accessible ? accent : 'rgba(255,255,255,0.15)';
 
                             return (
                               <div
@@ -351,9 +505,7 @@ export default function LearnPage() {
                                 className={`lp-lesson-card ${accessible ? 'clickable' : ''}`}
                                 onClick={() => accessible && router.push(`/learn/level/${level.id}/lesson/${lesson.id}`)}
                                 style={{
-                                  background: done
-                                    ? 'linear-gradient(135deg,rgba(16,185,129,0.06),rgba(16,185,129,0.03))'
-                                    : 'linear-gradient(135deg,#0a1422,#0f1c30)',
+                                  background: done ? 'linear-gradient(135deg,rgba(16,185,129,0.06),rgba(16,185,129,0.03))' : 'linear-gradient(135deg,#0a1422,#0f1c30)',
                                   border: `1px solid ${done ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.07)'}`,
                                   opacity: !accessible ? 0.5 : 1,
                                   animationDelay: `${li * 35}ms`,
@@ -362,33 +514,31 @@ export default function LearnPage() {
                                 }}
                               >
                                 {/* Left accent bar */}
-                                <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: lessonToneColor, opacity: done ? 0.7 : 0.5, borderRadius: '16px 0 0 16px' }} />
+                                <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: toneColor, opacity: done ? 0.7 : 0.5, borderRadius: '16px 0 0 16px' }} />
 
-                                {/* Glow */}
-                                <div className="lp-lesson-glow" style={{ position: 'absolute', top: -30, right: -20, width: 120, height: 120, borderRadius: '50%', background: `radial-gradient(circle,${lessonToneColor}40,transparent 65%)`, opacity: 0, transition: 'opacity .35s', pointerEvents: 'none' }} />
+                                {/* Hover glow */}
+                                <div className="lp-lesson-glow" style={{ position: 'absolute', top: -30, right: -20, width: 120, height: 120, borderRadius: '50%', background: `radial-gradient(circle,${toneColor}40,transparent 65%)`, opacity: 0, transition: 'opacity .35s', pointerEvents: 'none' }} />
 
-                                {/* Icon badge */}
-                                <div className="lp-lesson-icon" style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 12, background: done ? 'rgba(16,185,129,0.15)' : (accent + '18'), border: `1px solid ${done ? 'rgba(16,185,129,0.25)' : (accent + '28')}`, color: done ? '#34d399' : accent, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform .35s cubic-bezier(0.16,1,0.3,1)', position: 'relative' }}>
+                                {/* Icon */}
+                                <div className="lp-lesson-icon" style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 12, background: done ? 'rgba(16,185,129,0.15)' : `${accent}18`, border: `1px solid ${done ? 'rgba(16,185,129,0.25)' : `${accent}28`}`, color: done ? '#34d399' : accent, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform .35s cubic-bezier(0.16,1,0.3,1)', position: 'relative' }}>
                                   {done ? <CheckIcon size={16} /> : !accessible ? <LockIcon size={14} /> : (
-                                    <span style={{ fontSize: 13, fontWeight: 700, fontFamily: '"Space Grotesk",sans-serif' }}>{li + 1}</span>
+                                    <span style={{ fontSize: 13, fontWeight: 700, fontFamily: SANS }}>{li + 1}</span>
                                   )}
                                 </div>
 
-                                {/* Text content */}
+                                {/* Body */}
                                 <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
-                                  {/* Title row + tags */}
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-                                    <h3 style={{ fontFamily: '"Space Grotesk",sans-serif', fontSize: 14, fontWeight: 700, color: accessible ? '#f0f4ff' : 'rgba(240,244,255,0.35)', margin: 0, letterSpacing: -0.2, lineHeight: 1.2 }}>
+                                    <h3 style={{ fontFamily: SANS, fontSize: 14, fontWeight: 700, color: accessible ? '#f0f4ff' : 'rgba(240,244,255,0.35)', margin: 0, letterSpacing: -0.2, lineHeight: 1.2 }}>
                                       {lesson.title}
                                     </h3>
                                     {done && (
-                                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', fontFamily: '"JetBrains Mono",monospace', padding: '2px 8px', borderRadius: 99, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.22)', color: '#34d399', textTransform: 'uppercase', flexShrink: 0 }}>Done</span>
+                                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', fontFamily: MONO, padding: '2px 8px', borderRadius: 99, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.22)', color: '#34d399', textTransform: 'uppercase' as const, flexShrink: 0 }}>Done</span>
                                     )}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, color: 'rgba(240,244,255,0.3)', fontFamily: '"JetBrains Mono",monospace', padding: '2px 7px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, color: 'rgba(240,244,255,0.3)', fontFamily: MONO, padding: '2px 7px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
                                       <ClockIcon /> {lesson.estimatedMinutes}m
                                     </span>
-                                    {/* XP per lesson */}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, fontWeight: 700, fontFamily: '"JetBrains Mono",monospace', padding: '2px 7px', borderRadius: 99, background: done ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.07)', border: `1px solid ${done ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.15)'}`, color: done ? '#fbbf24' : 'rgba(245,158,11,0.55)', flexShrink: 0 }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, fontWeight: 700, fontFamily: MONO, padding: '2px 7px', borderRadius: 99, background: done ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.07)', border: `1px solid ${done ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.15)'}`, color: done ? '#fbbf24' : 'rgba(245,158,11,0.55)', flexShrink: 0 }}>
                                       <BoltIcon size={8} /> +{XP_PER_LESSON} XP
                                     </span>
                                   </div>
@@ -397,12 +547,11 @@ export default function LearnPage() {
                                     {lesson.description}
                                   </p>
 
-                                  {/* Steps bar + CTA arrow */}
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                     <div style={{ flex: 1 }}>
                                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                        <span style={{ fontSize: 9.5, color: 'rgba(240,244,255,0.22)', fontFamily: '"JetBrains Mono",monospace' }}>{lesson.steps.length} steps</span>
-                                        {done && <span style={{ fontSize: 9.5, color: '#34d399', fontFamily: '"JetBrains Mono",monospace' }}>100%</span>}
+                                        <span style={{ fontSize: 9.5, color: 'rgb(240, 244, 255)', fontFamily: MONO }}>{lesson.steps.length} steps</span>
+                                        {done && <span style={{ fontSize: 9.5, color: '#34d399', fontFamily: MONO }}>100%</span>}
                                       </div>
                                       <div style={{ height: 2, borderRadius: 99, background: 'rgba(255,255,255,0.06)' }}>
                                         <div style={{ height: 2, borderRadius: 99, background: done ? '#10b981' : accent, width: done ? '100%' : '0%', transition: 'width .5s ease' }} />
@@ -415,7 +564,6 @@ export default function LearnPage() {
                                     )}
                                   </div>
 
-                                  {/* Locked lesson CTA */}
                                   {!accessible && (
                                     <div style={{ marginTop: 10 }}>
                                       {!hasEsp32 ? (
@@ -423,7 +571,7 @@ export default function LearnPage() {
                                           <LockIcon /> Unlock →
                                         </Link>
                                       ) : (
-                                        <p style={{ fontSize: 10, color: 'rgba(240,244,255,0.22)', fontFamily: '"JetBrains Mono",monospace', margin: 0 }}>Complete previous lesson first</p>
+                                        <p style={{ fontSize: 10, color: 'rgba(240,244,255,0.22)', fontFamily: MONO, margin: 0 }}>Complete previous lesson first</p>
                                       )}
                                     </div>
                                   )}
@@ -435,7 +583,7 @@ export default function LearnPage() {
                       </div>
                     )}
 
-                    {/* Locked level CTA */}
+                    {/* Locked level footer */}
                     {!levelAccessible && (
                       <div style={{ padding: '0 30px 18px' }}>
                         {!hasEsp32 ? (
@@ -443,7 +591,7 @@ export default function LearnPage() {
                             <LockIcon size={11} /> Unlock Full Access →
                           </Link>
                         ) : (
-                          <p style={{ fontSize: 11, color: 'rgba(240,244,255,0.28)', fontFamily: '"JetBrains Mono",monospace', margin: 0 }}>Complete the previous level to unlock</p>
+                          <p style={{ fontSize: 11, color: 'rgba(240,244,255,0.28)', fontFamily: MONO, margin: 0 }}>Complete the previous level to unlock</p>
                         )}
                       </div>
                     )}
@@ -455,5 +603,110 @@ export default function LearnPage() {
         </main>
       </div>
     </>
+  );
+}
+
+/* ─────────────────────────────────────────
+   XP ring (animated on mount)
+───────────────────────────────────────── */
+function XpRing({ xp }: { xp: number }) {
+  const MAX_XP   = 1050; // adjust to your actual max
+  const pct      = Math.min(xp / MAX_XP, 1);
+  const R        = 26;
+  const CIRC     = 2 * Math.PI * R;
+  const lvl      = Math.floor(xp / 210) + 1;
+  const lvlNames = ['NOVICE','MAKER','HACKER','BUILDER','WIZARD','GURU'];
+  const lvlName  = lvlNames[Math.min(lvl - 1, lvlNames.length - 1)];
+
+  const [offset, setOffset] = useState(CIRC);
+  useEffect(() => {
+    const t = setTimeout(() => setOffset(CIRC * (1 - pct)), 120);
+    return () => clearTimeout(t);
+  }, [pct, CIRC]);
+
+  return (
+    <div style={{ position: 'relative', width: 64, height: 64, flexShrink: 0 }}>
+      <svg width="64" height="64" viewBox="0 0 64 64" style={{ transform: 'rotate(-90deg)', display: 'block' }}>
+        <circle cx="32" cy="32" r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+        <circle cx="32" cy="32" r={R} fill="none" stroke="#f59e0b" strokeWidth="5" strokeLinecap="round"
+          strokeDasharray={CIRC} strokeDashoffset={offset}
+          style={{ transition: 'stroke-dashoffset 1.4s ease' }} />
+      </svg>
+      <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ fontSize: 16, fontWeight: 900, color: '#f0f4ff', fontFamily: SANS, lineHeight: 1 }}>{lvl}</span>
+        <span style={{ fontSize: 7, fontWeight: 700, color: '#f59e0b', fontFamily: MONO, textTransform: 'uppercase' as const, letterSpacing: '0.05em' }}>{lvlName}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────
+   Helpers
+───────────────────────────────────────── */
+function GoogleFonts() {
+  return <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />;
+}
+
+function PageStyles() {
+  return (
+    <style suppressHydrationWarning>{`
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+
+      @keyframes lp-spin   { to { transform: rotate(360deg); } }
+      @keyframes lp-fadein { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+      @keyframes lp-drop   { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:none} }
+      @keyframes lp-pulse  { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+      .lp-back-btn:hover { color: #f0f4ff !important; }
+
+      .lp-hero-cta:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 10px 26px -6px rgba(59,130,246,0.75) !important;
+      }
+
+      .lp-level-card {
+        border-radius: 18px;
+        position: relative;
+        overflow: hidden;
+        animation: lp-fadein .5s ease both;
+        transition: border-color .25s, box-shadow .3s;
+      }
+      .lp-level-card.accessible {
+        background: rgba(255,255,255,0.025);
+        border: 1px solid rgba(255,255,255,0.08);
+      }
+      .lp-level-card.locked {
+        background: rgba(255,255,255,0.01);
+        border: 1px solid rgba(255,255,255,0.05);
+      }
+      .lp-level-card.open { box-shadow: 0 20px 56px rgba(0,0,0,.45); }
+
+      .lp-header-btn {
+        width: 100%; background: none; border: none; cursor: pointer;
+        padding: 22px 26px 22px 30px; text-align: left;
+        display: flex; align-items: center; gap: 18px;
+        transition: background .18s;
+      }
+      .lp-header-btn:hover:not(:disabled) { background: rgba(255,255,255,0.015); }
+      .lp-header-btn:disabled { cursor: not-allowed; }
+
+      .lp-lesson-card {
+        border-radius: 16px; overflow: hidden; position: relative;
+        transition: transform .3s cubic-bezier(0.16,1,0.3,1), border-color .25s, box-shadow .3s, background .2s;
+        animation: lp-drop .3s ease both;
+      }
+      .lp-lesson-card.clickable { cursor: pointer; }
+      .lp-lesson-card.clickable:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 48px -18px rgba(0,0,0,.85);
+        border-color: rgba(255,255,255,0.16) !important;
+      }
+      .lp-lesson-card.clickable:hover .lp-lesson-arrow  { opacity: 1 !important; transform: translateX(0) !important; }
+      .lp-lesson-card.clickable:hover .lp-lesson-icon   { transform: scale(1.08) rotate(-4deg) !important; }
+      .lp-lesson-card.clickable:hover .lp-lesson-glow   { opacity: 1 !important; }
+
+      .lp-unlock-link:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(245,158,11,0.35) !important; }
+      .lp-unlock-sm:hover   { background: rgba(245,158,11,0.13) !important; border-color: rgba(245,158,11,0.3) !important; }
+    `}</style>
   );
 }

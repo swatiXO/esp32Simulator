@@ -62,21 +62,47 @@ const buildPayload = (state: ActivityStore, overrides: Partial<any> = {}) => ({
 // ─── Store ────────────────────────────────────────────────────────────────────
 
 export const useActivityStore = create<ActivityStore>()((set, get) => {
-   const updateStats= async (patch: Partial<{ xp: number; streak: number }>)=>{
-    const supabase = createClient();
+   const updateStats = async (
+  patch: Partial<{ xp: number; streak: number }>
+) => {
+  const supabase = createClient();
   const { userId } = get();
 
-  await supabase.from('user_stats').upsert(
-    {
-      user_id: userId,
-      user_xp: get().xp,
-      user_streak: get().streak,
-      ...patch,
-    },
-    { onConflict: 'user_id' }
-  );
+  console.log('[updateStats] START');
+  console.log('[updateStats] userId:', userId);
+  console.log('[updateStats] current state:', {
+    xp: get().xp,
+    streak: get().streak,
+  });
+  console.log('[updateStats] patch:', patch);
 
+  if (!userId) {
+    console.warn('[updateStats] ABORTED: No userId found in store');
+    return;
+  }
+
+  const payload = {
+    user_id: userId,
+    user_xp: get().xp,
+    user_streak: get().streak,
+    ...patch,
   };
+
+  console.log('[updateStats] final payload:', payload);
+
+  const { data, error } = await supabase
+    .from('user_stats')
+    .upsert(payload, { onConflict: 'user_id' })
+    .select();
+
+  if (error) {
+    console.error('[updateStats] Supabase error:', error);
+  } else {
+    console.log('[updateStats] success:', data);
+  }
+
+  console.log('[updateStats] END');
+};
  return{ 
   completed: [],
   stepProgress: {},
@@ -281,20 +307,47 @@ markActivityComplete: async (activityId) => {
       });
   },
 _updateStreak: async () => {
+  console.log('[updateStreak] START');
+
   const today = new Date().toISOString().split('T')[0];
   const { lastActive, streak } = get();
 
-  if (lastActive === today) return;
+  console.log('[updateStreak] today:', today);
+  console.log('[updateStreak] lastActive:', lastActive);
+  console.log('[updateStreak] current streak:', streak);
+
+  if (lastActive === today) {
+    console.log('[updateStreak] SKIP: already updated today');
+    return;
+  }
 
   const yesterday = new Date(Date.now() - 86400000)
     .toISOString()
     .split('T')[0];
 
-  const newStreak = lastActive === yesterday ? streak + 1 : 1;
+  console.log('[updateStreak] yesterday:', yesterday);
+
+  const continued = lastActive === yesterday;
+  const newStreak = continued ? streak + 1 : 1;
+
+  console.log('[updateStreak] continued streak?', continued);
+  console.log('[updateStreak] newStreak:', newStreak);
 
   set({ lastActive: today, streak: newStreak });
 
-  await updateStats({ streak: newStreak });
+  console.log('[updateStreak] Zustand updated ->', {
+    lastActive: today,
+    streak: newStreak,
+  });
+
+  try {
+    await updateStats({ streak: newStreak });
+    console.log('[updateStreak] DB sync SUCCESS');
+  } catch (err) {
+    console.error('[updateStreak] DB sync FAILED:', err);
+  }
+
+  console.log('[updateStreak] END');
 },
 _updateXp: async (toBeAdded: number) => {
   const supabase = createClient();
@@ -330,7 +383,7 @@ console.log("new XP: ", get().xp)
         completed: [],
         step_progress: {},
         completed_lessons: [],
-        streak: 0,
+        user_streak: 0,
         last_active: null,
         user_progress: 0,
       },

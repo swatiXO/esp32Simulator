@@ -7,6 +7,7 @@ import { ACTIVITIES, type Activity } from '@/lib/activitiesData';
 import { useAppStore } from '@/store/useAppStore';
 import { useActivityStore } from '@/store/useActivityStore';
 import ActivityStoreInitializer from '@/components/ActivityStoreInitializer'
+import { createClient } from '@/utils/supabase/client';
 
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -60,6 +61,7 @@ export default function DashboardPage() {
   const [activities,     setActivities] = useState<Activity[]>([]);
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
+const supabase = createClient();
 
   const completedCount = mounted ? completed.length : 0;
   const clientStreak = mounted ? streak : 0;
@@ -67,13 +69,20 @@ export default function DashboardPage() {
   const nextActivity = mounted ? activities.find((a) => !isCompleted(a.id)) : activities[0];
 
   // XP Logic (same as activities page)
-const xpMax = mounted
-  ? activities.reduce((sum, a) => sum + (a.reward ?? 0), 0)
-  : 0;
+const xpMax = 1900
   const xpPct = Math.min(100, Math.round(xp / xpMax * 100));
   const lvl   = completedCount === 0 ? 1 : completedCount <= 2 ? 2 : 3;
+  const [user, setUser] = useState<any>(null);
 
-  const lvlName = ['', 'Beginner', 'Explorer', 'Maker'][lvl];
+  const lvlName = ['Novice', 'Beginner', 'Explorer', 'Maker'][lvl];
+useEffect(() => {
+  const fetchUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    setUser(user);
+  };
+
+  fetchUser();
+}, []);
 
   return (
     <main style={{ minHeight: '100vh', background: BG, color: TEXT, fontFamily: '"Inter",system-ui,sans-serif' }}>
@@ -141,7 +150,7 @@ const xpMax = mounted
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREEN, animation: 'bm-pulse 2s infinite' }} />
                 <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: BLUE_LT, fontFamily: '"Inter", system-ui, sans-serif' }}>Your Workspace</span>
               </div>
-              <h1 style={{ fontSize: 'clamp(27px,4vw,36px)', fontWeight: 700, lineHeight: 1.08, letterSpacing: -0.6, color: TEXT }}>Welcome back</h1>
+              <h1 style={{ fontSize: 'clamp(27px,4vw,36px)', fontWeight: 700, lineHeight: 1.08, letterSpacing: -0.6, color: TEXT }}> Welcome back, {user?.user_metadata?.full_name || user?.email?.split('@')[0]}</h1>
               <p style={{ marginTop: 10, fontSize: 14.5, color: MUTED, maxWidth: 440, lineHeight: 1.6 }}>
                 {completedCount === 0
                   ? 'Start your first guided project and begin building real ESP32 hardware, one step at a time.'

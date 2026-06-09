@@ -209,11 +209,11 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
 
       {/* timeline */}
       <div style={{ padding: '14px 16px 16px', position: 'relative' }}>
-        <div style={{ position: 'absolute', left: 30, top: 14, bottom: 16, width: 1, background: 'rgba(255,255,255,0.06)', borderRadius: 1 }}/>
+
         <div style={{
-          position: 'absolute', left: 30, top: 14, width: 1, borderRadius: 1,
+          position: 'absolute', left: 35, top: 22, width: 1, borderRadius: 1,
           background: 'linear-gradient(180deg,#10b981,#3b82f6)',
-          height: `${Math.max(0, doneCount / Math.max(activities.length, 1) * 100)}%`,
+          height: `${Math.max(0, doneCount / Math.max(activities.length, 1) * 70)}%`,
           transition: 'height 1s ease',
         }}/>
 
@@ -298,22 +298,59 @@ export default function ActivitiesPage() {
   const [filter,         setFilter]     = useState<Filter>('All');
   const [search,         setSearch]     = useState('');
 
-  useEffect(() => {
-    const load = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user?.id) await initialize();
-      const { data, error } = await supabase
+ useEffect(() => {
+  const load = async () => {
+    const supabase = createClient();
+
+
+    // 1. Get user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user?.id) {
+      setLoading(false);
+      return;
+    }
+
+
+    await initialize();
+
+    // 2. Load activities
+    const { data: activitiesData, error: activitiesError } = await supabase
       .from('activities')
       .select('*');
 
-    setActivities(data || []);
-      if (user?.id) setDone(activities.filter((a: Activity) => isCompleted(a.id)).length);
-      setLoading(false);
-      setMounted(true);
-    };
-    load();
-  }, []);
+    if (activitiesError) {
+      console.error('[init] activities error:', activitiesError);
+    }
+
+    const activitiesList = activitiesData || [];
+    setActivities(activitiesList);
+
+    // 3. Load completed activities
+    const { data: completedactivities, error: completedError } = await supabase
+      .from('user_activities')
+      .select('*')
+      .eq('user_id', user.id);
+
+    if (completedError) {
+      console.error('[init] completed error:', completedError);
+    }
+
+
+    // 4. Compute done count (DO NOT use state yet)
+ 
+     const completed = completedactivities?.[0]?.completed ?? [];
+        const doneCount = completed.length
+
+    setDone(doneCount);
+    setLoading(false);
+    setMounted(true);
+  };
+
+  load();
+}, []);
 
   const filtered = activities.filter(a => {
     const mf = filter === 'All' || a.difficulty === filter;
@@ -546,7 +583,7 @@ const safeNav = (a: Activity) => {
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 10px 26px -6px rgba(59,130,246,0.75)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px -6px rgba(59,130,246,0.6)'; }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    {mounted && completedCount > 0 ? `Continue — ${next.title}` : 'Start First Mission'}
+                    {mounted && completedCount > 0 ? `Continue — ${next.title}` : `Start Next Activity:  ${next.title}`}
                   </button>
                 )}
               </div>
@@ -582,7 +619,7 @@ const safeNav = (a: Activity) => {
                     { val: mounted ? completedCount : 0,   label: 'Done',   color: '#10b981' },
                     { val: activities.length,               label: 'Total',  color: '#3b82f6' },
                     { val: mounted ? (streak ?? 0) : 0,    label: 'Streak', color: '#ef4444' },
-                    { val: mounted ? completedCount * 4 : 0, label: 'Skills', color: '#8b5cf6' },
+                    { val:completedCount , label: 'Skills', color: '#8b5cf6' },
                   ].map(s => (
                     <div key={s.label} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: `1px solid ${LINE}`, textAlign: 'center', minWidth: 48 }}>
                       <p style={{ margin: '0 0 1px', fontSize: 16, fontWeight: 900, color: s.color, fontFamily: SANS, lineHeight: 1 }}>{s.val}</p>
