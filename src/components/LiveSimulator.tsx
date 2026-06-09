@@ -48,7 +48,7 @@ const SerialLine = React.memo(function SerialLine({ line, index }: { line: strin
       padding: '1px 0',
     }}>
       <span style={{
-        fontFamily: INTER,
+        fontFamily: "INTER",
         fontSize: 9,
         color: FAINT,
         minWidth: 28,
@@ -59,7 +59,7 @@ const SerialLine = React.memo(function SerialLine({ line, index }: { line: strin
         {String(index + 1).padStart(2, '0')}
       </span>
       <span style={{
-        fontFamily: INTER,
+        fontFamily: "INTER",
         fontSize: 11,
         color: line ? '#a5d6ff' : FAINT,
         whiteSpace: 'pre-wrap',
@@ -119,7 +119,7 @@ export default function LiveSimulator() {
             letterSpacing: '0.1em',
             textTransform: 'uppercase',
             color: MUTED,
-            fontFamily: INTER,
+            fontFamily: "INTER",
           }}>
             Simulator
           </span>
@@ -132,7 +132,7 @@ export default function LiveSimulator() {
             borderRadius: 99,
             fontSize: 10,
             fontWeight: 700,
-            fontFamily: INTER,
+            fontFamily: "INTER",
             background: isRunning ? 'rgba(16,185,129,0.12)' : 'rgba(255,255,255,0.05)',
             border: `1px solid ${isRunning ? 'rgba(16,185,129,0.3)' : LINE}`,
             color: isRunning ? GREEN : FAINT,
@@ -222,7 +222,7 @@ export default function LiveSimulator() {
               letterSpacing: '0.14em',
               textTransform: 'uppercase',
               color: 'rgba(59,130,246,0.5)',
-              fontFamily: INTER,
+              fontFamily: "INTER",
             }}>
               Interactive Hardware
             </span>
@@ -232,7 +232,7 @@ export default function LiveSimulator() {
                 borderRadius: 99,
                 fontSize: 9,
                 fontWeight: 700,
-                fontFamily: INTER,
+                fontFamily: "INTER",
                 background: 'rgba(59,130,246,0.1)',
                 color: 'rgba(147,197,253,0.7)',
                 border: '1px solid rgba(59,130,246,0.2)',
@@ -278,7 +278,7 @@ export default function LiveSimulator() {
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               color: 'rgba(52,211,153,0.7)',
-              fontFamily: INTER,
+              fontFamily: "INTER",
             }}>
               <span style={{
                 width: 5, height: 5, borderRadius: '50%',
@@ -290,7 +290,7 @@ export default function LiveSimulator() {
             </span>
             {serial.length > 0 && (
               <span style={{
-                fontFamily: INTER,
+                fontFamily: "INTER",
                 fontSize: 9,
                 color: FAINT,
               }}>
@@ -317,7 +317,7 @@ export default function LiveSimulator() {
                 justifyContent: 'center',
               }}>
                 <span style={{
-                  fontFamily: INTER,
+                  fontFamily: "INTER",
                   fontSize: 11,
                   color: FAINT,
                   fontStyle: 'italic',
