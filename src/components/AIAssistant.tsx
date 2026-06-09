@@ -298,7 +298,7 @@ export default function AIAssistant() {
             </p>
             <p style={{
               margin: 0, fontSize: 9, color: MUTED,
-              fontFamily: MONO, lineHeight: 1.2,
+              fontFamily: INTER, lineHeight: 1.2,
             }}>
               Powered by Gemini
             </p>
@@ -310,7 +310,7 @@ export default function AIAssistant() {
             background: 'rgba(16,185,129,0.14)',
             border: '1px solid rgba(16,185,129,0.25)',
             fontSize: 9, fontWeight: 700, color: '#34d399',
-            fontFamily: MONO,
+            fontFamily: INTER,
           }}>
             <span style={{
               width: 5, height: 5, borderRadius: '50%',

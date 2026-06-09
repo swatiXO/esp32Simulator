@@ -118,9 +118,11 @@ export default function LearnPage() {
         <div style={{ minHeight: '100vh', background: '#04080f', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: '"Inter",sans-serif' }}>
           <div style={{ textAlign: 'center' }}>
             <div style={{ width: 36, height: 36, borderRadius: '50%', border: '2.5px solid rgba(59,130,246,0.15)', borderTop: '2.5px solid #3b82f6', animation: 'lp-spin 0.8s linear infinite', margin: '0 auto' }} />
-            <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(240,244,255,0.45)', fontFamily: '"JetBrains Mono",monospace', letterSpacing: '0.05em' }}>Loading learning path...</p>
+            <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(240,244,255,0.45)', fontFamily: '"Inter", system-ui, sans-serif', letterSpacing: '0.05em' }}>Loading learning path...</p>
           </div>
-          <style>{`@keyframes lp-spin { to { transform: rotate(360deg); } }`}</style>
+          <style>{`@keyframes lp-spin { to { transform: rotate(360deg); } }`}
+            
+          </style>
         </div>
       </>
     );
@@ -138,6 +140,7 @@ export default function LearnPage() {
         @keyframes pulse-dot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
         @keyframes lp-pad    { 0%,100%{opacity:.25} 50%{opacity:.9} }
         @keyframes bm-pad    { 0%,100%{opacity:.25} 50%{opacity:.9} }
+        @keyframes bm-pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
 
         .lp-level-card {
           border-radius: 18px; position: relative; overflow: hidden;
@@ -196,8 +199,8 @@ export default function LearnPage() {
             {/* Heading */}
             <div style={{ marginTop: 28, marginBottom: 8 }}>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.15)', borderRadius: 99, padding: '5px 15px', marginBottom: 16 }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', animation: 'pulse-dot 2s infinite', display: 'inline-block' }} />
-                <span style={{ fontSize: 10, fontWeight: 600, color: '#fbbf24', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: '"JetBrains Mono",monospace' }}>Structured Learning</span>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', animation: 'bm-pulse 2s infinite', display: 'inline-block' }} />
+                <span style={{ fontSize: 10, fontWeight: 600, color: '#fbbf24', letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: '"Inter", system-ui, sans-serif' }}>Structured Learning</span>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
@@ -212,7 +215,7 @@ export default function LearnPage() {
                     </span>
                     <div>
                       <p style={{ margin: '0 0 1px', fontSize: 17, fontWeight: 700, color: '#fbbf24', fontFamily: '"Space Grotesk",sans-serif', lineHeight: 1 }}>{totalXP}</p>
-                      <p style={{ margin: 0, fontSize: 9, color: 'rgba(245,158,11,0.6)', fontFamily: '"JetBrains Mono",monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>XP Earned</p>
+                      <p style={{ margin: 0, fontSize: 9, color: 'rgba(245,158,11,0.6)', fontFamily: '"Inter", system-ui, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>XP Earned</p>
                     </div>
                   </div>
                 )}
@@ -266,21 +269,21 @@ export default function LearnPage() {
 
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5 }}>
-                          <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: '"JetBrains Mono",monospace', color: levelAccessible ? accent : 'rgba(240,244,255,0.2)' }}>
+                          <span style={{ fontSize: 9.5, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', fontFamily: '"Inter", system-ui, sans-serif', color: levelAccessible ? accent : 'rgba(240,244,255,0.2)' }}>
                             Level {level.id}
                           </span>
                           {levelDone && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', fontSize: 10, fontWeight: 600, color: '#6ee7b7', fontFamily: '"JetBrains Mono",monospace' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.18)', fontSize: 10, fontWeight: 600, color: '#6ee7b7', fontFamily: '"Inter", system-ui, sans-serif' }}>
                               <CheckIcon /> Completed
                             </span>
                           )}
                           {!levelAccessible && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', fontSize: 10, fontWeight: 500, color: 'rgba(240,244,255,0.28)', fontFamily: '"JetBrains Mono",monospace' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 9px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', fontSize: 10, fontWeight: 500, color: 'rgba(240,244,255,0.28)', fontFamily: '"Inter", system-ui, sans-serif' }}>
                               <LockIcon /> Locked
                             </span>
                           )}
                           {levelAccessible && levelXP > 0 && (
-                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 99, background: `${accent}12`, border: `1px solid ${accent}28`, fontSize: 9.5, fontWeight: 700, color: accent, fontFamily: '"JetBrains Mono",monospace' }}>
+                            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '2px 8px', borderRadius: 99, background: `${accent}12`, border: `1px solid ${accent}28`, fontSize: 9.5, fontWeight: 700, color: accent, fontFamily: '"Inter", system-ui, sans-serif' }}>
                               <BoltIcon size={8} /> {levelXP} XP
                             </span>
                           )}
@@ -296,8 +299,8 @@ export default function LearnPage() {
                         {levelAccessible && completedCount > 0 && (
                           <div style={{ marginTop: 12, maxWidth: 300 }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                              <span style={{ fontSize: 10, color: 'rgba(240,244,255,0.35)', fontFamily: '"JetBrains Mono",monospace' }}>{completedCount} / {level.lessons.length} lessons</span>
-                              <span style={{ fontSize: 10, color: accent, fontFamily: '"JetBrains Mono",monospace', fontWeight: 700 }}>{levelProgress}%</span>
+                              <span style={{ fontSize: 10, color: 'rgba(240,244,255,0.35)', fontFamily: '"Inter", system-ui, sans-serif' }}>{completedCount} / {level.lessons.length} lessons</span>
+                              <span style={{ fontSize: 10, color: accent, fontFamily: '"Inter", system-ui, sans-serif', fontWeight: 700 }}>{levelProgress}%</span>
                             </div>
                             <div style={{ height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.05)' }}>
                               <div style={{ height: 3, borderRadius: 99, background: accent, width: `${levelProgress}%`, transition: 'width .7s cubic-bezier(0.16,1,0.3,1)', opacity: 0.85 }} />
@@ -308,10 +311,10 @@ export default function LearnPage() {
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                         <div style={{ textAlign: 'right' }}>
-                          <p style={{ margin: '0 0 2px', fontSize: 10, color: 'rgba(240,244,255,0.28)', fontFamily: '"JetBrains Mono",monospace', whiteSpace: 'nowrap' }}>
+                          <p style={{ margin: '0 0 2px', fontSize: 10, color: 'rgba(240,244,255,0.28)', fontFamily: '"Inter", system-ui, sans-serif', whiteSpace: 'nowrap' }}>
                             {level.lessons.length} lessons
                           </p>
-                          <p style={{ margin: 0, fontSize: 9.5, color: 'rgba(245,158,11,0.5)', fontFamily: '"JetBrains Mono",monospace', whiteSpace: 'nowrap' }}>
+                          <p style={{ margin: 0, fontSize: 9.5, color: 'rgba(245,158,11,0.5)', fontFamily: '"Inter", system-ui, sans-serif', whiteSpace: 'nowrap' }}>
                             {level.lessons.length * XP_PER_LESSON} XP total
                           </p>
                         </div>
@@ -363,12 +366,12 @@ export default function LearnPage() {
                                       {lesson.title}
                                     </h3>
                                     {done && (
-                                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', fontFamily: '"JetBrains Mono",monospace', padding: '2px 8px', borderRadius: 99, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.22)', color: '#34d399', textTransform: 'uppercase', flexShrink: 0 }}>Done</span>
+                                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', fontFamily: '"Inter", system-ui, sans-serif', padding: '2px 8px', borderRadius: 99, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.22)', color: '#34d399', textTransform: 'uppercase', flexShrink: 0 }}>Done</span>
                                     )}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, color: 'rgba(240,244,255,0.3)', fontFamily: '"JetBrains Mono",monospace', padding: '2px 7px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, color: 'rgba(240,244,255,0.3)', fontFamily: '"Inter", system-ui, sans-serif', padding: '2px 7px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
                                       <ClockIcon /> {lesson.estimatedMinutes}m
                                     </span>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, fontWeight: 700, fontFamily: '"JetBrains Mono",monospace', padding: '2px 7px', borderRadius: 99, background: done ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.07)', border: `1px solid ${done ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.15)'}`, color: done ? '#fbbf24' : 'rgba(245,158,11,0.55)', flexShrink: 0 }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, fontWeight: 700, fontFamily: '"Inter", system-ui, sans-serif', padding: '2px 7px', borderRadius: 99, background: done ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.07)', border: `1px solid ${done ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.15)'}`, color: done ? '#fbbf24' : 'rgba(245,158,11,0.55)', flexShrink: 0 }}>
                                       <BoltIcon size={8} /> +{XP_PER_LESSON} XP
                                     </span>
                                   </div>
@@ -380,8 +383,8 @@ export default function LearnPage() {
                                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                                     <div style={{ flex: 1 }}>
                                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                                        <span style={{ fontSize: 9.5, color: 'rgba(240,244,255,0.22)', fontFamily: '"JetBrains Mono",monospace' }}>{lesson.steps.length} steps</span>
-                                        {done && <span style={{ fontSize: 9.5, color: '#34d399', fontFamily: '"JetBrains Mono",monospace' }}>100%</span>}
+                                        <span style={{ fontSize: 9.5, color: 'rgba(240,244,255,0.22)', fontFamily: '"Inter", system-ui, sans-serif' }}>{lesson.steps.length} steps</span>
+                                        {done && <span style={{ fontSize: 9.5, color: '#34d399', fontFamily: '"Inter", system-ui, sans-serif' }}>100%</span>}
                                       </div>
                                       <div style={{ height: 2, borderRadius: 99, background: 'rgba(255,255,255,0.06)' }}>
                                         <div style={{ height: 2, borderRadius: 99, background: done ? '#10b981' : accent, width: done ? '100%' : '0%', transition: 'width .5s ease' }} />
@@ -401,7 +404,7 @@ export default function LearnPage() {
                                           <LockIcon /> Unlock →
                                         </Link>
                                       ) : (
-                                        <p style={{ fontSize: 10, color: 'rgba(240,244,255,0.22)', fontFamily: '"JetBrains Mono",monospace', margin: 0 }}>Complete previous lesson first</p>
+                                        <p style={{ fontSize: 10, color: 'rgba(240,244,255,0.22)', fontFamily: '"Inter", system-ui, sans-serif', margin: 0 }}>Complete previous lesson first</p>
                                       )}
                                     </div>
                                   )}
@@ -421,7 +424,7 @@ export default function LearnPage() {
                             <LockIcon size={11} /> Unlock Full Access →
                           </Link>
                         ) : (
-                          <p style={{ fontSize: 11, color: 'rgba(240,244,255,0.28)', fontFamily: '"JetBrains Mono",monospace', margin: 0 }}>Complete the previous level to unlock</p>
+                          <p style={{ fontSize: 11, color: 'rgba(240,244,255,0.28)', fontFamily: '"Inter", system-ui, sans-serif', margin: 0 }}>Complete the previous level to unlock</p>
                         )}
                       </div>
                     )}

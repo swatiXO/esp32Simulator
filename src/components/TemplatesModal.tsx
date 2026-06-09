@@ -189,7 +189,7 @@ const TemplateCard = React.memo(function TemplateCard({
             {template.tags.map(tag => (
               <span key={tag} style={{
                 padding: '2px 7px', borderRadius: 99,
-                fontSize: 9, fontWeight: 700, fontFamily: MONO,
+                fontSize: 9, fontWeight: 700, fontFamily: INTER,
                 letterSpacing: '0.08em', textTransform: 'uppercase',
                 background: 'rgba(255,255,255,0.04)',
                 border: `1px solid ${LINE}`,
@@ -224,7 +224,7 @@ const TemplateCard = React.memo(function TemplateCard({
           {template.components.map(c => (
             <span key={c} style={{
               padding: '2px 8px', borderRadius: 99,
-              fontSize: 10, fontWeight: 600, fontFamily: MONO,
+              fontSize: 10, fontWeight: 600, fontFamily: INTER,
               background: v.bg,
               border: `1px solid ${v.border}`,
               color: v.color,
@@ -240,7 +240,7 @@ const TemplateCard = React.memo(function TemplateCard({
           paddingTop: 10, borderTop: `1px solid ${LINE}`,
         }}>
           <span style={{
-            fontSize: 10, color: FAINT, fontFamily: MONO,
+            fontSize: 10, color: FAINT, fontFamily: INTER,
           }}>
             {template.blocks.length} blocks
           </span>
@@ -249,7 +249,7 @@ const TemplateCard = React.memo(function TemplateCard({
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 5,
               padding: '3px 10px', borderRadius: 99,
-              fontSize: 10, fontWeight: 700, fontFamily: MONO,
+              fontSize: 10, fontWeight: 700, fontFamily: INTER,
               background: 'rgba(16,185,129,0.14)',
               border: '1px solid rgba(16,185,129,0.28)',
               color: GREEN_LT,
@@ -401,7 +401,7 @@ export default function TemplatesModal({ isOpen, onClose }: TemplatesModalProps)
             borderTop: `1px solid ${LINE}`,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           }}>
-            <span style={{ fontSize: 11, color: FAINT, fontFamily: MONO }}>
+            <span style={{ fontSize: 11, color: FAINT, fontFamily: INTER }}>
               {PROJECT_TEMPLATES.length} templates available
             </span>
             <span style={{ fontSize: 11, color: FAINT, fontFamily: INTER }}>

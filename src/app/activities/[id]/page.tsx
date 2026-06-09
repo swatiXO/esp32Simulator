@@ -199,19 +199,19 @@ function InlineSimulator({ activity }: { activity: any }) {
         )}
         {tab === 'code' && (
           <div style={{ height: 520, overflow: 'auto', background: '#060e18', padding: 20 }}>
-            <pre style={{ margin: 0, fontSize: 11, lineHeight: 1.7, color: GREEN_LT, fontFamily: MONO }}><code>{activity.code?.arduino}</code></pre>
+            <pre style={{ margin: 0, fontSize: 11, lineHeight: 1.7, color: GREEN_LT, fontFamily: INTER }}><code>{activity.code?.arduino}</code></pre>
           </div>
         )}
         {tab === 'serial' && (
           <div style={{ display: 'flex', flexDirection: 'column', height: 520, background: '#060e18' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 16px', borderBottom: `1px solid ${LINE_S}` }}>
-              <span style={{ fontSize: 9, fontWeight: 700, color: FAINT, fontFamily: MONO }}>115200 baud</span>
+              <span style={{ fontSize: 9, fontWeight: 700, color: FAINT, fontFamily: INTER }}>115200 baud</span>
               {serial.length > 0 && <button type="button" onClick={() => useSimulatorStore.getState().resetSimulation()} style={{ fontSize: 9, fontWeight: 700, color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', fontFamily: SANS }}>Clear</button>}
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
               {serial.length === 0
-                ? <p style={{ fontSize: 11, fontStyle: 'italic', color: FAINT, fontFamily: MONO }}>Press Run to start…</p>
-                : serial.map((l, i) => <p key={i} style={{ margin: '0 0 2px', fontSize: 11, fontFamily: MONO, color: GREEN_LT }}><span style={{ color: FAINT, marginRight: 8 }}>{'>'}</span>{l}</p>)
+                ? <p style={{ fontSize: 11, fontStyle: 'italic', color: FAINT, fontFamily: INTER }}>Press Run to start…</p>
+                : serial.map((l, i) => <p key={i} style={{ margin: '0 0 2px', fontSize: 11, fontFamily: INTER, color: GREEN_LT }}><span style={{ color: FAINT, marginRight: 8 }}>{'>'}</span>{l}</p>)
               }
             </div>
           </div>
@@ -235,18 +235,18 @@ function IntroStep({ activity }: { activity: any }) {
         <div style={{ position: 'relative' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '3px 11px', borderRadius: 99, marginBottom: 14, background: hexA(color, 0.12), border: `1px solid ${hexA(color, 0.25)}` }}>
             <span style={{ width: 5, height: 5, borderRadius: '50%', background: color }} />
-            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color, fontFamily: MONO }}>{activity.difficulty} Project</span>
+            <span style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color, fontFamily: INTER }}>{activity.difficulty} Project</span>
           </div>
           <h2 style={{ margin: '0 0 12px', fontSize: 'clamp(1.2rem,2.5vw,1.6rem)', fontWeight: 700, color: TEXT, fontFamily: SANS, lineHeight: 1.2 }}>{activity.intro_headline}</h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 5, borderRadius: 99, background: 'rgba(255,255,255,0.07)', padding: '4px 11px', fontSize: 11, fontWeight: 600, color: MUTED, fontFamily: MONO }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5, borderRadius: 99, background: 'rgba(255,255,255,0.07)', padding: '4px 11px', fontSize: 11, fontWeight: 600, color: MUTED, fontFamily: INTER }}>
               <Ic.chip width={11} height={11} /> {activity.duration}
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 5, borderRadius: 99, background: 'rgba(255,255,255,0.07)', padding: '4px 11px', fontSize: 11, fontWeight: 600, color: MUTED, fontFamily: MONO }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 5, borderRadius: 99, background: 'rgba(255,255,255,0.07)', padding: '4px 11px', fontSize: 11, fontWeight: 600, color: MUTED, fontFamily: INTER }}>
               <Ic.tool width={11} height={11} /> {activity.equipment?.length} parts
             </span>
             {activity.tags?.map((tag: string) => (
-              <span key={tag} style={{ borderRadius: 99, background: 'rgba(255,255,255,0.05)', padding: '4px 11px', fontSize: 11, color: FAINT, fontFamily: MONO }}>{tag}</span>
+              <span key={tag} style={{ borderRadius: 99, background: 'rgba(255,255,255,0.05)', padding: '4px 11px', fontSize: 11, color: FAINT, fontFamily: INTER }}>{tag}</span>
             ))}
           </div>
         </div>
@@ -276,7 +276,7 @@ function IntroStep({ activity }: { activity: any }) {
         </div>
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
           {activity.teaches?.map((t: string) => (
-            <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 5, borderRadius: 99, border: `1px solid ${hexA(GREEN, 0.25)}`, background: hexA(GREEN, 0.1), padding: '5px 11px', fontSize: 11, fontWeight: 700, color: GREEN_LT, fontFamily: MONO }}>
+            <span key={t} style={{ display: 'flex', alignItems: 'center', gap: 5, borderRadius: 99, border: `1px solid ${hexA(GREEN, 0.25)}`, background: hexA(GREEN, 0.1), padding: '5px 11px', fontSize: 11, fontWeight: 700, color: GREEN_LT, fontFamily: INTER }}>
               <Ic.check width={9} height={9} /> {t}
             </span>
           ))}
@@ -298,7 +298,7 @@ function EquipmentStep({ activity }: { activity: any }) {
             <p style={{ margin: 0, fontSize: 11.5, color: MUTED, fontFamily: INTER }}>Get everything ready before you start building.</p>
           </div>
         </div>
-        <span style={{ padding: '4px 12px', borderRadius: 99, background: hexA(AMBER, 0.12), border: `1px solid ${hexA(AMBER, 0.25)}`, fontSize: 10, fontWeight: 700, color: AMBER, fontFamily: MONO, whiteSpace: 'nowrap' }}>
+        <span style={{ padding: '4px 12px', borderRadius: 99, background: hexA(AMBER, 0.12), border: `1px solid ${hexA(AMBER, 0.25)}`, fontSize: 10, fontWeight: 700, color: AMBER, fontFamily: INTER, whiteSpace: 'nowrap' }}>
           {activity.equipment?.length} items
         </span>
       </div>
@@ -465,7 +465,7 @@ function CodeStep({ activity }: { activity: any }) {
       {tab === 'arduino' && (
         <div style={{ borderRadius: 16, overflow: 'hidden', border: `1px solid ${LINE}` }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 16px', borderBottom: `1px solid ${LINE}`, background: CARD }}>
-            <span style={{ fontSize: 10, color: FAINT, fontFamily: MONO }}>{activity.title}.ino</span>
+            <span style={{ fontSize: 10, color: FAINT, fontFamily: INTER }}>{activity.title}.ino</span>
             <button type="button" onClick={handleCopy} style={{
               display: 'flex', alignItems: 'center', gap: 6, borderRadius: 8, padding: '5px 12px',
               fontSize: 10, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: SANS,
@@ -477,7 +477,7 @@ function CodeStep({ activity }: { activity: any }) {
             </button>
           </div>
           <div style={{ overflow: 'auto', padding: 22, background: '#060e18', maxHeight: 600 }}>
-            <pre style={{ margin: 0, fontSize: 11, lineHeight: 1.75, color: GREEN_LT, fontFamily: MONO }}><code>{activity.code?.arduino}</code></pre>
+            <pre style={{ margin: 0, fontSize: 11, lineHeight: 1.75, color: GREEN_LT, fontFamily: INTER }}><code>{activity.code?.arduino}</code></pre>
           </div>
         </div>
       )}
@@ -500,11 +500,11 @@ function OutputStep({ activity }: { activity: any }) {
       </div>
       <div style={{ borderRadius: 16, overflow: 'hidden', border: `1px solid ${LINE}` }}>
         <div style={{ padding: '8px 16px', borderBottom: `1px solid ${LINE_S}`, background: CARD }}>
-          <span style={{ fontSize: 9, fontWeight: 700, color: FAINT, fontFamily: MONO, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Serial output</span>
+          <span style={{ fontSize: 9, fontWeight: 700, color: FAINT, fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.1em' }}>Serial output</span>
         </div>
         <div style={{ padding: 20, background: '#060e18' }}>
           {activity.output?.expected?.map((line: string, idx: number) => (
-            <p key={idx} style={{ margin: '0 0 3px', fontSize: 11.5, fontFamily: MONO, color: GREEN_LT }}>
+            <p key={idx} style={{ margin: '0 0 3px', fontSize: 11.5, fontFamily: INTER, color: GREEN_LT }}>
               <span style={{ color: FAINT, marginRight: 10 }}>{'>'}</span>{line}
             </p>
           ))}
@@ -536,18 +536,18 @@ export default function ActivityDetailPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [completed, setCompleted] = useState<number[]>([]);
   const [justCompleted, setJustDone] = useState<number | null>(null);
-  
+
   useEffect(() => { initialize(); }, []);
 
   useEffect(() => {
     const load = async () => {
       try {
         const supabase = createClient();
-      const { data, error } = await supabase
-      .from('activities')
-      .select('*');
-      console.log(data);
-      const tempData = data || [];
+        const { data, error } = await supabase
+          .from('activities')
+          .select('*');
+        console.log(data);
+        const tempData = data || [];
         const act = tempData.find((a: any) => a.id === activityId);
         setActivity(act ?? null);
         const last = getLastStep(activityId);
@@ -654,31 +654,34 @@ export default function ActivityDetailPage() {
 
         {/* ══ SIDEBAR ══ */}
         <aside style={{
-          width: 224, flexShrink: 0, display: 'flex', flexDirection: 'column',
+          width: 234, flexShrink: 0, display: 'flex', flexDirection: 'column',
           background: `linear-gradient(180deg,#060e1a 0%,${PANEL} 100%)`,
           borderRight: `1px solid ${LINE}`, overflowY: 'auto',
         }}>
-          <div style={{ display: 'flex', flexDirection: 'column', padding: 18, height: '100%' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', padding: 16, height: '100%' }}>
 
             {/* back */}
             <button type="button" onClick={() => router.push('/activities')} className="bm-ghost"
-              style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 18, padding: '7px 10px', borderRadius: 9, border: `1px solid transparent`, background: 'transparent', cursor: 'pointer', color: FAINT, fontSize: 11, fontWeight: 600, fontFamily: SANS }}>
-              <Ic.arrowL width={12} height={12} /> Activities
+              style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 18, padding: '8px 11px', borderRadius: 10, border: `1px solid ${LINE}`, background: 'rgba(255,255,255,0.02)', cursor: 'pointer', color: MUTED, fontSize: 11.5, fontWeight: 600, fontFamily: SANS }}>
+              <Ic.arrowL width={13} height={13} /> All Activities
             </button>
 
             {/* title */}
-            <p style={{ margin: '0 0 2px', fontSize: 9, fontWeight: 700, color: FAINT, fontFamily: MONO, textTransform: 'uppercase', letterSpacing: '0.12em' }}>Mission</p>
-            <p style={{ margin: '0 0 16px', fontSize: 13, fontWeight: 700, color: TEXT, fontFamily: SANS, lineHeight: 1.3 }}>{activity.title}</p>
+            <p style={{ margin: '0 0 4px', fontSize: 9, fontWeight: 700, color: BLUE_LT, fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.14em' }}>Mission</p>
+            <p style={{ margin: '0 0 18px', fontSize: 14.5, fontWeight: 700, color: TEXT, fontFamily: SANS, lineHeight: 1.3 }}>{activity.title}</p>
 
-            {/* progress bar */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                <span style={{ fontSize: 9, color: FAINT, fontFamily: MONO }}>Progress</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: GREEN_LT, fontFamily: SANS }}>{progressPercent}%</span>
+            {/* progress card */}
+            <div style={{ marginBottom: 22, padding: '12px 13px', borderRadius: 12, background: 'rgba(255,255,255,0.02)', border: `1px solid ${LINE}` }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <span style={{ fontSize: 9.5, fontWeight: 600, color: FAINT, fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Progress</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: GREEN_LT, fontFamily: SANS, lineHeight: 1 }}>{progressPercent}%</span>
               </div>
-              <div style={{ height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
-                <div style={{ height: '100%', borderRadius: 99, background: `linear-gradient(90deg,${GREEN},${BLUE})`, width: `${progressPercent}%`, transition: 'width .7s ease' }} />
+              <div style={{ height: 5, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                <div style={{ height: '100%', borderRadius: 99, background: `linear-gradient(90deg,${GREEN},${BLUE})`, width: `${progressPercent}%`, transition: 'width .7s ease', boxShadow: `0 0 8px ${hexA(GREEN, 0.5)}` }} />
               </div>
+              <p style={{ margin: '7px 0 0', fontSize: 9, color: FAINT, fontFamily: INTER }}>
+                {completed.length} of {STEPS.length} steps complete
+              </p>
             </div>
 
             {/* steps */}
@@ -692,31 +695,36 @@ export default function ActivityDetailPage() {
                   <div key={step.id} style={{ display: 'flex', flexDirection: 'column' }}>
                     <button type="button" className="step-btn" onClick={() => handleStepChange(step.id)}
                       style={{
-                        display: 'flex', alignItems: 'center', gap: 10,
-                        borderRadius: 11, padding: '9px 10px', textAlign: 'left', border: 'none', cursor: 'pointer',
-                        background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
+                        display: 'flex', alignItems: 'center', gap: 11,
+                        borderRadius: 11, padding: '8px 9px', textAlign: 'left', border: 'none', cursor: 'pointer',
+                        background: isActive ? hexA(AMBER, 0.1) : 'transparent',
+                        boxShadow: isActive ? `inset 0 0 0 1px ${hexA(AMBER, 0.25)}` : 'none',
                         color: isActive ? TEXT : isDone ? GREEN_LT : FAINT,
+                        transition: 'background .2s, box-shadow .2s',
                       }}>
                       <div style={{
                         width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        background: isActive ? AMBER : isDone ? GREEN : 'rgba(255,255,255,0.07)',
+                        background: isActive ? AMBER : isDone ? GREEN : 'rgba(255,255,255,0.06)',
                         color: isActive ? '#1a0f00' : isDone ? '#fff' : FAINT,
+                        border: isActive || isDone ? 'none' : `1px solid ${LINE}`,
                         transform: isBounce ? 'scale(1.3)' : 'scale(1)',
-                        transition: 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), background .2s',
+                        boxShadow: isActive ? `0 0 12px ${hexA(AMBER, 0.5)}` : 'none',
+                        transition: 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), background .2s, box-shadow .3s',
                       }}>
                         {isDone && !isActive
-                          ? <Ic.check width={13} height={13} />
-                          : <span style={{ fontSize: 11, fontWeight: 800, fontFamily: SANS }}>{idx + 1}</span>
+                          ? <Ic.check width={14} height={14} />
+                          : <span style={{ fontSize: 11.5, fontWeight: 800, fontFamily: SANS }}>{idx + 1}</span>
                         }
                       </div>
-                      <div style={{ minWidth: 0 }}>
-                        <p style={{ margin: '0 0 1px', fontSize: 12, fontWeight: 700, lineHeight: 1.2, fontFamily: SANS }}>{step.label}</p>
-                        <p style={{ margin: 0, fontSize: 9.5, fontFamily: MONO, color: isActive ? MUTED : FAINT }}>{step.time}</p>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <p style={{ margin: '0 0 1px', fontSize: 12.5, fontWeight: 700, lineHeight: 1.2, fontFamily: SANS }}>{step.label}</p>
+                        <p style={{ margin: 0, fontSize: 9.5, fontFamily: INTER, color: isActive ? MUTED : FAINT }}>{step.time}</p>
                       </div>
+                      {isActive && <span style={{ width: 6, height: 6, borderRadius: '50%', background: AMBER, flexShrink: 0, animation: 'bm-pulse 1.5s infinite' }} />}
                     </button>
                     {idx < STEPS.length - 1 && (
-                      <div style={{ marginLeft: 25, width: 2, height: 10, borderRadius: 1, background: isDone ? hexA(GREEN, 0.5) : 'rgba(255,255,255,0.07)' }} />
+                      <div style={{ marginLeft: 24, width: 2, height: 12, borderRadius: 1, background: isDone ? hexA(GREEN, 0.6) : 'rgba(255,255,255,0.07)', transition: 'background .3s' }} />
                     )}
                   </div>
                 );
@@ -725,31 +733,37 @@ export default function ActivityDetailPage() {
 
             {/* diff badge */}
             <div style={{ marginTop: 16, paddingTop: 14, borderTop: `1px solid ${LINE_S}`, display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, borderRadius: 99, padding: '3px 10px', fontSize: 10, fontWeight: 700, fontFamily: MONO, background: hexA(diffColor, 0.14), color: diffColor, border: `1px solid ${hexA(diffColor, 0.25)}` }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, borderRadius: 99, padding: '4px 11px', fontSize: 10, fontWeight: 700, fontFamily: INTER, background: hexA(diffColor, 0.14), color: diffColor, border: `1px solid ${hexA(diffColor, 0.25)}` }}>
                 {activity.difficulty}
               </span>
               {alreadyDone && (
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, borderRadius: 99, padding: '3px 10px', fontSize: 10, fontWeight: 700, fontFamily: MONO, background: hexA(GREEN, 0.14), color: GREEN_LT, border: `1px solid ${hexA(GREEN, 0.25)}` }}>
-                  <Ic.check width={8} height={8} /> Done
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, borderRadius: 99, padding: '4px 11px', fontSize: 10, fontWeight: 700, fontFamily: INTER, background: hexA(GREEN, 0.14), color: GREEN_LT, border: `1px solid ${hexA(GREEN, 0.25)}` }}>
+                  <Ic.check width={9} height={9} /> Done
                 </span>
               )}
             </div>
 
             {/* nav buttons */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 7, marginTop: 12 }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
               <button type="button" disabled={currentStep === 0}
                 onClick={() => currentStep > 0 && setCurrentStep(currentStep - 1)}
-                style={{ padding: '9px', borderRadius: 11, border: `1px solid ${LINE}`, cursor: currentStep === 0 ? 'not-allowed' : 'pointer', background: 'rgba(255,255,255,0.04)', color: MUTED, fontSize: 11, fontWeight: 700, fontFamily: SANS, opacity: currentStep === 0 ? 0.35 : 1, transition: 'opacity .15s' }}>
-                Previous
+                onMouseEnter={e => { if (currentStep !== 0) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+                onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px', borderRadius: 11, border: `1px solid ${LINE}`, cursor: currentStep === 0 ? 'not-allowed' : 'pointer', background: 'rgba(255,255,255,0.04)', color: MUTED, fontSize: 11.5, fontWeight: 700, fontFamily: SANS, opacity: currentStep === 0 ? 0.35 : 1, transition: 'background .15s, opacity .15s' }}>
+                <Ic.arrowL width={13} height={13} /> Previous
               </button>
               {currentStep < STEPS.length - 1
                 ? <button type="button" onClick={() => handleStepChange(currentStep + 1)}
-                  style={{ padding: '9px', borderRadius: 11, border: 'none', cursor: 'pointer', background: `linear-gradient(135deg,#78350f,${AMBER})`, color: '#1a0f00', fontSize: 11, fontWeight: 800, fontFamily: SANS }}>
-                  Next: {STEPS[currentStep + 1].label}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'none'; }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px', borderRadius: 11, border: 'none', cursor: 'pointer', background: `linear-gradient(135deg,#78350f,${AMBER})`, color: '#1a0f00', fontSize: 11.5, fontWeight: 800, fontFamily: SANS, boxShadow: `0 4px 14px -4px ${hexA(AMBER, 0.6)}`, transition: 'transform .15s' }}>
+                  Next: {STEPS[currentStep + 1].label} <Ic.arrow width={13} height={13} />
                 </button>
                 : <button type="button" onClick={handleDone}
-                  style={{ padding: '9px', borderRadius: 11, border: 'none', cursor: 'pointer', background: `linear-gradient(135deg,#065f46,${GREEN})`, color: '#fff', fontSize: 11, fontWeight: 800, fontFamily: SANS }}>
-                  {alreadyDone ? 'Review Complete' : 'Complete Mission'}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'none'; }}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '10px', borderRadius: 11, border: 'none', cursor: 'pointer', background: `linear-gradient(135deg,#065f46,${GREEN})`, color: '#fff', fontSize: 11.5, fontWeight: 800, fontFamily: SANS, boxShadow: `0 4px 14px -4px ${hexA(GREEN, 0.6)}`, transition: 'transform .15s' }}>
+                  <Ic.check width={13} height={13} /> {alreadyDone ? 'Review Complete' : 'Complete Mission'}
                 </button>
               }
             </div>
@@ -761,12 +775,12 @@ export default function ActivityDetailPage() {
           <div style={{ maxWidth: 800, margin: '0 auto', padding: '24px 28px 60px' }}>
 
             {/* breadcrumb */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 20, fontSize: 11, color: FAINT, fontFamily: MONO }}>
-              <button type="button" onClick={() => router.push('/activities')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: FAINT, fontFamily: MONO, fontSize: 11, padding: 0 }}>Activities</button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 20, fontSize: 11, color: FAINT, fontFamily: INTER }}>
+              <button type="button" onClick={() => router.push('/activities')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: FAINT, fontFamily: INTER, fontSize: 11, padding: 0 }}>Activities</button>
               <span>/</span>
               <span style={{ color: MUTED, fontWeight: 700 }}>{activity.title}</span>
               {alreadyDone && (
-                <span style={{ borderRadius: 99, padding: '2px 9px', fontSize: 9, fontWeight: 700, fontFamily: MONO, background: hexA(GREEN, 0.12), border: `1px solid ${hexA(GREEN, 0.25)}`, color: GREEN_LT }}>
+                <span style={{ borderRadius: 99, padding: '2px 9px', fontSize: 9, fontWeight: 700, fontFamily: INTER, background: hexA(GREEN, 0.12), border: `1px solid ${hexA(GREEN, 0.25)}`, color: GREEN_LT }}>
                   Completed
                 </span>
               )}

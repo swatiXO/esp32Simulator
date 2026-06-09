@@ -158,7 +158,7 @@ function MissionCard({ a, done, progress, locked, hasEsp32, onOpen, idx, isCurre
 
         {/* footer */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: `1px solid ${LINE}` }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: FAINT, fontFamily: MONO }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: FAINT, fontFamily: INTER }}>
             <span>{a.duration}</span>
             <span style={{ color, fontWeight: 700 }}>+{diff.xp} XP</span>
           </div>
@@ -192,7 +192,7 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
     <div style={{ position: 'sticky', top: 20, borderRadius: 18, background: PANEL, border: `1px solid ${LINE}`, overflow: 'hidden' }}>
       {/* header */}
       <div style={{ padding: '16px 18px', borderBottom: `1px solid ${LINE}` }}>
-        <p style={{ margin: '0 0 1px', fontSize: 9, fontWeight: 700, color: FAINT, fontFamily: MONO, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
+        <p style={{ margin: '0 0 1px', fontSize: 9, fontWeight: 700, color: FAINT, fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.12em' }}>
           Learning Path
         </p>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 10 }}>
@@ -202,7 +202,7 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
         <div style={{ height: 2, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
           <div style={{ height: '100%', width: `${pct}%`, borderRadius: 99, background: 'linear-gradient(90deg,#10b981,#3b82f6 60%,#8b5cf6)', transition: 'width 1s ease' }}/>
         </div>
-        <p style={{ margin: '5px 0 0', fontSize: 9, color: FAINT, fontFamily: MONO }}>
+        <p style={{ margin: '5px 0 0', fontSize: 9, color: FAINT, fontFamily: INTER }}>
           {doneCount} of {activities.length} missions complete
         </p>
       </div>
@@ -257,7 +257,7 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
                 <p style={{ margin: '0 0 1px', fontSize: 11.5, fontWeight: 700, fontFamily: SANS, color: isDone ? TEXT : isActive ? TEXT : MUTED, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {a.title}
                 </p>
-                <p style={{ margin: 0, fontSize: 9.5, fontFamily: MONO, color: isDone ? color : isActive ? color : FAINT }}>
+                <p style={{ margin: 0, fontSize: 9.5, fontFamily: INTER, color: isDone ? color : isActive ? color : FAINT }}>
                   {DIFF[a.difficulty]?.label} · +{DIFF[a.difficulty]?.xp} XP
                 </p>
               </div>
@@ -275,7 +275,7 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
           </div>
           <div>
             <p style={{ margin: '0 0 1px', fontSize: 11, fontWeight: 600, fontFamily: SANS, color: FAINT }}>More missions</p>
-            <p style={{ margin: 0, fontSize: 9.5, fontFamily: MONO, color: FAINT }}>WiFi, MQTT & more</p>
+            <p style={{ margin: 0, fontSize: 9.5, fontFamily: INTER, color: FAINT }}>WiFi, MQTT & more</p>
           </div>
         </div>
       </div>
@@ -534,7 +534,7 @@ const safeNav = (a: Activity) => {
               <div>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', borderRadius: 99, marginBottom: 12, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.18)' }}>
                   <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#10b981', animation: 'pulse 2s infinite' }}/>
-                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#93c5fd', fontFamily: MONO }}>ESP32 IoT Platform</span>
+                  <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#93c5fd', fontFamily: INTER }}>ESP32 IoT Platform</span>
                 </div>
                 <h1 style={{ margin: '0 0 6px', fontSize: 'clamp(1.8rem,3.5vw,2.4rem)', fontWeight: 900, color: TEXT, letterSpacing: '-0.025em', lineHeight: 1.05 }}>Activities</h1>
                 <p style={{ margin: '0 0 18px', fontSize: 13, color: MUTED, fontFamily: INTER, lineHeight: 1.65, maxWidth: 400 }}>
@@ -564,11 +564,11 @@ const safeNav = (a: Activity) => {
                     </svg>
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                       <span style={{ fontSize: 16, fontWeight: 900, color: TEXT, fontFamily: SANS, lineHeight: 1 }}>{lvl}</span>
-                      <span style={{ fontSize: 7, fontWeight: 700, color: '#10b981', fontFamily: MONO, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{lvlN}</span>
+                      <span style={{ fontSize: 7, fontWeight: 700, color: '#10b981', fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{lvlN}</span>
                     </div>
                   </div>
                   <div>
-                    <p style={{ margin: '0 0 1px', fontSize: 9, color: FAINT, fontFamily: MONO, textTransform: 'uppercase', letterSpacing: '0.08em' }}>XP Progress</p>
+                    <p style={{ margin: '0 0 1px', fontSize: 9, color: FAINT, fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.08em' }}>XP Progress</p>
                     <p style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 900, color: TEXT, fontFamily: SANS }}>
                       {mounted ? xp.toLocaleString() : 0}<span style={{ fontSize: 10, color: FAINT, fontWeight: 400 }}> / {xpMax}</span>
                     </p>
@@ -586,7 +586,7 @@ const safeNav = (a: Activity) => {
                   ].map(s => (
                     <div key={s.label} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: `1px solid ${LINE}`, textAlign: 'center', minWidth: 48 }}>
                       <p style={{ margin: '0 0 1px', fontSize: 16, fontWeight: 900, color: s.color, fontFamily: SANS, lineHeight: 1 }}>{s.val}</p>
-                      <p style={{ margin: 0, fontSize: 8, color: FAINT, fontFamily: MONO, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</p>
+                      <p style={{ margin: 0, fontSize: 8, color: FAINT, fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</p>
                     </div>
                   ))}
                 </div>
@@ -610,7 +610,7 @@ const safeNav = (a: Activity) => {
                   boxShadow: on ? '0 2px 10px rgba(59,130,246,0.35)' : 'none',
                 }}>
                   {f}
-                  <span style={{ padding: '0 5px', borderRadius: 99, fontSize: 8, fontWeight: 800, fontFamily: MONO, background: on ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)', color: on ? '#fff' : FAINT }}>
+                  <span style={{ padding: '0 5px', borderRadius: 99, fontSize: 8, fontWeight: 800, fontFamily: INTER, background: on ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)', color: on ? '#fff' : FAINT }}>
                     {count}
                   </span>
                 </button>
