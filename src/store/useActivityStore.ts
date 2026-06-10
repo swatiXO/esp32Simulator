@@ -85,6 +85,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
     user_id: userId,
     user_xp: get().xp,
     user_streak: get().streak,
+    last_active: get().lastActive,
     ...patch,
   };
 
@@ -217,7 +218,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
           streak: statsData?.user_streak || 0,
           xp: statsData?.user_xp || 0,
 
-        lastActive: userData.last_active || null,
+        lastActive: statsData.last_active || null,
         totalActivities: count ?? 0,
         redeemedKits,
         isCheckingSub: false,
