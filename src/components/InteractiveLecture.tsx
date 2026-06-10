@@ -389,7 +389,25 @@ interface SectionProps {
 
 function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
   const [isOpen, setIsOpen] = useState(true);
+const sentinelRef = React.useRef<HTMLDivElement>(null);
+const containerRef = React.useRef<HTMLDivElement>(null); // on your scroll container
 
+useEffect(() => {
+  if (!sentinelRef.current || isRead) return;
+
+  const observer = new IntersectionObserver(
+    ([entry]) => {
+      if (entry.isIntersecting) {
+        onToggleRead(); // fires once when sentinel comes into view
+        observer.disconnect();
+      }
+    },
+    { threshold: 1} // 100% of sentinel must be visible
+  );
+
+  observer.observe(sentinelRef.current);
+  return () => observer.disconnect();
+}, [isOpen, isRead]); // re-attach when section opens
   // High-fidelity rich glossary highlighting
   const highlightText = (text: string) => {
     const terms = Object.keys(GLOSSARY);
@@ -742,7 +760,8 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
           )}
 
           <div className="pt-4 flex justify-end border-t border-slate-50">
-            <button
+            
+            {/* <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
@@ -756,8 +775,10 @@ function SectionCard({ sec, isRead, onToggleRead }: SectionProps) {
               }}
             >
               {isRead ? '✓ Completed Section' : 'Mark Section as Read'}
-            </button>
+            </button> */}
+
           </div>
+           <div ref={sentinelRef} className="h-px" />  {/* ← add this */}
         </div>
       )}
     </div>
@@ -1006,7 +1027,7 @@ export default function InteractiveLecture({ levelId, lessonId, stepId }: Intera
     supabase.auth.getUser().then(({ data }) => {
       currentUser = data.user;
       setUser(currentUser);
-
+      console.log(currentUser)
       if (currentUser) {
         // Fetch saved progress
         supabase.from('user_progress').select('read_sections, quiz_score').match({
@@ -1071,50 +1092,36 @@ export default function InteractiveLecture({ levelId, lessonId, stepId }: Intera
   const pct = totalSections > 0 ? Math.round((progress.size / totalSections) * 100) : 0;
   const allRead = progress.size === totalSections;
 
-  const toggleRead = (idx: number) => {
-    setProgress(prev => {
-      const next = new Set(prev);
-      const isNewlyRead = !next.has(idx);
-      isNewlyRead ? next.add(idx) : next.delete(idx);
+const toggleRead = (idx: number) => {
+  setProgress(prev => {
+    const next = new Set(prev);
+    const isNewlyRead = !next.has(idx);
+    isNewlyRead ? next.add(idx) : next.delete(idx);
 
-      if (isNewlyRead && idx + 1 < totalSections) {
-        setTimeout(() => {
-          const nextEl = document.getElementById(`section-${idx + 1}`);
-          if (nextEl) {
-            nextEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 150);
-      }
-
-      // Save to Supabase asynchronously
-      console.log(next);
-      // Save to Supabase asynchronously
-      if (user) {
-        supabase
-          .from('user_progress')
-          .upsert(
-            {
-              user_id: user.id,
-              level_id: levelId.toString(),
-              lesson_id: lessonId,
-              step_id: stepId,
-              read_sections: Array.from(next),
-              completed_at: new Date().toISOString(),
-            },
-            {
-              onConflict: 'user_id,course_id,level_id,lesson_id,step_id'
-            }
-          )
-          .then(({ error }) => {
-            if (error) {
-              console.error('Failed to save progress:', error);
-            }
-          });
-      }
-
-      return next;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) return;
+      supabase
+        .from('user_progress')
+        .upsert(
+          {
+            user_id: data.user.id,
+            level_id: levelId.toString(),
+            lesson_id: lessonId,
+            step_id: stepId,
+            read_sections: Array.from(next),
+            completed_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,course_id,level_id,lesson_id,step_id' }
+        )
+        .then(({ error }) => {
+          if (error) console.error('Upsert failed:', error);
+          else console.log('Upsert succeeded');
+        });
     });
-  };
+
+    return next;
+  });
+};
 
   const getContextualSubtitle = () => {
     const t = lecture.stepType.toLowerCase();

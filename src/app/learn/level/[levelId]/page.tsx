@@ -7,6 +7,7 @@ import Link from 'next/link';
 import Header from '@/components/Header';
 import { LEVELS } from '@/lib/lessonConfig';
 import { useActivityStore } from '@/store/useActivityStore';
+import CircuitCanvas from '@/components/CircuitCanvas';
 
 const T = {
   bg:        '#04080f',
@@ -150,7 +151,7 @@ export default function LevelPage() {
 
       <main style={{ minHeight: '100vh', background: T.bg, color: T.textPrimary, fontFamily: T.sans }}>
         <Header />
-
+<CircuitCanvas/>
         <div style={{ maxWidth: 900, margin: '0 auto', padding: '36px 28px 80px' }}>
 
           {/* Back */}
