@@ -314,7 +314,7 @@ _updateStreak: async () => {
   const { lastActive, streak } = get();
 
   console.log('[updateStreak] today:', today);
-  console.log('[updateStreak] lastActive:', lastActive);
+  console.log('[updateStreak] lastActive:', get().lastActive);
   console.log('[updateStreak] current streak:', streak);
 
   if (lastActive === today) {
@@ -335,6 +335,7 @@ _updateStreak: async () => {
   console.log('[updateStreak] newStreak:', newStreak);
 
   set({ lastActive: today, streak: newStreak });
+  console.log(get().lastActive)
 
   console.log('[updateStreak] Zustand updated ->', {
     lastActive: today,
