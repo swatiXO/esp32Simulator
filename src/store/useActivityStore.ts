@@ -63,7 +63,7 @@ const buildPayload = (state: ActivityStore, overrides: Partial<any> = {}) => ({
 
 export const useActivityStore = create<ActivityStore>()((set, get) => {
    const updateStats = async (
-  patch: Partial<{ xp: number; streak: number }>
+  patch: Partial<{ user_xp: number; user_streak: number }>
 ) => {
   const supabase = createClient();
   const { userId } = get();
@@ -222,6 +222,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
         redeemedKits,
         isCheckingSub: false,
       });
+      get()._updateStreak();
     } else {
       set({ userId, totalActivities: count ?? 0, redeemedKits, isCheckingSub: false, isIntialized: true });
     }
@@ -341,7 +342,7 @@ _updateStreak: async () => {
   });
 
   try {
-    await updateStats({ streak: newStreak });
+    await updateStats({ user_streak: newStreak });
     console.log('[updateStreak] DB sync SUCCESS');
   } catch (err) {
     console.error('[updateStreak] DB sync FAILED:', err);

@@ -506,7 +506,7 @@ export default function LearnPage() {
                                 onClick={() => accessible && router.push(`/learn/level/${level.id}/lesson/${lesson.id}`)}
                                 style={{
                                   background: done ? 'linear-gradient(135deg,$),rgba(16,185,129,0.03))' : 'linear-gradient(135deg,#0a1422,#0f1c30)',
-                                  border: `1px solid ${done ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.07)'}`,
+                                  border: `1px solid ${done ? 'rgba(16, 185, 129, 0.1)' : 'rgba(255,255,255,0.07)'}`,
                                   opacity: !accessible ? 0.5 : 1,
                                   animationDelay: `${li * 35}ms`,
                                   padding: 18,
