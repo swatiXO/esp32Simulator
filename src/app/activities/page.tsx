@@ -8,6 +8,8 @@ import Header from '@/components/Header';
 import { useActivityStore } from '@/store/useActivityStore';
 import { ACTIVITIES, type Activity } from '@/lib/activitiesData';
 import { createClient } from '@/utils/supabase/client';
+import CircuitCanvas from '@/components/CircuitCanvas';
+
 
 /* ── tokens ── */
 const BG    = '#04080f';
@@ -550,7 +552,7 @@ const safeNav = (a: Activity) => {
 
       <Header/>
       <div style={{ height: 2, background: 'linear-gradient(90deg,#3b82f6,#8b5cf6 50%,#f59e0b)' }}/>
-      <CircuitBg/>
+      <CircuitCanvas/>
 
       <div style={{ maxWidth: 1140, margin: '0 auto', padding: '28px 22px 80px', position: 'relative', zIndex: 1 }}>
 

@@ -8,7 +8,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { useActivityStore } from '@/store/useActivityStore';
 import ActivityStoreInitializer from '@/components/ActivityStoreInitializer'
 import { createClient } from '@/utils/supabase/client';
-
+import CircuitCanvas from '@/components/CircuitCanvas';
 
 /* ════════════════════════════════════════════════════════════════════════
    BUILD MIND — DASHBOARD
@@ -134,7 +134,7 @@ useEffect(() => {
       <div style={{ height: 3, width: '100%', background: `linear-gradient(90deg,${BLUE},${VIOLET} 45%,${AMBER})` }} />
 
       {/* subtle circuit-trace background — sits behind everything, fades out lower down */}
-      <CircuitBg />
+      <CircuitCanvas />
 
       <div className="bm-wrap" style={{ position: 'relative', zIndex: 1 }}>
 

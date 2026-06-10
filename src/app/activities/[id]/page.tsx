@@ -12,6 +12,8 @@ import { deriveHardwareLayout } from '@/lib/hardwareParser';
 import HardwareBoard from '@/components/HardwareBoard';
 import DynamicWiringSimulator from '@/components/DynamicWiringSimulator';
 import { createClient } from '@/utils/supabase/client';
+import CircuitCanvas from '@/components/CircuitCanvas';
+
 type Activity = any;
 
 /* ── tokens — exact dashboard ── */
@@ -648,7 +650,7 @@ export default function ActivityDetailPage() {
       <div style={{ height: 3, background: LINE }}>
         <div style={{ height: '100%', width: `${progressPercent}%`, background: `linear-gradient(90deg,${BLUE},${VIOLET} 60%,${AMBER})`, transition: 'width .7s ease' }} />
       </div>
-      <CircuitBg />
+      <CircuitCanvas />
 
       <div style={{ display: 'flex', height: 'calc(100vh - 59px)', position: 'relative', zIndex: 1 }}>
 
