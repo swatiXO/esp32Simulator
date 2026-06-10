@@ -333,7 +333,7 @@ export default function LearnPage() {
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: 8,
                         padding: '10px 20px', borderRadius: 11,
-                        background: 'cadetblue',
+                        background:  'rgba(91, 150, 245, 0.6)',
                         border: 'none', cursor: 'pointer', color: '#fff',
                         fontSize: 13, fontWeight: 700, fontFamily: SANS,
                         boxShadow: '0 6px 20px -6px rgba(59,130,246,0.6)',
@@ -425,7 +425,7 @@ export default function LearnPage() {
                       disabled={!levelAccessible}
                       onClick={() => levelAccessible && toggleLevel(level.id)}
                       className="lp-header-btn"
-                      style={{background:'rgba(255,255,255,0.05)'}}
+                      style={{background:'rgba(30, 81, 169, 0.1)'}}
 
                     >
                       {/* Number badge */}
@@ -479,8 +479,8 @@ export default function LearnPage() {
                       {/* Right: counts + chevron */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                         <div style={{ textAlign: 'right' }}>
-                          <p style={{ margin: '0 0 2px', fontSize: 10, color: 'rgba(240,244,255,0.28)', fontFamily: MONO, whiteSpace: 'nowrap' }}>{level.lessons.length} lessons</p>
-                          <p style={{ margin: 0, fontSize: 9.5, color: 'rgba(245,158,11,0.5)', fontFamily: MONO, whiteSpace: 'nowrap' }}>{level.lessons.length * XP_PER_LESSON} XP total</p>
+                          <p style={{ margin: '0 0 2px', fontSize: 10, color: 'rgba(255, 255, 255, 0.6)', fontFamily: MONO, whiteSpace: 'nowrap' }}>{level.lessons.length} lessons</p>
+                          <p style={{ margin: 0, fontSize: 9.5, color: 'rgba(245,158,11,0.9)', fontFamily: MONO, whiteSpace: 'nowrap' }}>{level.lessons.length * XP_PER_LESSON} XP total</p>
                         </div>
                         {levelAccessible && (
                           <div style={{ color: isOpen ? accent : 'rgba(240,244,255,0.28)', transition: 'color .2s' }}>
@@ -505,7 +505,7 @@ export default function LearnPage() {
                                 className={`lp-lesson-card ${accessible ? 'clickable' : ''}`}
                                 onClick={() => accessible && router.push(`/learn/level/${level.id}/lesson/${lesson.id}`)}
                                 style={{
-                                  background: done ? `linear-gradient(135deg,${accent})${accent})` : 'linear-gradient(135deg,#0a1422,#0f1c30)',
+                                  background: done ? 'linear-gradient(135deg,$),rgba(16,185,129,0.03))' : 'linear-gradient(135deg,#0a1422,#0f1c30)',
                                   border: `1px solid ${done ? 'rgba(16,185,129,0.2)' : 'rgba(255,255,255,0.07)'}`,
                                   opacity: !accessible ? 0.5 : 1,
                                   animationDelay: `${li * 35}ms`,
@@ -520,7 +520,7 @@ export default function LearnPage() {
                                 <div className="lp-lesson-glow" style={{ position: 'absolute', top: -30, right: -20, width: 120, height: 120, borderRadius: '50%', background: `radial-gradient(circle,${toneColor}40,transparent 65%)`, opacity: 0, transition: 'opacity .35s', pointerEvents: 'none' }} />
 
                                 {/* Icon */}
-                                <div className="lp-lesson-icon" style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 12, background: done ? 'rgba(16,185,129,0.15)' : `${accent}18`, border: `1px solid ${done ? 'rgba(16,185,129,0.25)' : `${accent}28`}`, color: done ? '#34d399' : accent, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform .35s cubic-bezier(0.16,1,0.3,1)', position: 'relative' }}>
+                                <div className="lp-lesson-icon" style={{ width: 40, height: 40, flexShrink: 0, borderRadius: 12, background: done ? accent : `${accent}18`, border: `1px solid ${done ? 'rgba(16,185,129,0.25)' : `${accent}28`}`, color: done ? '#090909' : accent, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform .35s cubic-bezier(0.16,1,0.3,1)', position: 'relative' }}>
                                   {done ? <CheckIcon size={16} /> : !accessible ? <LockIcon size={14} /> : (
                                     <span style={{ fontSize: 13, fontWeight: 700, fontFamily: SANS }}>{li + 1}</span>
                                   )}
@@ -533,12 +533,12 @@ export default function LearnPage() {
                                       {lesson.title}
                                     </h3>
                                     {done && (
-                                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', fontFamily: MONO, padding: '2px 8px', borderRadius: 99, background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.22)', color: '#34d399', textTransform: 'uppercase' as const, flexShrink: 0 }}>Done</span>
+                                      <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.08em', fontFamily: MONO, padding: '2px 8px', borderRadius: 99, background: accent, border: '1px solid rgba(16,185,129,0.22)', color: '#090909', textTransform: 'uppercase' as const, flexShrink: 0 }}>Done</span>
                                     )}
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, color: 'rgba(240,244,255,0.3)', fontFamily: MONO, padding: '2px 7px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, color: 'rgba(240,244,255,0.8)', fontFamily: MONO, padding: '2px 7px', borderRadius: 99, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
                                       <ClockIcon /> {lesson.estimatedMinutes}m
                                     </span>
-                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, fontWeight: 700, fontFamily: MONO, padding: '2px 7px', borderRadius: 99, background: done ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.07)', border: `1px solid ${done ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.15)'}`, color: done ? '#fbbf24' : 'rgba(245,158,11,0.55)', flexShrink: 0 }}>
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 9.5, fontWeight: 700, fontFamily: MONO, padding: '2px 7px', borderRadius: 99, background: done ? `${accent}` : 'rgba(245,158,11,0.07)', border: `1px solid ${done ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.15)'}`, color: done ? '#000000' : 'rgba(245,158,11,0.55)', flexShrink: 0 }}>
                                       <BoltIcon size={8} /> +{XP_PER_LESSON} XP
                                     </span>
                                   </div>
@@ -551,14 +551,14 @@ export default function LearnPage() {
                                     <div style={{ flex: 1 }}>
                                       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                                         <span style={{ fontSize: 9.5, color: 'rgb(240, 244, 255)', fontFamily: MONO }}>{lesson.steps.length} steps</span>
-                                        {done && <span style={{ fontSize: 9.5, color: '#34d399', fontFamily: MONO }}>100%</span>}
+                                        {done && <span style={{ fontSize: 9.5, color: accent, fontFamily: MONO }}>100%</span>}
                                       </div>
                                       <div style={{ height: 2, borderRadius: 99, background: 'rgba(255,255,255,0.06)' }}>
-                                        <div style={{ height: 2, borderRadius: 99, background: done ? '#10b981' : accent, width: done ? '100%' : '0%', transition: 'width .5s ease' }} />
+                                        <div style={{ height: 2, borderRadius: 99, background: done ? accent: accent, width: done ? '100%' : '0%', transition: 'width .5s ease' }} />
                                       </div>
                                     </div>
                                     {accessible && (
-                                      <div className="lp-lesson-arrow" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 700, color: done ? '#34d399' : accent, opacity: 0, transform: 'translateX(-4px)', transition: 'opacity .22s, transform .22s', flexShrink: 0 }}>
+                                      <div className="lp-lesson-arrow" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 700, color: done ? accent: accent, opacity: 0, transform: 'translateX(-4px)', transition: 'opacity .22s, transform .22s', flexShrink: 0 }}>
                                         {done ? 'Review' : 'Start'} <ArrowRight />
                                       </div>
                                     )}
