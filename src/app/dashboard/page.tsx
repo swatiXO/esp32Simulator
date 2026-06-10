@@ -131,7 +131,7 @@ useEffect(() => {
       <ActivityStoreInitializer/>
       <Header />
       {/* brand accent line under header */}
-      <div style={{ height: 3, width: '100%', background: `linear-gradient(90deg,${BLUE},${VIOLET} 45%,${AMBER})` }} />
+      {/* <div style={{ height: 3, width: '100%', background: `linear-gradient(90deg,${BLUE},${VIOLET} 45%,${AMBER})` }} /> */}
 
       {/* subtle circuit-trace background — sits behind everything, fades out lower down */}
       <CircuitCanvas />

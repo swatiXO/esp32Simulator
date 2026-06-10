@@ -53,7 +53,6 @@ const buildPayload = (state: ActivityStore, overrides: Partial<any> = {}) => ({
   completed: state.completed,
   step_progress: state.stepProgress,
   completed_lessons: state.completedLessons,
-  last_active: state.lastActive,
   user_progress: state.overallProgress,
   ...overrides,
 });

@@ -551,7 +551,7 @@ const safeNav = (a: Activity) => {
       `}</style>
 
       <Header/>
-      <div style={{ height: 2, background: 'linear-gradient(90deg,#3b82f6,#8b5cf6 50%,#f59e0b)' }}/>
+      {/* <div style={{ height: 2, background: 'linear-gradient(90deg,#3b82f6,#8b5cf6 50%,#f59e0b)' }}/> */}
       <CircuitCanvas/>
 
       <div style={{ maxWidth: 1140, margin: '0 auto', padding: '28px 22px 80px', position: 'relative', zIndex: 1 }}>
@@ -565,7 +565,7 @@ const safeNav = (a: Activity) => {
         }}>
           <div style={{ position: 'absolute', top: -100, right: -40, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle,rgba(59,130,246,0.12),transparent 60%)', pointerEvents: 'none' }}/>
           <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: `linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px)`, backgroundSize: '48px 48px', maskImage: 'radial-gradient(ellipse 60% 100% at 70% 0%,black,transparent)', WebkitMaskImage: 'radial-gradient(ellipse 60% 100% at 70% 0%,black,transparent)' }}/>
-          <div style={{ height: 2, background: 'linear-gradient(90deg,#3b82f6,#8b5cf6 50%,#f59e0b)' }}/>
+          {/* <div style={{ height: 2, background: 'linear-gradient(90deg,#3b82f6,#8b5cf6 50%,#f59e0b)' }}/> */}
 
           <div style={{ padding: '26px 30px 28px', position: 'relative' }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20 }}>
