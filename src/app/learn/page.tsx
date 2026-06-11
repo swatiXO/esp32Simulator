@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -77,7 +77,7 @@ export default function LearnPage() {
   const router = useRouter();
   const {
     hasAccess, isLessonCompleted, canAccessLevel,
-    canAccessLesson, isLevelCompleted, initialize, isCheckingSub,
+    canAccessLesson, isLevelCompleted, isCheckingSub,
   } = useActivityStore();
 
   const hasEsp32       = hasAccess('esp32');
@@ -85,13 +85,17 @@ export default function LearnPage() {
   const [openLevels, setOpenLevels] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    initialize().then(() => setMounted(true));
-  }, [initialize]);
+    setMounted(true);
+  }, []);
 
   const toggleLevel = (id: number) => {
     setOpenLevels(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
   };

@@ -7,7 +7,7 @@ import { useActivityStore } from '@/store/useActivityStore';
 
 export default function ActivityStoreInitializer() {
   const initialize = useActivityStore((s) => s.initialize);
-  const initialized = useActivityStore((s) => s.isIntialized);
+  const initialized = useActivityStore((s) => s.isInitialized);
 
   useEffect(() => {
     if (!initialized) {

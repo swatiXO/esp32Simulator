@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Poppins } from 'next/font/google'
 import './globals.css'
 import Script from 'next/script'
+import ActivityStoreInitializer from '@/components/ActivityStoreInitializer'
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.variable} font-poppins`}>
+        <ActivityStoreInitializer />
         {children}
         <Script
           type="module"
