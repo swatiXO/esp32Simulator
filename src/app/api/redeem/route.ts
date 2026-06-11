@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
+    console.log('Role:', user?.role);
     const body = await request.json();
     const code = typeof body?.code === 'string' ? body.code.trim() : '';
 
@@ -24,13 +24,14 @@ export async function POST(request: NextRequest) {
       .select('*')
       .eq('code', code)
       .single();
-
     if (fetchError || !kitCode) {
+      console.log(fetchError)
       return NextResponse.json({ error: 'Invalid activation code' }, { status: 404 });
     }
 
     // 2. Verify code status
     if (!kitCode.is_active) {
+      console.log('Role:', user?.role);
       return NextResponse.json({ error: 'This activation code is inactive' }, { status: 400 });
     }
 

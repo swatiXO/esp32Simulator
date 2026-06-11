@@ -12,16 +12,16 @@ import CircuitCanvas from '@/components/CircuitCanvas';
 
 
 /* ── tokens ── */
-const BG    = '#04080f';
+const BG = '#04080f';
 const PANEL = '#0a1422';
-const CARD  = '#0f1c30';
-const LINE  = 'rgba(255,255,255,0.08)';
-const TEXT  = '#EAF0FA';
+const CARD = '#0f1c30';
+const LINE = 'rgba(255,255,255,0.08)';
+const TEXT = '#EAF0FA';
 const MUTED = 'rgba(234,240,250,0.55)';
 const FAINT = 'rgba(234,240,250,0.28)';
-const SANS  = '"Space Grotesk",system-ui,sans-serif';
+const SANS = '"Space Grotesk",system-ui,sans-serif';
 const INTER = '"Inter",system-ui,sans-serif';
-const MONO  = '"JetBrains Mono",monospace';
+const MONO = '"JetBrains Mono",monospace';
 
 const ACC: Record<string, string> = {
   dht_sensor: '#10b981', blink_led: '#3b82f6',
@@ -66,8 +66,8 @@ function CircuitBg() {
               <path d="M0 150 H30" /><path d="M160 200 V175 a8 8 0 0 1 8-8 H200" />
             </g>
             <g fill="#3b82f6">
-              {([[10,30],[80,0],[0,90],[62,150],[150,40],[200,134],[30,200],[110,140],[120,0],[192,120],[70,200],[150,110],[0,150],[160,200],[200,167]] as [number,number][]).map(([x,y],i) => (
-                <g key={i} style={{ animation: `pad ${5+(i%5)}s ease-in-out ${i*0.4}s infinite` }}>
+              {([[10, 30], [80, 0], [0, 90], [62, 150], [150, 40], [200, 134], [30, 200], [110, 140], [120, 0], [192, 120], [70, 200], [150, 110], [0, 150], [160, 200], [200, 167]] as [number, number][]).map(([x, y], i) => (
+                <g key={i} style={{ animation: `pad ${5 + (i % 5)}s ease-in-out ${i * 0.4}s infinite` }}>
                   <circle cx={x} cy={y} r="3.4" fillOpacity="0.22" />
                   <circle cx={x} cy={y} r="1.5" fillOpacity="0.5" />
                 </g>
@@ -84,43 +84,73 @@ function CircuitBg() {
 /* ── mission icons ── */
 function MIcon({ id, size = 22, color }: { id: string; size?: number; color: string }) {
   const s = { width: size, height: size, fill: 'none', stroke: color, strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
-  if (id === 'dht_sensor')    return <svg viewBox="0 0 24 24" {...s}><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/><circle cx="11.5" cy="19" r="1.2" fill={color}/></svg>;
-  if (id === 'blink_led')     return <svg viewBox="0 0 24 24" {...s}><circle cx="12" cy="12" r="4" fill={color} fillOpacity="0.25"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>;
-  if (id === 'button_led')    return <svg viewBox="0 0 24 24" {...s}><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5" fill={color} fillOpacity="0.35"/></svg>;
-  if (id === 'traffic_light') return <svg viewBox="0 0 24 24" {...s}><rect x="7" y="2" width="10" height="20" rx="3"/><circle cx="12" cy="7" r="2" fill={color} fillOpacity="0.35"/><circle cx="12" cy="12" r="2" fill={color} fillOpacity="0.65"/><circle cx="12" cy="17" r="2" fill={color}/></svg>;
-  if (id === 'distance_alarm') return <svg viewBox="0 0 24 24" {...s}><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>;
-  return <svg viewBox="0 0 24 24" {...s}><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6" rx="1" fill={color} fillOpacity="0.3"/></svg>;
+  if (id === 'dht_sensor') return <svg viewBox="0 0 24 24" {...s}><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" /><circle cx="11.5" cy="19" r="1.2" fill={color} /></svg>;
+  if (id === 'blink_led') return <svg viewBox="0 0 24 24" {...s}><circle cx="12" cy="12" r="4" fill={color} fillOpacity="0.25" /><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" /></svg>;
+  if (id === 'button_led') return <svg viewBox="0 0 24 24" {...s}><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="3.5" fill={color} fillOpacity="0.35" /></svg>;
+  if (id === 'traffic_light') return <svg viewBox="0 0 24 24" {...s}><rect x="7" y="2" width="10" height="20" rx="3" /><circle cx="12" cy="7" r="2" fill={color} fillOpacity="0.35" /><circle cx="12" cy="12" r="2" fill={color} fillOpacity="0.65" /><circle cx="12" cy="17" r="2" fill={color} /></svg>;
+  if (id === 'distance_alarm') return <svg viewBox="0 0 24 24" {...s}><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>;
+  return <svg viewBox="0 0 24 24" {...s}><rect x="5" y="5" width="14" height="14" rx="2" /><rect x="9" y="9" width="6" height="6" rx="1" fill={color} fillOpacity="0.3" /></svg>;
 }
 
 /* ══════════════════════════════════
    MISSION CARD
-   — No useState for hover (pure CSS)
-   — Dashboard FeatureRow style
 ══════════════════════════════════ */
-function MissionCard({ a, done, progress, locked, hasEsp32, onOpen, idx, isCurrent }: {
+function MissionCard({ a, done, progress, locked, hasEsp32, onOpen, onLockedClick, idx, isCurrent }: {
   a: Activity; done: boolean; progress: number; locked: boolean;
-  hasEsp32: boolean; onOpen: () => void; idx: number; isCurrent: boolean;
+  hasEsp32: boolean; onOpen: () => void; onLockedClick?: () => void;
+  idx: number; isCurrent: boolean;
 }) {
   const color = accent(a.id);
-  const diff  = DIFF[a.difficulty] ?? DIFF.Beginner;
+  const diff = DIFF[a.difficulty] ?? DIFF.Beginner;
 
   /* CSS custom property trick — lets CSS vars drive per-card color without re-render */
   const cssVars = { '--mc': color, '--mc-dim': `${color}14`, '--mc-border': `${color}30` } as React.CSSProperties;
+
+  /* ── click: locked cards NEVER open the mission ──
+     - no kit  → guide the user to buy/unlock (onLockedClick)
+     - has kit → blocked because a prior mission isn't done; do nothing */
+  const handleClick = () => {
+    if (locked) {
+      if (!hasEsp32) onLockedClick?.();
+      return;
+    }
+    onOpen();
+  };
+
+  const ctaLabel = locked
+    ? (hasEsp32 ? 'Complete previous' : 'Unlock kit')
+    : done ? 'Review'
+      : progress > 0 ? 'Continue'
+        : 'Open mission';
+
+  const badgeLabel = done ? 'Done'
+    : (isCurrent && !locked) ? 'Active'
+      : locked ? 'Locked'
+        : diff.label;
+
+  /* arrow shows when the card is openable, OR when locked-but-no-kit (it's a real navigation to buy) */
+  const showArrow = !locked || (locked && !hasEsp32);
 
   return (
     <div
       className={`mc${locked ? ' mc-locked' : done ? ' mc-done' : isCurrent ? ' mc-active' : ''}`}
       style={{ ...cssVars, animationDelay: `${idx * 0.06}s` }}
-      onClick={() => { if (locked && hasEsp32) return; onOpen(); }}
+      onClick={handleClick}
+      role="button"
+      tabIndex={0}
+      aria-disabled={locked && hasEsp32}
+      title={locked ? (hasEsp32 ? 'Complete the previous mission to unlock' : 'Unlock your kit to access this mission') : a.title}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClick(); } }}
     >
-      {/* left accent bar */}
-      <span className="mc-bar"/>
+      {/* hover glow + left accent bar */}
+      <span className="mc-glow" />
+      <span className="mc-bar" />
 
       {/* icon */}
       <div className="mc-icon-wrap">
         {locked
-          ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={FAINT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          : <MIcon id={a.id} color={color} size={24}/>
+          ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={FAINT} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+          : <MIcon id={a.id} color={color} size={24} />
         }
       </div>
 
@@ -128,11 +158,11 @@ function MissionCard({ a, done, progress, locked, hasEsp32, onOpen, idx, isCurre
       <div style={{ flex: 1, minWidth: 0 }}>
         {/* title + badge */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: TEXT, fontFamily: SANS, lineHeight: 1.2 }}>
+          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 700, color: locked ? MUTED : TEXT, fontFamily: SANS, lineHeight: 1.2 }}>
             {a.title}
           </h3>
-          <span className="mc-badge">
-            {done ? '✓ Done' : isCurrent && !locked ? 'Active' : locked ? 'Locked' : diff.label}
+          <span className={`mc-badge${locked ? ' mc-badge-locked' : done ? ' mc-badge-done' : ''}`}>
+            {badgeLabel}
           </span>
         </div>
 
@@ -153,23 +183,30 @@ function MissionCard({ a, done, progress, locked, hasEsp32, onOpen, idx, isCurre
 
         {/* progress bar */}
         {!locked && !done && progress > 0 && (
-          <div style={{ height: 2, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden', marginBottom: 12 }}>
-            <div style={{ height: '100%', width: `${progress}%`, borderRadius: 99, background: color, transition: 'width .6s ease' }}/>
+          <div style={{ height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden', marginBottom: 12 }}>
+            <div style={{ height: '100%', width: `${progress}%`, borderRadius: 99, background: `linear-gradient(90deg,${color},${color}aa)`, transition: 'width .6s ease' }} />
           </div>
         )}
 
         {/* footer */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: `1px solid ${LINE}` }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 11, color: FAINT, fontFamily: INTER }}>
-            <span>{a.duration}</span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>
+              {a.duration}
+            </span>
             <span style={{ color, fontWeight: 700 }}>+{diff.xp} XP</span>
           </div>
-          {/* arrow — dashboard style: slides right on parent hover via CSS */}
-          <span className="mc-cta">
-            {locked ? (!hasEsp32 ? 'Unlock Kit' : 'Locked') : done ? 'Review' : progress > 0 ? 'Continue' : 'Open mission'}
-            {!locked && (
+
+          {/* CTA */}
+          <span className={`mc-cta${locked ? ' mc-cta-locked' : ''}`}>
+            {locked && (
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: 2 }}><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+            )}
+            {ctaLabel}
+            {showArrow && (
               <svg className="mc-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
+                <path d="M5 12h14M12 5l7 7-7 7" />
               </svg>
             )}
           </span>
@@ -187,8 +224,8 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
   hasEsp32: boolean; onNav: (a: Activity) => void;
 }) {
   const doneCount = mounted ? activities.filter(a => isCompleted(a.id)).length : 0;
-  const pct       = activities.length ? Math.round(doneCount / activities.length * 100) : 0;
-  const currIdx   = mounted ? activities.findIndex(a => !isCompleted(a.id)) : 0;
+  const pct = activities.length ? Math.round(doneCount / activities.length * 100) : 0;
+  const currIdx = mounted ? activities.findIndex(a => !isCompleted(a.id)) : 0;
 
   return (
     <div style={{ position: 'sticky', top: 20, borderRadius: 18, background: PANEL, border: `1px solid ${LINE}`, overflow: 'hidden' }}>
@@ -202,7 +239,7 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
           <span style={{ fontSize: 12, fontWeight: 800, color: '#34d399', fontFamily: SANS }}>{pct}%</span>
         </div>
         <div style={{ height: 2, borderRadius: 99, background: 'rgba(255,255,255,0.07)', overflow: 'hidden' }}>
-          <div style={{ height: '100%', width: `${pct}%`, borderRadius: 99, background: 'linear-gradient(90deg,#10b981,#3b82f6 60%,#8b5cf6)', transition: 'width 1s ease' }}/>
+          <div style={{ height: '100%', width: `${pct}%`, borderRadius: 99, background: 'linear-gradient(90deg,#10b981,#3b82f6 60%,#8b5cf6)', transition: 'width 1s ease' }} />
         </div>
         <p style={{ margin: '5px 0 0', fontSize: 9, color: FAINT, fontFamily: INTER }}>
           {doneCount} of {activities.length} missions complete
@@ -217,13 +254,13 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
           background: 'linear-gradient(180deg,#10b981,#3b82f6)',
           height: `${Math.max(0, doneCount / Math.max(activities.length, 1) * 70)}%`,
           transition: 'height 1s ease',
-        }}/>
+        }} />
 
         {activities.map((a, i) => {
-          const isDone   = mounted && isCompleted(a.id);
+          const isDone = mounted && isCompleted(a.id);
           const isActive = !isDone && i === currIdx;
-          const isLock   = calcLocked(a, activities, mounted, hasEsp32, isCompleted);
-          const color    = accent(a.id);
+          const isLock = calcLocked(a, activities, mounted, hasEsp32, isCompleted);
+          const color = accent(a.id);
           const clickable = isDone || isActive;
 
           return (
@@ -248,10 +285,10 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
                 transition: 'all .3s',
               }}>
                 {isDone
-                  ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  ? <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round"><polyline points="20 6 9 17 4 12" /></svg>
                   : isLock
-                  ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={FAINT} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                  : <MIcon id={a.id} color={isActive ? color : FAINT} size={13}/>
+                    ? <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={FAINT} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                    : <MIcon id={a.id} color={isActive ? color : FAINT} size={13} />
                 }
               </div>
 
@@ -264,8 +301,8 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
                 </p>
               </div>
 
-              {isActive && <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0, animation: 'pulse 1.5s ease-in-out infinite' }}/>}
-              {isDone   && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>}
+              {isActive && <span style={{ width: 6, height: 6, borderRadius: '50%', background: color, flexShrink: 0, animation: 'pulse 1.5s ease-in-out infinite' }} />}
+              {isDone && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12" /></svg>}
             </div>
           );
         })}
@@ -273,7 +310,7 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
         {/* more soon */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 16, position: 'relative', zIndex: 1, padding: '6px' }}>
           <div style={{ width: 28, height: 28, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)' }}>
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={FAINT} strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={FAINT} strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
           </div>
           <div>
             <p style={{ margin: '0 0 1px', fontSize: 11, fontWeight: 600, fontFamily: SANS, color: FAINT }}>More missions</p>
@@ -293,66 +330,66 @@ export default function ActivitiesPage() {
   const { isCompleted, getProgress, initialize, hasAccess, streak, xp } = useActivityStore();
   const hasEsp32 = hasAccess('esp32');
 
-  const [activities,     setActivities] = useState<Activity[]>([]);
-  const [completedCount, setDone]       = useState(0);
-  const [mounted,        setMounted]    = useState(false);
-  const [loading,        setLoading]    = useState(true);
-  const [filter,         setFilter]     = useState<Filter>('All');
-  const [search,         setSearch]     = useState('');
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [completedCount, setDone] = useState(0);
+  const [mounted, setMounted] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<Filter>('All');
+  const [search, setSearch] = useState('');
 
- useEffect(() => {
-  const load = async () => {
-    const supabase = createClient();
+  useEffect(() => {
+    const load = async () => {
+      const supabase = createClient();
 
 
-    // 1. Get user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+      // 1. Get user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (!user?.id) {
+      if (!user?.id) {
+        setLoading(false);
+        return;
+      }
+
+
+      await initialize();
+
+      // 2. Load activities
+      const { data: activitiesData, error: activitiesError } = await supabase
+        .from('activities')
+        .select('*');
+
+      if (activitiesError) {
+        console.error('[init] activities error:', activitiesError);
+      }
+
+      const activitiesList = activitiesData || [];
+      setActivities(activitiesList);
+
+      // 3. Load completed activities
+      const { data: completedactivities, error: completedError } = await supabase
+        .from('user_activities')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (completedError) {
+        console.error('[init] completed error:', completedError);
+      }
+
+
+      // 4. Compute done count (DO NOT use state yet)
+
+      const completed = completedactivities?.[0]?.completed ?? [];
+      const doneCount = completed.length
+
+      setDone(doneCount);
       setLoading(false);
-      return;
-    }
+      setMounted(true);
+    };
 
-
-    await initialize();
-
-    // 2. Load activities
-    const { data: activitiesData, error: activitiesError } = await supabase
-      .from('activities')
-      .select('*');
-
-    if (activitiesError) {
-      console.error('[init] activities error:', activitiesError);
-    }
-
-    const activitiesList = activitiesData || [];
-    setActivities(activitiesList);
-
-    // 3. Load completed activities
-    const { data: completedactivities, error: completedError } = await supabase
-      .from('user_activities')
-      .select('*')
-      .eq('user_id', user.id);
-
-    if (completedError) {
-      console.error('[init] completed error:', completedError);
-    }
-
-
-    // 4. Compute done count (DO NOT use state yet)
- 
-     const completed = completedactivities?.[0]?.completed ?? [];
-        const doneCount = completed.length
-
-    setDone(doneCount);
-    setLoading(false);
-    setMounted(true);
-  };
-
-  load();
-}, []);
+    load();
+  }, []);
 
   const filtered = activities.filter(a => {
     const mf = filter === 'All' || a.difficulty === filter;
@@ -361,29 +398,29 @@ export default function ActivitiesPage() {
     return mf && ms;
   });
   const xpMax = 1900
-// const xpMax = mounted
-//   ? activities.reduce((sum, a) => sum + (a.reward ?? 0), 0)
-//   : 0;
+  // const xpMax = mounted
+  //   ? activities.reduce((sum, a) => sum + (a.reward ?? 0), 0)
+  //   : 0;
   const xpPct = Math.min(100, Math.round(xp / xpMax * 100));
-  const lvl   = completedCount === 0 ? 1 : completedCount <= 2 ? 2 : 3;
-  const lvlN  = ['', 'Beginner', 'Explorer', 'Maker'][lvl];
+  const lvl = completedCount === 0 ? 1 : completedCount <= 2 ? 2 : 3;
+  const lvlN = ['', 'Beginner', 'Explorer', 'Maker'][lvl];
 
-const safeNav = (a: Activity) => {
-  router.push(`/activities/${a.id}`);
-};
+  const safeNav = (a: Activity) => {
+    router.push(`/activities/${a.id}`);
+  };
   const next = mounted
     ? activities.find(a => !isCompleted(a.id) && !calcLocked(a, activities, mounted, hasEsp32, isCompleted))
     : null;
 
   if (loading) return (
     <main style={{ minHeight: '100vh', background: BG, color: TEXT }}>
-      <Header/>
+      <Header />
       <style suppressHydrationWarning>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 56px)' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ position: 'relative', width: 48, height: 48, margin: '0 auto 16px' }}>
-            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `2.5px solid ${LINE}` }}/>
-            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2.5px solid #3b82f6', borderTopColor: 'transparent', animation: 'spin .85s linear infinite' }}/>
+            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `2.5px solid ${LINE}` }} />
+            <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: '2.5px solid #3b82f6', borderTopColor: 'transparent', animation: 'spin .85s linear infinite' }} />
           </div>
           <p style={{ margin: 0, fontSize: 13, fontWeight: 600, fontFamily: SANS, color: MUTED }}>Loading missions…</p>
         </div>
@@ -424,8 +461,14 @@ const safeNav = (a: Activity) => {
             border-color .2s ease,
             background .2s ease;
         }
-        .mc-active { border-color: var(--mc-border); }
-        .mc-done   { border-color: var(--mc-border); }
+        .mc-active {
+          border-color: var(--mc, #3b82f6);
+          box-shadow: 0 0 0 1px var(--mc, #3b82f6)22, 0 0 20px -8px var(--mc, #3b82f6)55;
+        }
+        .mc-done {
+          border-color: var(--mc, #3b82f6);
+          box-shadow: 0 0 0 1px var(--mc, #3b82f6)22, 0 0 20px -8px var(--mc, #3b82f6)55;
+        }
         .mc-locked { opacity: 0.46; cursor: not-allowed; }
 
         /* hover — identical to dashboard bm-mod */
@@ -522,11 +565,47 @@ const safeNav = (a: Activity) => {
         /* cta arrow — slides on hover, dashboard bm-arrow style */
         .mc-cta {
           display: inline-flex; align-items: center; gap: 6px;
-          font-size: 12.5px; font-weight: 700; font-family: ${SANS};
+          font-size: 12.5px; font-weight: 600; font-family: ${SANS};
           color: var(--mc, #3b82f6);
         }
         .mc-arrow { transition: transform .25s; }
         .mc:not(.mc-locked):hover .mc-arrow { transform: translateX(5px); }
+
+        /* ── locked card state ── */
+        .mc-locked .mc-icon-wrap {
+          background: rgba(255,255,255,0.04);
+          color: ${FAINT};
+        }
+
+        /* locked badge — neutral grey, no accent color */
+        .mc-badge-locked {
+          background: rgba(255,255,255,0.06) !important;
+          color: ${FAINT} !important;
+          border-color: rgba(255,255,255,0.1) !important;
+        }
+
+        /* done badge — green success tint */
+        .mc-badge-done {
+          background: rgba(16,185,129,0.14) !important;
+          color: #34d399 !important;
+          border-color: rgba(16,185,129,0.3) !important;
+        }
+
+        /* locked CTA — no-kit users: amber (unlock), kit users: muted grey */
+        .mc-cta-locked {
+          color: #f59e0b;
+        }
+        .mc-locked[aria-disabled="true"] .mc-cta-locked {
+          color: ${FAINT};
+        }
+
+        /* locked CTA arrow nudge + pointer — only for clickable (no-kit) locked cards */
+        .mc-locked:not([aria-disabled="true"]) {
+          cursor: pointer;
+        }
+        .mc-locked:not([aria-disabled="true"]):hover .mc-arrow {
+          transform: translateX(4px);
+        }
 
         /* path items */
         .pi-click { transition: background .15s; border-radius: 10px; }
@@ -554,7 +633,7 @@ const safeNav = (a: Activity) => {
       {/* <div style={{ height: 2, background: 'linear-gradient(90deg,#3b82f6,#8b5cf6 50%,#f59e0b)' }}/> */}
       <CircuitCanvas/>
 
-      <div style={{ maxWidth: 1140, margin: '0 auto', padding: '28px 22px 80px', position: 'relative', zIndex: 1 }}>
+     <div style={{ maxWidth: 1140, margin: '0 auto', padding: '28px 22px 80px', position: 'relative', zIndex: 1 }}>
 
         {/* ── HERO ── */}
         <div className="r1" style={{
@@ -567,64 +646,64 @@ const safeNav = (a: Activity) => {
           <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: `linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px)`, backgroundSize: '48px 48px', maskImage: 'radial-gradient(ellipse 60% 100% at 70% 0%,black,transparent)', WebkitMaskImage: 'radial-gradient(ellipse 60% 100% at 70% 0%,black,transparent)' }}/>
           {/* <div style={{ height: 2, background: 'linear-gradient(90deg,#3b82f6,#8b5cf6 50%,#f59e0b)' }}/> */}
 
-          <div style={{ padding: '26px 30px 28px', position: 'relative' }}>
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20 }}>
+          <div style={{ padding: '28px 32px 30px', position: 'relative' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24 }}>
               {/* left */}
-              <div>
-                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '3px 10px', borderRadius: 99, marginBottom: 12, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.18)' }}>
-                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#10b981', animation: 'pulse 2s infinite' }}/>
+              <div style={{ minWidth: 260 }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 11px', borderRadius: 99, marginBottom: 14, background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.18)' }}>
+                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#10b981', boxShadow: '0 0 8px #10b981', animation: 'pulse 2s infinite' }} />
                   <span style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#93c5fd', fontFamily: INTER }}>ESP32 IoT Platform</span>
                 </div>
-                <h1 style={{ margin: '0 0 6px', fontSize: 'clamp(1.8rem,3.5vw,2.4rem)', fontWeight: 900, color: TEXT, letterSpacing: '-0.025em', lineHeight: 1.05 }}>Activities</h1>
-                <p style={{ margin: '0 0 18px', fontSize: 13, color: MUTED, fontFamily: INTER, lineHeight: 1.65, maxWidth: 400 }}>
+                <h1 style={{ margin: '0 0 8px', fontSize: 'clamp(1.9rem,3.5vw,2.5rem)', fontWeight: 900, color: TEXT, letterSpacing: '-0.025em', lineHeight: 1.04 }}>Activities</h1>
+                <p style={{ margin: '0 0 20px', fontSize: 13.5, color: MUTED, fontFamily: INTER, lineHeight: 1.65, maxWidth: 410 }}>
                   Guided hardware missions — wire up, simulate, code, and flash to real ESP32.
                 </p>
                 {next && (
                   <button className="hero-cta" onClick={() => safeNav(next)}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 11, background: 'linear-gradient(135deg,#1a3a8a,#3b82f6)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: SANS, boxShadow: '0 6px 20px -6px rgba(59,130,246,0.6)', transition: 'transform .2s,box-shadow .2s' }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '11px 22px', borderRadius: 12, background: 'linear-gradient(135deg,#1a3a8a,#3b82f6)', border: 'none', cursor: 'pointer', color: '#fff', fontSize: 13, fontWeight: 700, fontFamily: SANS, boxShadow: '0 6px 20px -6px rgba(59,130,246,0.6)', transition: 'transform .2s,box-shadow .2s' }}
                     onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 10px 26px -6px rgba(59,130,246,0.75)'; }}
                     onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = 'none'; (e.currentTarget as HTMLElement).style.boxShadow = '0 6px 20px -6px rgba(59,130,246,0.6)'; }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                    {mounted && completedCount > 0 ? `Continue — ${next.title}` : `Start Next Activity:  ${next.title}`}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3" /></svg>
+                    {mounted && completedCount > 0 ? `Continue — ${next.title}` : `Start Next Activity: ${next.title}`}
                   </button>
                 )}
               </div>
 
               {/* right: level ring + stats */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 16px', borderRadius: 14, background: 'rgba(255,255,255,0.03)', border: `1px solid ${LINE}` }}>
-                  <div style={{ position: 'relative', width: 64, height: 64, flexShrink: 0 }}>
-                    <svg width="64" height="64" viewBox="0 0 64 64" style={{ transform: 'rotate(-90deg)', display: 'block' }}>
-                      <circle cx="32" cy="32" r="26" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5"/>
-                      <circle cx="32" cy="32" r="26" fill="none" stroke="#10b981" strokeWidth="5" strokeLinecap="round"
-                        strokeDasharray={`${2*Math.PI*26}`}
-                        strokeDashoffset={`${2*Math.PI*26*(1-xpPct/100)}`}
-                        style={{ transition: 'stroke-dashoffset 1.4s ease', filter: 'drop-shadow(0 0 4px rgba(16,185,129,0.5))' }}/>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 18px', borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: `1px solid ${LINE}` }}>
+                  <div style={{ position: 'relative', width: 66, height: 66, flexShrink: 0 }}>
+                    <svg width="66" height="66" viewBox="0 0 66 66" style={{ transform: 'rotate(-90deg)', display: 'block' }}>
+                      <circle cx="33" cy="33" r="27" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
+                      <circle cx="33" cy="33" r="27" fill="none" stroke="#10b981" strokeWidth="5" strokeLinecap="round"
+                        strokeDasharray={`${2 * Math.PI * 27}`}
+                        strokeDashoffset={`${2 * Math.PI * 27 * (1 - xpPct / 100)}`}
+                        style={{ transition: 'stroke-dashoffset 1.4s ease', filter: 'drop-shadow(0 0 5px rgba(16,185,129,0.55))' }} />
                     </svg>
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                      <span style={{ fontSize: 16, fontWeight: 900, color: TEXT, fontFamily: SANS, lineHeight: 1 }}>{lvl}</span>
-                      <span style={{ fontSize: 7, fontWeight: 700, color: '#10b981', fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{lvlN}</span>
+                      <span style={{ fontSize: 17, fontWeight: 900, color: TEXT, fontFamily: SANS, lineHeight: 1 }}>{lvl}</span>
+                      <span style={{ fontSize: 7, fontWeight: 700, color: '#10b981', fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: 2 }}>{lvlN}</span>
                     </div>
                   </div>
                   <div>
-                    <p style={{ margin: '0 0 1px', fontSize: 9, color: FAINT, fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.08em' }}>XP Progress</p>
-                    <p style={{ margin: '0 0 6px', fontSize: 17, fontWeight: 900, color: TEXT, fontFamily: SANS }}>
+                    <p style={{ margin: '0 0 2px', fontSize: 9, color: FAINT, fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.08em' }}>XP Progress</p>
+                    <p style={{ margin: '0 0 7px', fontSize: 18, fontWeight: 900, color: TEXT, fontFamily: SANS, lineHeight: 1 }}>
                       {mounted ? xp.toLocaleString() : 0}<span style={{ fontSize: 10, color: FAINT, fontWeight: 400 }}> / {xpMax}</span>
                     </p>
-                    <div style={{ width: 100, height: 3, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${xpPct}%`, borderRadius: 99, background: 'linear-gradient(90deg,#10b981,#34d399)', transition: 'width 1.2s ease' }}/>
+                    <div style={{ width: 110, height: 4, borderRadius: 99, background: 'rgba(255,255,255,0.06)', overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${xpPct}%`, borderRadius: 99, background: 'linear-gradient(90deg,#10b981,#34d399)', transition: 'width 1.2s ease', boxShadow: '0 0 8px rgba(16,185,129,0.4)' }} />
                     </div>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: 6 }}>
+                <div style={{ display: 'flex', gap: 7 }}>
                   {[
-                    { val: mounted ? completedCount : 0,   label: 'Done',   color: '#10b981' },
-                    { val: activities.length,               label: 'Total',  color: '#3b82f6' },
-                    { val: mounted ? (streak ?? 0) : 0,    label: 'Streak', color: '#ef4444' },
-                    { val:completedCount , label: 'Skills', color: '#8b5cf6' },
+                    { val: mounted ? completedCount : 0, label: 'Done', color: '#10b981' },
+                    { val: activities.length, label: 'Total', color: '#3b82f6' },
+                    { val: mounted ? (streak ?? 0) : 0, label: 'Streak', color: '#ef4444' },
+                    /* { val: mounted ? skillCount : 0, label: 'Skills', color: '#8b5cf6' }, */
                   ].map(s => (
-                    <div key={s.label} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: `1px solid ${LINE}`, textAlign: 'center', minWidth: 48 }}>
-                      <p style={{ margin: '0 0 1px', fontSize: 16, fontWeight: 900, color: s.color, fontFamily: SANS, lineHeight: 1 }}>{s.val}</p>
+                    <div key={s.label} style={{ padding: '9px 12px', borderRadius: 11, background: 'rgba(255,255,255,0.03)', border: `1px solid ${LINE}`, textAlign: 'center', minWidth: 52 }}>
+                      <p style={{ margin: '0 0 2px', fontSize: 17, fontWeight: 900, color: s.color, fontFamily: SANS, lineHeight: 1 }}>{s.val}</p>
                       <p style={{ margin: 0, fontSize: 8, color: FAINT, fontFamily: INTER, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.label}</p>
                     </div>
                   ))}
@@ -635,21 +714,21 @@ const safeNav = (a: Activity) => {
         </div>
 
         {/* ── FILTERS + SEARCH ── */}
-        <div className="r2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10, marginBottom: 20 }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+        <div className="r2" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 20 }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {FILTERS.map(f => {
-              const on    = filter === f;
+              const on = filter === f;
               const count = f === 'All' ? activities.length : activities.filter(a => a.difficulty === f).length;
               return (
                 <button key={f} type="button" className="fb" onClick={() => setFilter(f)} style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 5, padding: '6px 12px', borderRadius: 8,
+                  display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 13px', borderRadius: 9,
                   fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap',
                   background: on ? '#3b82f6' : PANEL, color: on ? '#fff' : MUTED,
-                  border: on ? 'none' : `1px solid ${LINE}`,
-                  boxShadow: on ? '0 2px 10px rgba(59,130,246,0.35)' : 'none',
+                  border: on ? '1px solid #3b82f6' : `1px solid ${LINE}`,
+                  boxShadow: on ? '0 2px 12px rgba(59,130,246,0.4)' : 'none',
                 }}>
                   {f}
-                  <span style={{ padding: '0 5px', borderRadius: 99, fontSize: 8, fontWeight: 800, fontFamily: INTER, background: on ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.06)', color: on ? '#fff' : FAINT }}>
+                  <span style={{ padding: '1px 6px', borderRadius: 99, fontSize: 8, fontWeight: 800, fontFamily: INTER, background: on ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.06)', color: on ? '#fff' : FAINT }}>
                     {count}
                   </span>
                 </button>
@@ -657,15 +736,15 @@ const safeNav = (a: Activity) => {
             })}
           </div>
           <div style={{ position: 'relative', flexShrink: 0 }}>
-            <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: FAINT, display: 'flex', pointerEvents: 'none' }}>
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <span style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', color: FAINT, display: 'flex', pointerEvents: 'none' }}>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
             </span>
             <input type="text" value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search missions…" className="srch"
-              style={{ height: 36, borderRadius: 9, padding: '0 30px 0 30px', background: PANEL, border: `1px solid ${LINE}`, fontSize: 12, color: TEXT, fontFamily: INTER, width: 200 }}/>
+              style={{ height: 38, borderRadius: 10, padding: '0 32px', background: PANEL, border: `1px solid ${LINE}`, fontSize: 12, color: TEXT, fontFamily: INTER, width: 210 }} />
             {search && (
-              <button type="button" onClick={() => setSearch('')} style={{ position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: FAINT, display: 'flex' }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              <button type="button" onClick={() => setSearch('')} style={{ position: 'absolute', right: 9, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: FAINT, display: 'flex' }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12" /></svg>
               </button>
             )}
           </div>
@@ -675,36 +754,40 @@ const safeNav = (a: Activity) => {
         <div className="r3" style={{ display: 'grid', gridTemplateColumns: '1fr 220px', gap: 20, alignItems: 'start' }}>
 
           {/* LEFT: mission cards */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {filtered.length === 0 ? (
-              <div style={{ padding: '44px 24px', borderRadius: 16, textAlign: 'center', background: PANEL, border: `1px solid ${LINE}` }}>
+              <div style={{ padding: '48px 24px', borderRadius: 18, textAlign: 'center', background: PANEL, border: `1px solid ${LINE}` }}>
+                <div style={{ width: 44, height: 44, margin: '0 auto 14px', borderRadius: 12, background: 'rgba(59,130,246,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+                </div>
                 <p style={{ margin: '0 0 4px', fontSize: 14, fontWeight: 700, color: MUTED, fontFamily: SANS }}>No missions found</p>
-                <p style={{ margin: '0 0 14px', fontSize: 11, color: FAINT, fontFamily: INTER }}>Try a different filter</p>
-                <button type="button" onClick={() => { setSearch(''); setFilter('All'); }} style={{ padding: '7px 18px', borderRadius: 8, border: 'none', cursor: 'pointer', background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 700, fontFamily: SANS }}>
+                <p style={{ margin: '0 0 16px', fontSize: 11, color: FAINT, fontFamily: INTER }}>Try a different filter or search term</p>
+                <button type="button" onClick={() => { setSearch(''); setFilter('All'); }} style={{ padding: '8px 20px', borderRadius: 9, border: 'none', cursor: 'pointer', background: '#3b82f6', color: '#fff', fontSize: 12, fontWeight: 700, fontFamily: SANS }}>
                   Clear filters
                 </button>
               </div>
             ) : (
               <>
                 {filtered.map((a, idx) => {
-                  const done     = mounted && isCompleted(a.id);
+                  const done = mounted && isCompleted(a.id);
                   const progress = mounted ? getProgress(a.id, a.assemble?.steps?.length ?? 5) : 0;
-                  const locked   = calcLocked(a, activities, mounted, hasEsp32, isCompleted);
-                  const currIdx  = mounted ? activities.findIndex(x => !isCompleted(x.id)) : -1;
-                  const origIdx  = activities.findIndex(x => x.id === a.id);
+                  const locked = calcLocked(a, activities, mounted, hasEsp32, isCompleted);
+                  const currIdx = mounted ? activities.findIndex(x => !isCompleted(x.id)) : -1;
+                  const origIdx = activities.findIndex(x => x.id === a.id);
                   return (
                     <MissionCard key={a.id} a={a} done={done} progress={progress}
                       locked={locked} hasEsp32={hasEsp32} idx={idx}
                       isCurrent={origIdx === currIdx}
-                      onOpen={() => safeNav(a)}/>
+                      onOpen={() => safeNav(a)}
+                      onLockedClick={() => router.push('/redeem')} />
                   );
                 })}
 
                 {/* coming soon */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: 20, borderRadius: 18, border: '1px dashed rgba(255,255,255,0.08)', background: 'rgba(255,255,255,0.01)', position: 'relative', overflow: 'hidden' }}>
-                  <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: 'rgba(245,158,11,0.3)', borderRadius: '3px 0 0 3px' }}/>
-                  <div style={{ width: 46, height: 46, borderRadius: 13, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(245,158,11,0.07)', marginLeft: 4 }}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z"/></svg>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 16, padding: 20, borderRadius: 18, border: '1px dashed rgba(245,158,11,0.22)', background: 'rgba(245,158,11,0.025)', position: 'relative', overflow: 'hidden' }}>
+                  <span style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 3, background: 'rgba(245,158,11,0.4)', borderRadius: '3px 0 0 3px' }} />
+                  <div style={{ width: 48, height: 48, borderRadius: 14, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(245,158,11,0.1)', marginLeft: 4 }}>
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8z" /></svg>
                   </div>
                   <div>
                     <h3 style={{ margin: '0 0 3px', fontSize: 14, fontWeight: 700, color: MUTED, fontFamily: SANS }}>More Missions Coming</h3>
@@ -717,22 +800,22 @@ const safeNav = (a: Activity) => {
 
           {/* RIGHT: path panel */}
           <PathPanel activities={activities} mounted={mounted}
-            isCompleted={isCompleted} hasEsp32={hasEsp32} onNav={safeNav}/>
+            isCompleted={isCompleted} hasEsp32={hasEsp32} onNav={safeNav} />
         </div>
 
         {/* unlock banner */}
         {!hasEsp32 && (
-          <div style={{ marginTop: 20, padding: '12px 16px', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)' }}>
+          <div style={{ marginTop: 20, padding: '14px 18px', borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, flexWrap: 'wrap', background: 'rgba(245,158,11,0.06)', border: '1px solid rgba(245,158,11,0.18)' }}>
             <div>
-              <p style={{ margin: '0 0 1px', fontSize: 11, fontWeight: 700, color: '#f59e0b', fontFamily: SANS, display: 'flex', alignItems: 'center', gap: 5 }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              <p style={{ margin: '0 0 2px', fontSize: 11, fontWeight: 700, color: '#f59e0b', fontFamily: SANS, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
                 Limited Preview
               </p>
-              <p style={{ margin: 0, fontSize: 10, color: 'rgba(245,158,11,0.5)', fontFamily: INTER }}>Only the first mission is available. Unlock all with your kit code.</p>
+              <p style={{ margin: 0, fontSize: 10.5, color: 'rgba(245,158,11,0.6)', fontFamily: INTER }}>Only the first mission is available. Unlock all with your kit code.</p>
             </div>
-            <Link href="/redeem" style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 9, textDecoration: 'none', background: 'linear-gradient(135deg,#92400e,#f59e0b)', color: '#1a0f00', fontSize: 11, fontWeight: 800, fontFamily: SANS }}>
+            <Link href="/redeem" style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, textDecoration: 'none', background: 'linear-gradient(135deg,#92400e,#f59e0b)', color: '#1a0f00', fontSize: 11, fontWeight: 800, fontFamily: SANS }}>
               Unlock All
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
             </Link>
           </div>
         )}

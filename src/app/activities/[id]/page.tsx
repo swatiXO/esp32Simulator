@@ -360,19 +360,8 @@ function AssembleStep({ activity }: { activity: any }) {
       </div>
 
       {view === 'wiring' && activity.wiringComponent && (
-        <div
-          style={{
-            width: '1400px',
-            maxWidth: 'calc(100vw - 320px)',
-            marginLeft: '50%',
-            transform: 'translateX(-50%)',
-            borderRadius: 16,
-            overflow: 'hidden',
-            border: `1px solid ${LINE}`,
-            minHeight: 520,
-          }}
-        >
-          <DynamicWiringSimulator component={activity.wiringComponent} />
+        <div style={{ borderRadius: 16, overflow: 'hidden', border: `1px solid ${LINE}` }}>
+        <DynamicWiringSimulator component={activity.wiringComponent} />
         </div>
       )}
 
@@ -388,7 +377,7 @@ function AssembleStep({ activity }: { activity: any }) {
       )}
 
       {/* wiring steps */}
-      <div style={{ borderRadius: 16, padding: 20, background: CARD, border: `1px solid ${LINE}` }}>
+      {/*<div style={{ borderRadius: 16, padding: 20, background: CARD, border: `1px solid ${LINE}` }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
           <span style={{ width: 32, height: 32, borderRadius: 9, background: hexA(BLUE, 0.14), color: BLUE_LT, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Ic.wire width={16} height={16} /></span>
           <h3 style={{ margin: 0, fontSize: 13, fontWeight: 700, color: TEXT, fontFamily: SANS }}>Wiring steps</h3>
@@ -401,7 +390,7 @@ function AssembleStep({ activity }: { activity: any }) {
             </div>
           ))}
         </div>
-      </div>
+      </div>*/}
     </div>
   );
 }
@@ -774,8 +763,7 @@ export default function ActivityDetailPage() {
 
         {/* ══ MAIN CONTENT ══ */}
         <div style={{ flex: 1, minWidth: 0, overflowY: 'auto' }}>
-          <div style={{ maxWidth: 800, margin: '0 auto', padding: '24px 28px 60px' }}>
-
+          <div style={{ maxWidth: currentStep === 2 ? 1300 : 800, margin: '0 auto', padding: '24px 28px 60px', transition: 'max-width .3s ease' }}>
             {/* breadcrumb */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 20, fontSize: 11, color: FAINT, fontFamily: INTER }}>
               <button type="button" onClick={() => router.push('/activities')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: FAINT, fontFamily: INTER, fontSize: 11, padding: 0 }}>Activities</button>
