@@ -155,7 +155,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
       buildTemplateBlock('pinMode', { pin: '2', mode: 'OUTPUT' }),
       buildTemplateBlock('pinMode', { pin: '4', mode: 'INPUT_PULLUP' }),
       buildTemplateBlock('btn_read', { pin: '4', var: 'btnState' }),
-      buildTemplateBlock('if_block', { cond: 'btnState == LOW' }),
+      buildTemplateBlock('if_block', { cond: 'btnState == HIGH' }),
       buildTemplateBlock('dw_high', { pin: '2' }),
       buildTemplateBlock('else_block'),
       buildTemplateBlock('dw_low', { pin: '2' }),

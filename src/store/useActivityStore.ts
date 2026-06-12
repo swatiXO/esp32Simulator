@@ -41,6 +41,7 @@ type ActivityStore = {
   getLastStep: (activityId: string) => number;
   resetActivity: (activityId: string) => Promise<void>;
   resetAll: () => Promise<void>;
+  resetStore: () => void;
   _updateStreak: () => Promise<void>;
   _updateOverallProgress: () => Promise<void>;
   _updateXp : (toBeAdded: number) => Promise<void>;
@@ -188,7 +189,23 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
     const { data: { user } } = await supabase.auth.getUser();
     const userId = user?.id;
     if (!userId) {
-      set({ isCheckingSub: false, isInitialized: true });
+      set({
+        userId: '',
+        completed: [],
+        stepProgress: {},
+        completedLessons: [],
+        streak: 0,
+        lastActive: null,
+        overallProgress: 0,
+        redeemedKits: [],
+        isCheckingSub: false,
+        isInitialized: true,
+        xp: 0,
+      });
+      return;
+    }
+
+    if (get().isInitialized && get().userId === userId) {
       return;
     }
 
@@ -392,6 +409,21 @@ console.log("new XP: ", get().xp)
       },
       { onConflict: 'user_id' }
     );
+  },
+  resetStore: () => {
+    set({
+      completed: [],
+      stepProgress: {},
+      completedLessons: [],
+      streak: 0,
+      lastActive: null,
+      overallProgress: 0,
+      userId: '',
+      redeemedKits: [],
+      isCheckingSub: false,
+      isInitialized: false,
+      xp: 0,
+    });
   },
  
   _updateOverallProgress: async () => {
