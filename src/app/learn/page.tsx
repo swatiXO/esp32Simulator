@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -77,7 +77,7 @@ export default function LearnPage() {
   const router = useRouter();
   const {
     hasAccess, isLessonCompleted, canAccessLevel,
-    canAccessLesson, isLevelCompleted, isCheckingSub,
+    canAccessLesson, isLevelCompleted, initialize, isCheckingSub,
   } = useActivityStore();
 
   const hasEsp32       = hasAccess('esp32');
@@ -91,11 +91,7 @@ export default function LearnPage() {
   const toggleLevel = (id: number) => {
     setOpenLevels(prev => {
       const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
+      next.has(id) ? next.delete(id) : next.add(id);
       return next;
     });
   };
@@ -459,13 +455,32 @@ export default function LearnPage() {
 
                     {/* Locked level footer */}
                     {!levelAccessible && (
-                      <div style={{ padding: '0 30px 18px' }}>
+                      <div style={{ padding: '15px 30px 18px' }}>
                         {!hasEsp32 ? (
-                          <Link href="/redeem" className="lp-unlock-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 10, padding: '7px 16px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: 12, fontWeight: 600, color: '#fbbf24', textDecoration: 'none', transition: 'all .2s' }}>
+                          <Link href="/redeem" className="lp-unlock-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 10, padding: '7px 16px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: 12, fontWeight: 600,top:'2', color: '#fbbf24', textDecoration: 'none', transition: 'all .2s' }}>
                             <LockIcon size={11} /> Unlock Full Access →
                           </Link>
                         ) : (
-                          <p style={{ fontSize: 11, color: 'rgba(240,244,255,0.28)', fontFamily: MONO, margin: 0 }}>Complete the previous level to unlock</p>
+                         <div
+  style={{
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: 10,
+    padding: '7px 16px',
+    background: 'linear-gradient(135deg,rgb(217,119,6), rgb(245,158,11))',
+    opacity: 0.5,
+    color:'#ffffff',
+    border: '1px solid rgba(240,244,255,0.06)',
+    boxShadow:'rgba(245,158,11,0.25) 0px 4px 18px',
+    fontSize: 12,
+    fontWeight: 500,
+    fontFamily: MONO,
+  }}
+>
+  <LockIcon size={11} />
+  Complete the previous level to unlock
+</div>
                         )}
                       </div>
                     )}
