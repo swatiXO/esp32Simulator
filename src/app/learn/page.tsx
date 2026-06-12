@@ -459,7 +459,7 @@ export default function LearnPage() {
 
                     {/* Locked level footer */}
                     {!levelAccessible && (
-                      <div style={{ padding: '0 30px 18px' }}>
+                      <div style={{ padding: '14px 30px 18px' }}>
                         {!hasEsp32 ? (
                           <Link href="/redeem" className="lp-unlock-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 10, padding: '7px 16px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: 12, fontWeight: 600, color: '#fbbf24', textDecoration: 'none', transition: 'all .2s' }}>
                             <LockIcon size={11} /> Unlock Full Access →
