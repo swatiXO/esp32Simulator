@@ -519,7 +519,7 @@ function useConfetti() {
 export default function ActivityDetailPage() {
   const { id: activityId } = useParams() as { id: string };
   const router = useRouter();
-  const { initialize, markStepComplete, markActivityComplete, getLastStep, isCompleted } = useActivityStore();
+  const { markStepComplete, markActivityComplete, getLastStep, isCompleted } = useActivityStore();
   const { fire: fireConfetti } = useConfetti();
 
   const [activity, setActivity] = useState<Activity | null>(null);
@@ -528,19 +528,17 @@ export default function ActivityDetailPage() {
   const [completed, setCompleted] = useState<number[]>([]);
   const [justCompleted, setJustDone] = useState<number | null>(null);
 
-  useEffect(() => { initialize(); }, []);
-
   useEffect(() => {
     const load = async () => {
       try {
         const supabase = createClient();
         const { data, error } = await supabase
           .from('activities')
-          .select('*');
-        console.log(data);
-        const tempData = data || [];
-        const act = tempData.find((a: any) => a.id === activityId);
-        setActivity(act ?? null);
+          .select('*')
+          .eq('id', activityId)
+          .single();
+        if (error) throw error;
+        setActivity(data ?? null);
         const last = getLastStep(activityId);
         setCurrentStep(last);
         setCompleted(Array.from({ length: last }, (_, i) => i));
@@ -548,7 +546,7 @@ export default function ActivityDetailPage() {
       finally { setLoading(false); }
     };
     load();
-  }, [activityId]);
+  }, [activityId, getLastStep]);
 
   useEffect(() => {
     const s = document.createElement('script');

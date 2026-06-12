@@ -98,7 +98,7 @@ function NotFoundScreen({ onBack }: { onBack: () => void }) {
       <div style={{ maxWidth: 480, margin: '80px auto', padding: '0 24px' }}>
         <div style={{ borderRadius: 18, background: T.bgCard, border: `1px solid ${T.border}`, padding: '32px 28px' }}>
           <p style={{ fontSize: 16, fontWeight: 700, color: T.textPrimary, fontFamily: T.display, margin: '0 0 8px' }}>Lesson not found</p>
-          <p style={{ fontSize: 13, color: T.textSec, margin: '0 0 20px' }}>This lesson doesn't exist or may have moved.</p>
+          <p style={{ fontSize: 13, color: T.textSec, margin: '0 0 20px' }}>This lesson doesn&apos;t exist or may have moved.</p>
           <button
             type="button"
             onClick={onBack}
@@ -131,11 +131,11 @@ export default function LessonPage() {
   const lessonId = params.lessonId;
   const accent = getAccent(levelId);
 
-  const { hasAccess, isCheckingSub, initialize, markLessonComplete } = useActivityStore();
+  const { hasAccess, isCheckingSub, markLessonComplete } = useActivityStore();
   const hasEsp32 = hasAccess('esp32');
   const isFreePreview = levelId === 1 && lessonId === '1-1';
 
-  React.useEffect(() => { initialize(); }, [initialize]);
+
 
   React.useEffect(() => {
     if (!isCheckingSub && !isFreePreview) {

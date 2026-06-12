@@ -16,7 +16,7 @@ type ActivityStore = {
   totalActivities: number;
   userId: string;
   courseId: string;
-  isIntialized: boolean;
+  isInitialized: boolean;
   xp: number;
 
   // Kit subscription tracking
@@ -53,7 +53,6 @@ const buildPayload = (state: ActivityStore, overrides: Partial<any> = {}) => ({
   completed: state.completed,
   step_progress: state.stepProgress,
   completed_lessons: state.completedLessons,
-  last_active: state.lastActive,
   user_progress: state.overallProgress,
   ...overrides,
 });
@@ -116,7 +115,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
   redeemedKits: [],
   isCheckingSub: true,
   courseId: '',
-  isIntialized: false,
+  isInitialized: false,
   xp: 0,
 
 
@@ -189,7 +188,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
     const { data: { user } } = await supabase.auth.getUser();
     const userId = user?.id;
     if (!userId) {
-      set({ isCheckingSub: false });
+      set({ isCheckingSub: false, isInitialized: true });
       return;
     }
 
@@ -222,10 +221,11 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
         totalActivities: count ?? 0,
         redeemedKits,
         isCheckingSub: false,
+        isInitialized: true,
       });
       get()._updateStreak();
     } else {
-      set({ userId, totalActivities: count ?? 0, redeemedKits, isCheckingSub: false, isIntialized: true });
+      set({ userId, totalActivities: count ?? 0, redeemedKits, isCheckingSub: false, isInitialized: true });
     }
 
   },

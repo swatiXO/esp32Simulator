@@ -1084,7 +1084,7 @@ export default function InteractiveLecture({ levelId, lessonId, stepId }: Intera
         count += b.text.split(/\s+/).length;
       }
     });
-    return acc;
+    return acc + count;
   }, 0);
   const readTime = Math.max(1, Math.round(wordCount / 180)); // 180 Words per minute for learners
 
@@ -1096,7 +1096,11 @@ const toggleRead = (idx: number) => {
   setProgress(prev => {
     const next = new Set(prev);
     const isNewlyRead = !next.has(idx);
-    isNewlyRead ? next.add(idx) : next.delete(idx);
+    if (isNewlyRead) {
+      next.add(idx);
+    } else {
+      next.delete(idx);
+    }
 
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return;
