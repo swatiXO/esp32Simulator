@@ -143,36 +143,6 @@ const CP_STYLES = `
     color: #34d399 !important;
   }
 
-  /* Flash button — premium filled, always stands out */
-  .cp-btn-flash {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    height: 28px;
-    padding: 0 16px;
-    border-radius: 7px;
-    font-size: 11.5px;
-    font-weight: 700;
-    font-family: "Space Grotesk", system-ui, sans-serif;
-    cursor: pointer;
-    border: 1px solid rgba(251,191,36,0.45);
-    background: linear-gradient(135deg, #d97706, #f59e0b);
-    color: #1a0f00;
-    letter-spacing: 0.02em;
-    white-space: nowrap;
-    flex-shrink: 0;
-    transition: all 0.15s;
-    box-shadow: 0 2px 10px rgba(245,158,11,0.35), inset 0 1px 0 rgba(255,255,255,0.2);
-  }
-  .cp-btn-flash:hover {
-    background: linear-gradient(135deg, #b45309, #d97706);
-    box-shadow: 0 4px 16px rgba(245,158,11,0.5);
-    transform: translateY(-1px);
-    border-color: rgba(251,191,36,0.6);
-  }
-  .cp-btn-flash:active { transform: scale(0.96); }
-
   /* Steps list */
   .cp-step {
     display: flex;
@@ -222,9 +192,6 @@ IcoCopy.displayName = 'IcoCopy';
 
 const IcoCheck = memo(() => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>);
 IcoCheck.displayName = 'IcoCheck';
-
-const IcoFlash = memo(() => <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>);
-IcoFlash.displayName = 'IcoFlash';
 
 const IcoList = memo(() => <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" /><line x1="3" y1="6" x2="3.01" y2="6" /><line x1="3" y1="12" x2="3.01" y2="12" /><line x1="3" y1="18" x2="3.01" y2="18" /></svg>);
 IcoList.displayName = 'IcoList';
@@ -294,9 +261,12 @@ const TabBar = memo(function TabBar({ activeTab, hasEsp32, setTab }: TabBarProps
       {/* C++ badge — right side */}
       <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', paddingRight: 14 }}>
         <span style={{
-          fontSize: 9, fontWeight: 700, letterSpacing: '0.12em',
-          color: 'rgba(59,130,246,0.28)', textTransform: 'uppercase',
+          fontSize: 9.5, fontWeight: 700, letterSpacing: '0.14em',
+          color: 'rgba(147,197,253,0.75)', textTransform: 'uppercase',
           fontFamily: '"JetBrains Mono", monospace',
+          padding: '2px 7px', borderRadius: 5,
+          background: 'rgba(59,130,246,0.1)',
+          border: '1px solid rgba(59,130,246,0.2)',
         }}>
           C++
         </span>
@@ -310,10 +280,9 @@ interface ToolbarProps {
   copied: boolean;
   focus: CodeFocus;
   onCopy: () => void;
-  onFlash: () => void;
   onFocus: (f: CodeFocus) => void;
 }
-const Toolbar = memo(function Toolbar({ copied, focus, onCopy, onFlash, onFocus }: ToolbarProps) {
+const Toolbar = memo(function Toolbar({ copied, focus, onCopy, onFocus }: ToolbarProps) {
   const FOCUS_OPTIONS: { key: CodeFocus; label: string }[] = [
     { key: 'split', label: 'Split' },
     { key: 'code', label: 'Code' },
@@ -325,7 +294,6 @@ const Toolbar = memo(function Toolbar({ copied, focus, onCopy, onFlash, onFocus 
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      /* generous padding so Flash is never clipped */
       padding: '7px 12px',
       flexShrink: 0,
       borderBottom: '1px solid rgba(255,255,255,0.05)',
@@ -350,23 +318,15 @@ const Toolbar = memo(function Toolbar({ copied, focus, onCopy, onFlash, onFocus 
             key={key}
             type="button"
             onClick={() => onFocus(key)}
-            className={`cp-focus ${focus === key
-              ? 'cp-focus-on'
-              : 'cp-focus-off'
-              }`}
+            className={`cp-focus ${focus === key ? 'cp-focus-on' : 'cp-focus-off'}`}
           >
             {label}
           </button>
         ))}
       </div>
 
-      {/* Right: Copy + Flash */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 6,
-        flexShrink: 0,
-      }}>
+      {/* Right: Copy only */}
+      <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
         <button
           type="button"
           onClick={onCopy}
@@ -375,16 +335,6 @@ const Toolbar = memo(function Toolbar({ copied, focus, onCopy, onFlash, onFocus 
         >
           {copied ? <IcoCheck /> : <IcoCopy />}
           {copied ? 'Copied!' : 'Copy'}
-        </button>
-
-        <button
-          type="button"
-          onClick={onFlash}
-          className="cp-btn-flash"
-          aria-label="Flash to ESP32"
-        >
-          <IcoFlash />
-          Flash
         </button>
       </div>
     </div>
@@ -538,9 +488,6 @@ export default function CodePanel({ showLiveOutput = true }: CodePanelProps) {
     }
   }, [codeHtml]);
 
-  const handleFlash = useCallback(() => {
-    window.dispatchEvent(new CustomEvent('open-flash-modal'));
-  }, []);
 
   const handleSetTab = useCallback((t: MainTab) => {
     if (t === 'simulator' && !hasEsp32) { router.push('/redeem'); return; }
@@ -584,7 +531,6 @@ export default function CodePanel({ showLiveOutput = true }: CodePanelProps) {
               copied={copied}
               focus={focus}
               onCopy={handleCopy}
-              onFlash={handleFlash}
               onFocus={handleFocus}
             />
 

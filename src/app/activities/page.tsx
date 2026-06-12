@@ -656,7 +656,7 @@ export default function ActivitiesPage() {
                 </div>
                 <h1 style={{ margin: '0 0 8px', fontSize: 'clamp(1.9rem,3.5vw,2.5rem)', fontWeight: 900, color: TEXT, letterSpacing: '-0.025em', lineHeight: 1.04 }}>Activities</h1>
                 <p style={{ margin: '0 0 20px', fontSize: 13.5, color: MUTED, fontFamily: INTER, lineHeight: 1.65, maxWidth: 410 }}>
-                  Guided hardware missions — wire up, simulate, code, and flash to real ESP32.
+                  Guided hardware missions where you wire it up, write the code, simulate, and run it live on a real ESP32.
                 </p>
                 {next && (
                   <button className="hero-cta" onClick={() => safeNav(next)}

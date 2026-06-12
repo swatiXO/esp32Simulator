@@ -428,8 +428,7 @@ export default function HomePage() {
             <h1 style={{ fontWeight: 700, fontSize: 'clamp(48px,5vw,76px)', lineHeight: 0.98, letterSpacing: -2.5, marginBottom: 24, color: '#f0f4ff' }}>
               <span style={{ display: 'block' }}>Learn to build</span>
               <span style={{ display: 'block', background: 'linear-gradient(90deg,#3b82f6,#93c5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>real ESP32 hardware</span>
-              <span style={{ display: 'block', background: 'linear-gradient(90deg,#f59e0b,#fde68a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>without the guesswork.</span>
-            </h1>
+              <span style={{ display: 'block', paddingBottom: '0.12em', background: 'linear-gradient(90deg,#f59e0b,#fde68a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>without the guesswork.</span>            </h1>
 
             <p style={{ fontSize: 17, color: 'rgba(240,244,255,0.55)', lineHeight: 1.8, maxWidth: 500, marginBottom: 40 }}>
               Build Mind pairs a 60+ component hardware kit with a complete learning platform: block coding, a live simulator, guided wiring, and one-click flashing to a real ESP32. Designed to make electronics, robotics, and AI accessible for young learners and future innovators.

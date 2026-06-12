@@ -8,6 +8,30 @@ type BlockTemplate = {
 };
 
 /* ════════════════════════════════════════════════════════════════════════
+   VALID ESP32 WROOM-32 GPIO PINS — must stay in sync with PIN_MAP
+   in HardwareBoard.tsx. These are the only pins broken out on the
+   30-pin DevKit V1, so blocks must not offer anything outside this set.
+   ════════════════════════════════════════════════════════════════════════ */
+
+// Every usable GPIO (input or output) exposed on the board header
+export const ESP32_PINS = [
+  "36", "39", "34", "35", "32", "33", "25", "26", "27", "14",
+  "12", "13", "23", "22", "21", "19", "18", "5", "17", "16",
+  "4", "2", "15", "0", "3", "1",
+] as const;
+
+// Output-capable pins — excludes input-only GPIOs 34/35/36/39
+export const ESP32_OUTPUT_PINS = [
+  "32", "33", "25", "26", "27", "14", "12", "13", "23", "22",
+  "21", "19", "18", "5", "17", "16", "4", "2", "15",
+] as const;
+
+// ADC-capable pins for analog reads
+export const ESP32_ANALOG_PINS = [
+  "36", "39", "34", "35", "32", "33", "25", "26", "27", "14", "12", "13", "4", "2", "15",
+] as const;
+
+/* ════════════════════════════════════════════════════════════════════════
    BLOCK COLOURS — Tailwind bg classes per block type
    ════════════════════════════════════════════════════════════════════════ */
 export const BLOCK_COLOURS: Record<string, string> = {
@@ -69,8 +93,9 @@ export const BLOCK_COLOURS: Record<string, string> = {
 };
 
 /* ════════════════════════════════════════════════════════════════════════
-   BLOCK CATALOGUE — no emojis, icon field is a short text key
-   UI components render these as SVGs using the BLOCK_ICON_KEY map below.
+   BLOCK CATALOGUE — no emojis, icon field is a short text key.
+   All pin inputs are constrained selects so users can only pick real
+   ESP32 WROOM pins that the simulator can render.
    ════════════════════════════════════════════════════════════════════════ */
 export const BLOCK_CATALOGUE: BlockTemplate[] = [
   // ── Output ──
@@ -79,7 +104,7 @@ export const BLOCK_CATALOGUE: BlockTemplate[] = [
     icon: "PIN",
     label: "Set Pin <pin> as <mode>",
     params: [
-      { name: "pin", type: "number", default: 2 },
+      { name: "pin", type: "select", default: "2", options: [...ESP32_OUTPUT_PINS] },
       { name: "mode", type: "select", default: "OUTPUT", options: ["OUTPUT", "INPUT", "INPUT_PULLUP"] },
     ],
   },
@@ -87,20 +112,20 @@ export const BLOCK_CATALOGUE: BlockTemplate[] = [
     type: "dw_high",
     icon: "LED",
     label: "Turn ON LED on Pin <pin>",
-    params: [{ name: "pin", type: "number", default: 2 }],
+    params: [{ name: "pin", type: "select", default: "2", options: [...ESP32_OUTPUT_PINS] }],
   },
   {
     type: "dw_low",
     icon: "OFF",
     label: "Turn OFF LED on Pin <pin>",
-    params: [{ name: "pin", type: "number", default: 2 }],
+    params: [{ name: "pin", type: "select", default: "2", options: [...ESP32_OUTPUT_PINS] }],
   },
   {
     type: "blink",
     icon: "BLK",
     label: "Blink LED on Pin <pin> every <ms>ms",
     params: [
-      { name: "pin", type: "number", default: 2 },
+      { name: "pin", type: "select", default: "2", options: [...ESP32_OUTPUT_PINS] },
       { name: "ms", type: "number", default: 500 },
     ],
   },
@@ -109,7 +134,7 @@ export const BLOCK_CATALOGUE: BlockTemplate[] = [
     icon: "SND",
     label: "Play buzzer on Pin <pin> at <freq> Hz",
     params: [
-      { name: "pin", type: "number", default: 13 },
+      { name: "pin", type: "select", default: "13", options: [...ESP32_OUTPUT_PINS] },
       { name: "freq", type: "number", default: 1000 },
     ],
   },
@@ -117,7 +142,7 @@ export const BLOCK_CATALOGUE: BlockTemplate[] = [
     type: "tone_off",
     icon: "MUT",
     label: "Stop buzzer on Pin <pin>",
-    params: [{ name: "pin", type: "number", default: 13 }],
+    params: [{ name: "pin", type: "select", default: "13", options: [...ESP32_OUTPUT_PINS] }],
   },
 
   // ── PWM ──
@@ -125,14 +150,14 @@ export const BLOCK_CATALOGUE: BlockTemplate[] = [
     type: "pwm_setup",
     icon: "PWM",
     label: "Setup PWM Pin <pin>",
-    params: [{ name: "pin", type: "number", default: 2 }],
+    params: [{ name: "pin", type: "select", default: "2", options: [...ESP32_OUTPUT_PINS] }],
   },
   {
     type: "pwm_write",
     icon: "DIM",
     label: "Set brightness on Pin <pin> to <val>",
     params: [
-      { name: "pin", type: "number", default: 2 },
+      { name: "pin", type: "select", default: "2", options: [...ESP32_OUTPUT_PINS] },
       { name: "val", type: "number", default: 128 },
     ],
   },
@@ -141,7 +166,7 @@ export const BLOCK_CATALOGUE: BlockTemplate[] = [
     icon: "SRV",
     label: "Set Servo on Pin <pin> to <deg> degrees",
     params: [
-      { name: "pin", type: "number", default: 2 },
+      { name: "pin", type: "select", default: "2", options: [...ESP32_OUTPUT_PINS] },
       { name: "deg", type: "number", default: 90 },
     ],
   },
@@ -151,7 +176,7 @@ export const BLOCK_CATALOGUE: BlockTemplate[] = [
     type: "dht_setup",
     icon: "TMP",
     label: "Setup DHT11 sensor on Pin <pin>",
-    params: [{ name: "pin", type: "number", default: 4 }],
+    params: [{ name: "pin", type: "select", default: "4", options: [...ESP32_PINS] }],
   },
   {
     type: "dht_temp",
@@ -170,7 +195,7 @@ export const BLOCK_CATALOGUE: BlockTemplate[] = [
     icon: "BTN",
     label: "Read button on Pin <pin> into <var>",
     params: [
-      { name: "pin", type: "number", default: 12 },
+      { name: "pin", type: "select", default: "12", options: [...ESP32_PINS] },
       { name: "var", type: "text", default: "btnState" },
     ],
   },
@@ -179,7 +204,7 @@ export const BLOCK_CATALOGUE: BlockTemplate[] = [
     icon: "PIR",
     label: "Read PIR motion on Pin <pin> into <var>",
     params: [
-      { name: "pin", type: "number", default: 14 },
+      { name: "pin", type: "select", default: "14", options: [...ESP32_PINS] },
       { name: "var", type: "text", default: "motion" },
     ],
   },
@@ -188,7 +213,7 @@ export const BLOCK_CATALOGUE: BlockTemplate[] = [
     icon: "ADC",
     label: "Read analog Pin <pin> into <var>",
     params: [
-      { name: "pin", type: "number", default: 34 },
+      { name: "pin", type: "select", default: "34", options: [...ESP32_ANALOG_PINS] },
       { name: "var", type: "text", default: "sensorVal" },
     ],
   },
@@ -209,8 +234,8 @@ export const BLOCK_CATALOGUE: BlockTemplate[] = [
     icon: "USS",
     label: "Read ultrasonic Trig <trig> Echo <echo> into <var>",
     params: [
-      { name: "trig", type: "number", default: 12 },
-      { name: "echo", type: "number", default: 13 },
+      { name: "trig", type: "select", default: "12", options: [...ESP32_OUTPUT_PINS] },
+      { name: "echo", type: "select", default: "13", options: [...ESP32_PINS] },
       { name: "var", type: "text", default: "distance" },
     ],
   },
