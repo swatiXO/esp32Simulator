@@ -13,11 +13,9 @@ const CARD   = '#0d1a2e';
 const LINE   = 'rgba(255,255,255,0.07)';
 const TEXT   = '#eaf0fa';
 const MUTED  = 'rgba(234,240,250,0.5)';
-const FAINT  = 'rgba(234,240,250,0.18)';
 const BLUE   = '#3b82f6';
 const GREEN  = '#10b981';
 const VIOLET = '#8b5cf6';
-const MONO   = '"JetBrains Mono",monospace';
 const SANS   = '"Space Grotesk",system-ui,sans-serif';
 const INTER  = '"Inter",system-ui,sans-serif';
 
@@ -172,15 +170,25 @@ export default function AIAssistant() {
     return () => window.removeEventListener('open-ai-assistant', handler);
   }, []);
 
+  /* Escape closes the panel */
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen]);
+
   /* auto-grow textarea */
-  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleInput = React.useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(e.target.value);
     const el = e.target;
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 96) + 'px';
-  };
+  }, []);
 
-  const handleSend = async () => {
+  const handleSend = React.useCallback(async () => {
     const text = inputText.trim();
     if (!text || isLoading) return;
 
@@ -234,11 +242,11 @@ export default function AIAssistant() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [inputText, isLoading, replaceBlocks, clearBlocks, addBlock]);
 
-  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const onKeyDown = React.useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend(); }
-  };
+  }, [handleSend]);
 
   if (!isOpen) return null;
 
@@ -262,15 +270,19 @@ export default function AIAssistant() {
         .ai-textarea:focus { outline:none; border-color:rgba(59,130,246,0.5) !important; box-shadow:0 0 0 3px rgba(59,130,246,0.1); }
         .ai-textarea::placeholder { color:rgba(234,240,250,0.25); }
         .ai-check:focus-visible { outline:2px solid ${BLUE}; outline-offset:2px; }
+        @media (max-width: 420px) {
+          .ai-panel { width: calc(100vw - 24px) !important; right: 12px !important; }
+        }
       `}</style>
 
-      <div style={{
+      <div className="ai-panel" style={{
         position: 'fixed',
-        bottom: 72,
-        right: 24,
+        bottom: 84,          /* sits just above the bot button */
+        right: 24,           /* right edge aligns with the bot button */
         zIndex: 200,
         width: 340,
         height: 480,
+        maxHeight: 'calc(100vh - 110px)',
         borderRadius: 20,
         overflow: 'hidden',
         display: 'flex',
@@ -278,6 +290,7 @@ export default function AIAssistant() {
         background: PANEL,
         border: `1px solid ${LINE}`,
         boxShadow: `0 24px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(139,92,246,0.12)`,
+        transformOrigin: 'bottom right',   /* grows out of the button corner */
         animation: 'ai-in 0.2s ease-out',
       }}>
 

@@ -29,7 +29,7 @@ const GREEN_LT = '#34d399';
 const VIOLET   = '#8b5cf6';
 
 const RIGHT_MIN = 260;
-const RIGHT_MAX = 560;
+const RIGHT_MAX = 1100;
 const RIGHT_DEF = 400;
 
 // ─── Circuit-trace background ─────────────────────────────────────────────────
@@ -193,7 +193,7 @@ export default function Home() {
 
         /* drag handle for right panel */
         .pg-resize-handle {
-          width: 5px; flex-shrink: 0; cursor: col-resize;
+          width: 8px; flex-shrink: 0; cursor: col-resize;
           background: transparent; position: relative;
           transition: background 0.15s;
           display: flex; align-items: center; justify-content: center;
