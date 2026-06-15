@@ -65,6 +65,14 @@ function LoadingScreen() {
   );
 }
 
+/**
+ * Displays a learning level and its lesson cards.
+ *
+ * Shows a loading screen while authenticating, a locked or not-found state if the level is inaccessible,
+ * and otherwise renders the level header with progress and interactive lesson cards.
+ *
+ * @returns The rendered level page.
+ */
 export default function LevelPage() {
   const router = useRouter();
   const params = useParams<{ levelId: string }>();

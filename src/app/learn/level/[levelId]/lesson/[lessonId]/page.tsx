@@ -92,6 +92,11 @@ function LoadingScreen({ label }: { label: string }) {
   );
 }
 
+/**
+ * Renders a full-screen lesson-not-found error state with a back navigation option.
+ *
+ * @param onBack - Callback invoked when the user clicks the back button.
+ */
 function NotFoundScreen({ onBack }: { onBack: () => void }) {
   return (
     <main style={{ minHeight: '100vh', background: T.bg, fontFamily: T.sans }}>

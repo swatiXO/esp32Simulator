@@ -70,9 +70,13 @@ const SANS = '"Space Grotesk",sans-serif';
    Animated circuit canvas background
 ───────────────────────────────────────── */
 
-/* ─────────────────────────────────────────
-   Main page
-───────────────────────────────────────── */
+/**
+ * Renders the structured learning path with interactive levels, lessons, and progress tracking.
+ *
+ * Displays a gated experience: shows a loading state while checking subscription status,
+ * then renders a hero section with overall progress stats, expandable level cards, and
+ * lesson grids with access control enforced by subscription and lesson completion status.
+ */
 export default function LearnPage() {
   const router = useRouter();
   const {

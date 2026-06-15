@@ -51,6 +51,9 @@ const I = {
   ),
 };
 
+/**
+ * Displays the main dashboard for the Build Mind workspace, including project progress metrics, learning resources, and account status.
+ */
 export default function DashboardPage() {
   const router = useRouter();
   const activeDeviceId = useAppStore((s) => s.activeDeviceId);

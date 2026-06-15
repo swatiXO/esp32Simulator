@@ -15,6 +15,9 @@ export const metadata: Metadata = {
   description: 'Build real IoT projects visually',
 }
 
+/**
+ * Root layout component that wraps the entire application with the Poppins font and initializes the activity store.
+ */
 export default function RootLayout({
   children,
 }: {

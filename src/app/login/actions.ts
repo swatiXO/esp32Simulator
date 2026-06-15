@@ -3,6 +3,11 @@ import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 
+/**
+ * Signs in a user with email and password credentials.
+ *
+ * Redirects to the dashboard on successful authentication, or to the login page with an error message on failure.
+ */
 export async function signIn(formData: FormData) {
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
@@ -14,6 +19,11 @@ export async function signIn(formData: FormData) {
   return redirect('/dashboard');
 }
 
+/**
+ * Registers a new user account with email and password.
+ *
+ * @param formData - Form data containing `email` and `password` fields
+ */
 export async function signUp(formData: FormData) {
   const host = headers().get('host') ?? 'localhost:3000';
   const protocol = host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https';
@@ -45,6 +55,9 @@ export async function signUp(formData: FormData) {
   );
 }
 
+/**
+ * Initiates Google OAuth sign-in.
+ */
 export async function signInWithGoogle() {
   const host = headers().get('host') ?? 'localhost:3000';
   const protocol = host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https';
@@ -63,6 +76,9 @@ export async function signInWithGoogle() {
   return redirect('/login?message=OAuth%20failed');
 }
 
+/**
+ * Initiates GitHub OAuth authentication.
+ */
 export async function signInWithGithub() {
   const host = headers().get('host') ?? 'localhost:3000';
   const protocol = host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https';

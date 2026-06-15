@@ -184,7 +184,11 @@ function MiniQuiz({ questions }: { questions: QuizQuestion[] }) {
   );
 }
 
-/* ─── Main Component ─────────────────────────────────────── */
+/**
+ * Renders an interactive lesson page about ESP32 sensors with collapsible sections, progress tracking, and an embedded mini-quiz.
+ *
+ * Completion is indicated when all 9 lesson sections are marked as read.
+ */
 export default function BlinkIntroLesson() {
   const [progress, setProgress] = useState<Set<number>>(new Set());
 

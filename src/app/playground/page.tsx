@@ -108,7 +108,15 @@ function useRightPanelResize(defaultWidth = RIGHT_DEF) {
   return { width, dragging, onMouseDown };
 }
 
-// ─── Main page ────────────────────────────────────────────────────────────────
+/**
+ * Main playground workspace page.
+ *
+ * Displays the full-screen workspace with device management, code editing, and program
+ * execution. Provides a resizable three-panel layout and modals for firmware flashing
+ * and template management.
+ *
+ * @returns The rendered workspace component.
+ */
 export default function Home() {
   const blocks            = useAppStore((s) => s.blocks);
   const activeDeviceId    = useAppStore((s) => s.activeDeviceId);
