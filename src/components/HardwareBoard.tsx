@@ -361,7 +361,9 @@ const PeripheralShape = React.memo(function PeripheralShape({
   }
 });
 
-/* ─── Main component ─── */
+/**
+ * Visualizes an ESP32 board with connected hardware peripherals and their interconnections.
+ */
 export default function HardwareBoard({ peripherals }: HardwareBoardProps) {
   const pins   = useSimulatorStore((s) => s.pins);
   const setPin = useSimulatorStore((s) => s.setPin);

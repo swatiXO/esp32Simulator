@@ -455,7 +455,15 @@ const SerialHeader = memo(function SerialHeader() {
   );
 });
 
-/* ── Main ───────────────────────────────────────────────────────────── */
+/**
+ * Renders a tabbed panel for viewing code, monitoring device output, and simulating devices.
+ *
+ * The Code tab supports copying code to clipboard and toggling between code-only,
+ * steps-only, or split views. The Serial tab displays live device output. The Simulator
+ * tab runs device simulations, subject to access permissions.
+ *
+ * @param showLiveOutput - Whether to enable the Serial tab. Defaults to `true`.
+ */
 export default function CodePanel({ showLiveOutput = true }: CodePanelProps) {
   const router = useRouter();
   const blocks = useAppStore((s) => s.blocks) as Block[];

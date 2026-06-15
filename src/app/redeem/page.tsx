@@ -5,6 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useActivityStore } from '@/store/useActivityStore';
 import { createClient } from '@/utils/supabase/client';
 
+/**
+ * Hardware kit activation page that verifies an activation code and grants access to learning materials.
+ *
+ * Requires an authenticated user; redirects to login if the user is not authenticated. On successful code verification, records the activated kit and navigates to the learning materials.
+ */
 export default function RedeemPage() {
   const router = useRouter();
   const { addRedeemedKit, redeemedKits } = useActivityStore();

@@ -8,6 +8,13 @@ import { useAppStore } from '@/store/useAppStore';
 import { useSimulatorStore } from '@/store/useSimulatorStore';
 import { createClient } from '@/utils/supabase/client';
 
+/**
+ * Coordinates initialization and reset of stores based on authentication state.
+ *
+ * Initializes the activity store on mount if not already initialized. Subscribes to
+ * Supabase authentication state changes, resetting all relevant stores on sign out
+ * and reinitializing them on sign in.
+ */
 export default function ActivityStoreInitializer() {
   const initialize = useActivityStore((s) => s.initialize);
   const initialized = useActivityStore((s) => s.isInitialized);

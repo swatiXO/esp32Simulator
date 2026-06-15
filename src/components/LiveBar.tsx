@@ -207,6 +207,13 @@ interface LiveBarProps {
   hasBlocks: boolean;
 }
 
+/**
+ * Provides a control bar for managing an ESP32 device connection, monitoring status, and executing program actions.
+ *
+ * The bar displays the active device ID, connection status, and buttons for connecting, running, saving, and flashing programs. It integrates with global state to maintain the selected device, connection status, and loop mode. Run and Save actions are only available when the device is online and the program contains blocks.
+ *
+ * @param hasBlocks - Indicates whether the program contains executable blocks; controls whether Run and Save are enabled.
+ */
 export default function LiveBar({
   onConnect, onDisconnect, onRun, onSave, onClearSaved, hasBlocks,
 }: LiveBarProps) {

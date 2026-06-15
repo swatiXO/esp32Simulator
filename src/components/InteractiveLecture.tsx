@@ -1001,7 +1001,15 @@ function QuizCard({ quiz, onQuizComplete }: { quiz: QuizQuestion[], onQuizComple
   );
 }
 
-/* ─── Main Component ─── */
+/**
+ * Renders an interactive structured lecture with collapsible sections, glossary highlighting, quiz, and progress tracking.
+ *
+ * Fetches and persists user reading progress to Supabase, dispatches custom events (`lecture-complete` and `quiz-complete`) based on completion state, and displays a congratulations banner with confetti animation when all sections are read.
+ *
+ * @param levelId - The numeric level identifier for the lecture
+ * @param lessonId - The lesson identifier within the level
+ * @param stepId - The step identifier within the lesson
+ */
 export default function InteractiveLecture({ levelId, lessonId, stepId }: InteractiveLectureProps) {
   const [progress, setProgress] = useState<Set<number>>(new Set());
   const [user, setUser] = useState<any>(null);

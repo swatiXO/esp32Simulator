@@ -257,6 +257,11 @@ const TemplateCard = React.memo(function TemplateCard({
   );
 });
 
+/**
+ * Displays a modal for selecting and loading starter project templates.
+ *
+ * When a user selects a template with no existing blocks, the template loads immediately. If blocks already exist, a confirmation overlay prompts before replacing them. Pressing Escape dismisses any pending confirmation or closes the modal. Background scrolling is locked while the modal is open.
+ */
 export default function TemplatesModal({ isOpen, onClose }: TemplatesModalProps) {
   const blocks      = useAppStore((s) => s.blocks);
   const addBlock    = useAppStore((s) => s.addBlock);

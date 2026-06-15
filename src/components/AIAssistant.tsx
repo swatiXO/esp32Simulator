@@ -141,6 +141,11 @@ const MessageBubble = React.memo(function MessageBubble({ msg }: { msg: Message 
   );
 });
 
+/**
+ * Renders an AI chat panel for generating ESP32 control blocks from natural language descriptions.
+ *
+ * The panel is hidden by default and shows a locked state if the user lacks 'esp32' hardware access. When unlocked, users can describe desired device behavior to generate blocks that are added to the canvas.
+ */
 export default function AIAssistant() {
   const addBlock    = useAppStore((s) => s.addBlock);
   const clearBlocks = useAppStore((s) => s.clearBlocks);

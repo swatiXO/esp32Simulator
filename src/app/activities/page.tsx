@@ -38,6 +38,11 @@ const DIFF: Record<string, { label: string; xp: number }> = {
 const FILTERS = ['All', 'Beginner', 'Intermediate', 'Advanced'] as const;
 type Filter = typeof FILTERS[number];
 
+/**
+ * Determines if an activity card should be locked.
+ *
+ * @returns `true` if the activity is locked based on ESP32 access and prior mission completion, `false` otherwise.
+ */
 function calcLocked(a: Activity, all: Activity[], mounted: boolean, hasEsp32: boolean, done: (id: string) => boolean) {
   if (!mounted) return false;
   const i = all.findIndex(x => x.id === a.id);
@@ -47,7 +52,12 @@ function calcLocked(a: Activity, all: Activity[], mounted: boolean, hasEsp32: bo
 
 
 
-/* ── mission icons ── */
+/**
+ * Renders an SVG icon for a mission activity type.
+ *
+ * @param id - The activity identifier that determines which icon is rendered
+ */
+```
 function MIcon({ id, size = 22, color }: { id: string; size?: number; color: string }) {
   const s = { width: size, height: size, fill: 'none', stroke: color, strokeWidth: 1.8, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const };
   if (id === 'dht_sensor') return <svg viewBox="0 0 24 24" {...s}><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" /><circle cx="11.5" cy="19" r="1.2" fill={color} /></svg>;

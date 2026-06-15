@@ -232,7 +232,11 @@ const SERIAL_TEMPS = ['22.4', '23.1', '24.2', '24.8', '23.5', '22.9', '24.1', '2
 const SERIAL_HUMS = ['58', '57', '55', '53', '56', '59', '54', '52'];
 const SERIAL_DISTS = ['18', '20', '22', '15', '25', '19', '21', '17'];
 
-// ─── Main ─────────────────────────────────────────────────────────────────────
+/**
+ * Renders the Build Mind ESP32 platform landing page.
+ *
+ * Orchestrates the full page layout including navbar, hero section, platform overview, playground deep dive, learning curriculum, guided activities with wiring stepper, physical kit inventory, stats, foundation information, and footer. Manages scroll-triggered navbar styling, animated feature rotation, custom cursor visuals with easing, and live serial output simulation for the hero terminal mockup.
+ */
 export default function HomePage() {
   const router = useRouter();
   const go = () => router.push('/login');            // ← single funnel: everything → /signup

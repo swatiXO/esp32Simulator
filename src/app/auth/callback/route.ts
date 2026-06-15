@@ -1,6 +1,13 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/utils/supabase/server'
 
+/**
+ * Exchanges an OAuth authorization code for a Supabase session and redirects the user.
+ *
+ * Extracts the OAuth code and optional redirect path from query parameters. Exchanges the code for a session. On success, redirects to the specified path (defaults to `/dashboard`) using environment-specific redirect logic that accounts for load balancers. On failure, redirects to the login page with an error message.
+ *
+ * @returns A redirect response to either the authenticated user's destination or the login page with an error message.
+ */
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')

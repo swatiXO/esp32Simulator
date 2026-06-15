@@ -46,6 +46,11 @@ const STRENGTH = [
   { label: 'Strong', color: '#10b981' },
 ];
 
+/**
+ * Renders a split-screen login and signup interface with email/password authentication, OAuth options, and a live password strength meter for signup mode.
+ *
+ * @param searchParams - Contains an optional `message` string that is displayed as a banner in the authentication form.
+ */
 export default function Login({
   searchParams,
 }: {
