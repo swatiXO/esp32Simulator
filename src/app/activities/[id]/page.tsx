@@ -542,7 +542,7 @@ export default function ActivityDetailPage() {
         const last = getLastStep(activityId);
         setCurrentStep(last);
         setCompleted(Array.from({ length: last }, (_, i) => i));
-      } catch (e) { console.error(e); }
+      } catch (e) { console.error('error'); }
       finally { setLoading(false); }
     };
     load();

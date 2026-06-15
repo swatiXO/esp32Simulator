@@ -949,7 +949,6 @@ export const LECTURES_STRUCTURED_DATA: Record<string, LectureData> = ${JSON.stri
 
   const outputPath = path.join(__dirname, '..', 'src', 'lib', 'lecturesStructuredData.ts');
   fs.writeFileSync(outputPath, tsContent, 'utf-8');
-  console.log(`Successfully generated structured lectures at ${outputPath}`);
 }
 
 processStructuredLevels();

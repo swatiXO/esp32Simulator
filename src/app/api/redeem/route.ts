@@ -14,7 +14,6 @@ export async function POST(request: NextRequest) {
 
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (!serviceRoleKey) {
-      console.error('SUPABASE_SERVICE_ROLE_KEY is missing from environment variables');
       return NextResponse.json({ error: 'Server configuration error: missing service role key' }, { status: 500 });
     }
 
@@ -22,8 +21,6 @@ export async function POST(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       serviceRoleKey
     );
-
-    console.log('Role:', user?.role);
     const body = await request.json();
     const code = typeof body?.code === 'string' ? body.code.trim() : '';
 
@@ -39,13 +36,11 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (fetchError || !kitCode) {
-      console.log(fetchError);
       return NextResponse.json({ error: 'Invalid activation code' }, { status: 404 });
     }
 
     // 2. Verify code status
     if (!kitCode.is_active) {
-      console.log('Role:', user?.role);
       return NextResponse.json({ error: 'This activation code is inactive' }, { status: 400 });
     }
 
@@ -81,7 +76,7 @@ export async function POST(request: NextRequest) {
     }, { status: 200 });
 
   } catch (err: any) {
-    return NextResponse.json({ error: 'Internal server error: ' + err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error: ' }, { status: 500 });
   }
 }
 

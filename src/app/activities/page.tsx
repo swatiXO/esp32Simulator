@@ -323,7 +323,7 @@ export default function ActivitiesPage() {
         .select('*');
 
       if (activitiesError) {
-        console.error('[init] activities error:', activitiesError);
+        console.error('[init] activities error:');
       }
 
       const activitiesList = activitiesData || [];

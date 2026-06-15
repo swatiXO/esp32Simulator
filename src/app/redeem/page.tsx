@@ -53,7 +53,7 @@ export default function RedeemPage() {
         router.push('/learn');
       }, 2000);
     } catch (err: any) {
-      setError(err.message || 'An error occurred. Please try again.');
+      setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }

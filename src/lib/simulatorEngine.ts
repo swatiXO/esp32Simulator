@@ -175,7 +175,6 @@ function evaluateCondition(cond: string, variables: Record<string, any>): boolea
       default: return false;
     }
   } catch (e) {
-    console.warn(`[Simulator] Failed to evaluate condition: ${cond}`, e);
     return false;
   }
 }

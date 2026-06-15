@@ -33,7 +33,6 @@ export async function signUp(formData: FormData) {
   });
 
   if (error) {
-    console.error('Signup error:', error);
 
     return redirect(
       `/login?message=${encodeURIComponent(error.message)}`

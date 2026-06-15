@@ -91,7 +91,6 @@ const playSound = (type: 'correct' | 'incorrect') => {
       });
     }
   } catch (e) {
-    console.warn('Audio Context initialization skipped or failed.', e);
   }
 };
 
@@ -1027,7 +1026,6 @@ export default function InteractiveLecture({ levelId, lessonId, stepId }: Intera
     supabase.auth.getUser().then(({ data }) => {
       currentUser = data.user;
       setUser(currentUser);
-      console.log(currentUser)
       if (currentUser) {
         // Fetch saved progress
         supabase.from('user_progress').select('read_sections, quiz_score').match({
@@ -1118,8 +1116,6 @@ const toggleRead = (idx: number) => {
           { onConflict: 'user_id,course_id,level_id,lesson_id,step_id' }
         )
         .then(({ error }) => {
-          if (error) console.error('Upsert failed:', error);
-          else console.log('Upsert succeeded');
         });
     });
 
@@ -1271,7 +1267,6 @@ const toggleRead = (idx: number) => {
                     onConflict: 'user_id,course_id,level_id,lesson_id,step_id'
                   }
                 ).then(({ error }) => {
-                  if (error) console.error('Failed to save quiz score:', error);
                 });
               }
             }}

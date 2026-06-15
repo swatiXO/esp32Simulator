@@ -43,10 +43,6 @@ const buildTemplateBlock = (
     if (param?.type === 'select' && Array.isArray(param.options)) {
       const value = String(raw);
       if (process.env.NODE_ENV !== 'production' && !param.options.includes(value)) {
-        console.warn(
-          `[templates] Block "${type}" override ${key}="${value}" is not a valid option. ` +
-          `Allowed: ${param.options.join(', ')}`,
-        );
       }
       normalised[key] = value;
     } else {
