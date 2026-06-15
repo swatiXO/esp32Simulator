@@ -1,5 +1,5 @@
 'use client';
-
+import DOMPurify from 'isomorphic-dompurify';
 import React, { useState, useEffect } from 'react';
 import { LECTURES_STRUCTURED_DATA, LectureSection, LectureBlock, QuizQuestion } from '@/lib/lecturesStructuredData';
 import { createClient } from '@/utils/supabase/client';
@@ -420,7 +420,7 @@ useEffect(() => {
       processed = processed.replace(regex, `<span class="glossary-term cursor-help border-b border-dashed border-indigo-400 hover:border-indigo-600 transition-colors font-bold text-slate-800">$1<span class="tooltip-text"><strong class="block text-indigo-300 font-extrabold text-[11px] mb-1">$1</strong>${definition}</span></span>`);
     });
 
-    return <span dangerouslySetInnerHTML={{ __html: processed }} />;
+    return <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(processed) }} />;
   };
 
   // Preprocess blocks to group consecutive comparison lists and normal bullet lists
@@ -1016,7 +1016,7 @@ export default function InteractiveLecture({ levelId, lessonId, stepId }: Intera
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/\*([^*]+)\*/g, '<em>$1</em>')
       .replace(/`([^`]+)`/g, '<code class="bg-white/10 px-1.5 py-0.5 rounded font-mono text-[90%]">$1</code>');
-    return <span dangerouslySetInnerHTML={{ __html: processed }} />;
+    return <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(processed) }} />;
   };
 
   // Reset and fetch progress when step changes
