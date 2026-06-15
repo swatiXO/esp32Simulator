@@ -1308,7 +1308,7 @@ const toggleRead = (idx: number) => {
             margin: '8px 0 0', maxWidth: 420, fontSize: 12.5, lineHeight: 1.65,
             fontWeight: 500, color: 'rgba(240,244,255,0.6)', fontFamily: '"Inter",system-ui,sans-serif',
           }}>
-            You've marked all {totalSections} section{totalSections === 1 ? '' : 's'} as read.
+            You've read {totalSections === 1 ? '' : 'all'}  {totalSections} section{totalSections === 1 ? '' : 's'}.
             Hit <strong style={{ color: '#34d399', fontWeight: 700 }}>Next</strong> in the sidebar to move on to your next task.
           </p>
         </div>
