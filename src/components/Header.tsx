@@ -3,6 +3,7 @@
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import { useActivityStore } from '@/store/useActivityStore';
 
 export default function Header() {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function Header() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    const resetActivityStore = useActivityStore((s) => s.resetStore);
     router.push('/login');
   };
 

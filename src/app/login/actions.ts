@@ -1,9 +1,9 @@
 "use server";
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
-import { headers } from 'next/headers';
 
 export async function signIn(formData: FormData) {
+  
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const supabase = createClient();
@@ -15,9 +15,7 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signUp(formData: FormData) {
-  const host = headers().get('host') ?? 'localhost:3000';
-  const protocol = host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https';
-  const origin = `${protocol}://${host}`;
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
@@ -45,9 +43,7 @@ export async function signUp(formData: FormData) {
 }
 
 export async function signInWithGoogle() {
-  const host = headers().get('host') ?? 'localhost:3000';
-  const protocol = host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https';
-  const origin = `${protocol}://${host}`;
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const supabase = createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
@@ -63,9 +59,7 @@ export async function signInWithGoogle() {
 }
 
 export async function signInWithGithub() {
-  const host = headers().get('host') ?? 'localhost:3000';
-  const protocol = host.includes('localhost') || host.includes('127.0.0.1') ? 'http' : 'https';
-  const origin = `${protocol}://${host}`;
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
   const supabase = createClient();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'github',

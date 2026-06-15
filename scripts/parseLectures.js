@@ -284,5 +284,6 @@ export const LECTURES_DATA: Record<string, string> = ${JSON.stringify(lectures, 
 
   const outputPath = path.join(__dirname, '..', 'src', 'lib', 'lecturesData.ts');
   fs.writeFileSync(outputPath, tsContent, 'utf-8');
+}
 
 processLevels();
