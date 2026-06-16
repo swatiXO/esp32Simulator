@@ -8,6 +8,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { useActivityStore } from '@/store/useActivityStore';
 import { createClient } from '@/utils/supabase/client';
 import CircuitCanvas from '@/components/CircuitCanvas';
+import DashboardOnboarding from '@/components/DashboardOnboarding';
 
 /* ════════════════════════════════════════════════════════════════════════
    BUILD MIND — DASHBOARD
@@ -157,7 +158,7 @@ useEffect(() => {
 
               <div style={{ marginTop: 22, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 {nextActivity && (
-                  <button onClick={() => router.push(`/activities/${nextActivity.id}`)} style={{ display: 'inline-flex', alignItems: 'center', gap: 9, borderRadius: 13, background: 'linear-gradient(135deg,#1a3a8a,#2563eb)', color: '#fff', border: 'none', padding: '12px 22px', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 12px 28px -10px rgba(37,99,235,0.6)' }}>
+                  <button data-tour="hero-cta" onClick={() => router.push(`/activities/${nextActivity.id}`)} style={{ display: 'inline-flex', alignItems: 'center', gap: 9, borderRadius: 13, background: 'linear-gradient(135deg,#1a3a8a,#2563eb)', color: '#fff', border: 'none', padding: '12px 22px', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 12px 28px -10px rgba(37,99,235,0.6)' }}>
                     {completedCount === 0 ? 'Start first project' : 'Continue building'}
                     <I.arrow width={15} height={15} className="bm-arrow" />
                   </button>
@@ -169,7 +170,7 @@ useEffect(() => {
             </div>
 
             {/* progress ring */}
-            <div className="bm-hero-side" style={{ display: 'flex', alignItems: 'center', gap: 18, background: 'rgba(255,255,255,0.04)', border: `1px solid ${LINE}`, borderRadius: 20, padding: '18px 22px', flexShrink: 0 }}>
+            <div className="bm-hero-side" data-tour="progress" style={{ display: 'flex', alignItems: 'center', gap: 18, background: 'rgba(255,255,255,0.04)', border: `1px solid ${LINE}`, borderRadius: 20, padding: '18px 22px', flexShrink: 0 }}>
               <div style={{ position: 'relative', width: 76, height: 76, flexShrink: 0 }}>
                 <svg width="76" height="76" viewBox="0 0 76 76" style={{ transform: 'rotate(-90deg)' }}>
                   <circle cx="38" cy="38" r="31" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="7" />
@@ -203,7 +204,7 @@ useEffect(() => {
             {/* ── LEFT: Where to next ── */}
             <div>
               <SectionTitle title="Where to next?" sub="Three connected ways to learn and build." />
-              <div className="bm-feat-list" style={{ marginTop: 16 }}>
+                <div className="bm-feat-list" data-tour="features" style={{ marginTop: 16 }}>
                 <FeatureRow primary Icon={I.blocks} title="Playground" tone={BLUE} tag="Build"
                   desc="Drag blocks that generate real Arduino code, test on the live simulator, then flash to a real ESP32."
                   onClick={() => router.push('/playground')} />
@@ -276,6 +277,7 @@ useEffect(() => {
         </section>
 
       </div>
+      <DashboardOnboarding />
     </main>
   );
 }
