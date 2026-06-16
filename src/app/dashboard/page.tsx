@@ -8,7 +8,7 @@ import { useAppStore } from '@/store/useAppStore';
 import { useActivityStore } from '@/store/useActivityStore';
 import { createClient } from '@/utils/supabase/client';
 import CircuitCanvas from '@/components/CircuitCanvas';
-import DashboardOnboarding from '@/components/DashboardOnboarding';
+import DashboardOnboarding, { TourStep, WelcomeConfig } from '@/components/DashboardOnboarding';
 
 /* ════════════════════════════════════════════════════════════════════════
    BUILD MIND — DASHBOARD
@@ -30,6 +30,27 @@ const AMBER_LT = '#fbbf24';
 const GREEN = '#10b981';
 const GREEN_LT = '#34d399';
 const VIOLET = '#8b5cf6';
+
+
+// ── onboarding config ──
+const DASHBOARD_TOUR: TourStep[] = [
+  { selector: '[data-tour="hero-cta"]', tone: '#3b82f6', title: 'Start here',
+    body: 'This button kicks off your first guided project, wiring and code step by step.' },
+  { selector: '[data-tour="features"]', tone: '#8b5cf6', title: 'Three ways to build',
+    body: 'Playground to experiment, Learn for a structured path, Activities for guided projects.' },
+  { selector: '[data-tour="progress"]', tone: '#f59e0b', title: 'Track your progress',
+    body: 'Your projects, streak, and XP show up here as you go.' },
+];
+const DASHBOARD_WELCOME: WelcomeConfig = {
+  badge: 'Welcome to Build Mind',
+  title: 'Build real ESP32 hardware, the easy way.',
+  body: 'Code with blocks, test on a live simulator, and flash to a real board.',
+  cards: [
+    { title: 'Playground', desc: 'Drag blocks, see real code, run it live.', tone: '#3b82f6' },
+    { title: 'Learn', desc: 'A guided path from first LED to IoT.', tone: '#f59e0b' },
+    { title: 'Activities', desc: 'Wire up real projects, step by step.', tone: '#10b981' },
+  ],
+};
 
 // ─── icons (stroke = currentColor) ────────────────────────────────────────────
 const I = {
@@ -277,7 +298,7 @@ useEffect(() => {
         </section>
 
       </div>
-      <DashboardOnboarding />
+       <DashboardOnboarding flagKey="dashboard" steps={DASHBOARD_TOUR} welcome={DASHBOARD_WELCOME} />
     </main>
   );
 }

@@ -12,6 +12,7 @@ import LiveBar from '@/components/LiveBar';
 import FlashModal from '@/components/FlashModal';
 import AIAssistant from '@/components/AIAssistant';
 import TemplatesModal from '@/components/TemplatesModal';
+import DashboardOnboarding, { TourStep } from '@/components/DashboardOnboarding';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
 const BG       = '#04080f';
@@ -31,6 +32,19 @@ const VIOLET   = '#8b5cf6';
 const RIGHT_MIN = 260;
 const RIGHT_MAX = 1100;
 const RIGHT_DEF = 400;
+
+
+// ── onboarding config ──
+const PLAYGROUND_TOUR: TourStep[] = [
+  { selector: '[data-tour="pg-library"]', tone: '#3b82f6', title: 'Your block library',
+    body: 'Drag coding blocks from here onto the canvas. Each block is one instruction.' },
+  { selector: '[data-tour="pg-canvas"]', tone: '#8b5cf6', title: 'Build on the canvas',
+    body: 'Snap blocks together here. Top to bottom is the order it runs.' },
+  { selector: '[data-tour="pg-code"]', tone: '#10b981', title: 'Real code, live',
+    body: 'Watch your blocks turn into Arduino code. Use the Simulator tab to test it.' },
+  { selector: '[data-tour="pg-flash"]', tone: '#f59e0b', title: 'Flash to a real board',
+    body: 'Connect your ESP32 and flash the same code to real hardware in one click.' },
+];
 
 // ─── Circuit-trace background ─────────────────────────────────────────────────
 function CircuitBg() {
@@ -267,13 +281,14 @@ export default function Home() {
         </div>
 
         <div className="pg-workspace">
+          
           {/* LEFT */}
-          <div className="pg-pane-left">
+          <div className="pg-pane-left" data-tour="pg-library">
             <Sidebar />
           </div>
 
           {/* CENTER */}
-          <div className="pg-pane-center">
+          <div className="pg-pane-center" data-tour="pg-canvas">
             <Canvas />
           </div>
 
@@ -287,6 +302,7 @@ export default function Home() {
           {/* RIGHT — width controlled by drag state */}
           <div
             className="pg-pane-right"
+            data-tour="pg-code"
             style={{
               flexShrink: 0,
               width: rightW,
@@ -307,6 +323,8 @@ export default function Home() {
         </div>
 
         <AIAssistant />
+        <DashboardOnboarding flagKey="playground" steps={PLAYGROUND_TOUR} />
+
       </div>
     </>
   );
