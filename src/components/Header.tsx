@@ -24,11 +24,12 @@ export default function Header() {
       authListener.subscription.unsubscribe();
     };
   }, [supabase.auth]);
-
+  const resetStore = useActivityStore((s) => s.resetStore);
   const handleSignOut = async () => {
+    resetStore();
     await supabase.auth.signOut();
-    const resetActivityStore = useActivityStore((s) => s.resetStore);
     router.push('/login');
+    
   };
 
   const isActive = (path: string) =>

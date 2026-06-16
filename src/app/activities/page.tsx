@@ -182,14 +182,11 @@ function MissionCard({ a, done, progress, locked, hasEsp32, onOpen, onLockedClic
   );
 }
 
-/* ══════════════════════════════════
-   PATH PANEL
-══════════════════════════════════ */
-function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
+function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav, onLockedClick }: {
   activities: Activity[]; mounted: boolean; isCompleted: (id: string) => boolean;
-  hasEsp32: boolean; onNav: (a: Activity) => void;
+  hasEsp32: boolean; onNav: (a: Activity) => void; onLockedClick: () => void;
 }) {
-  const doneCount = mounted ? activities.filter(a => isCompleted(a.id)).length : 0;
+    const doneCount = mounted ? activities.filter(a => isCompleted(a.id)).length : 0;
   const pct = activities.length ? Math.round(doneCount / activities.length * 100) : 0;
   const currIdx = mounted ? activities.findIndex(a => !isCompleted(a.id)) : 0;
 
@@ -227,19 +224,25 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
           const isActive = !isDone && i === currIdx;
           const isLock = calcLocked(a, activities, mounted, hasEsp32, isCompleted);
           const color = accent(a.id);
-          const clickable = isDone || isActive;
+        const clickable = isDone || isActive;
+const lockedNoKit = isLock && !hasEsp32;
 
-          return (
-            <div key={a.id}
-              className={clickable ? 'pi-click' : ''}
-              onClick={() => clickable && onNav(a)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                marginBottom: i < activities.length - 1 ? 16 : 0,
-                position: 'relative', zIndex: 1,
-                borderRadius: 10, padding: '6px',
-                cursor: clickable ? 'pointer' : 'default',
-              }}>
+const handlePathClick = () => {
+  if (lockedNoKit) { onLockedClick(); return; }
+  if (clickable) onNav(a);
+};
+
+return (
+  <div key={a.id}
+    className={clickable || lockedNoKit ? 'pi-click' : ''}
+    onClick={handlePathClick}
+    style={{
+      display: 'flex', alignItems: 'center', gap: 10,
+      marginBottom: i < activities.length - 1 ? 16 : 0,
+      position: 'relative', zIndex: 1,
+      borderRadius: 10, padding: '6px',
+      cursor: clickable || lockedNoKit ? 'pointer' : 'default',
+    }}>
 
               {/* node */}
               <div style={{
@@ -744,7 +747,8 @@ export default function ActivitiesPage() {
 
           {/* RIGHT: path panel */}
           <PathPanel activities={activities} mounted={mounted}
-            isCompleted={isCompleted} hasEsp32={hasEsp32} onNav={safeNav} />
+  isCompleted={isCompleted} hasEsp32={hasEsp32} onNav={safeNav}
+  onLockedClick={() => router.push('/redeem')} />
         </div>
 
         {/* unlock banner */}
