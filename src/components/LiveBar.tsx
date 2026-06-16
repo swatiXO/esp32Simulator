@@ -355,7 +355,7 @@ export default function LiveBar({
           <div className="lb-div" />
 
           {/* Flash — primary CTA, always glowing */}
-          <div className="lb-tip" data-tip="Flash compiled code to ESP32">
+          <div className="lb-tip" data-tour="pg-flash" data-tip="Flash compiled code to ESP32">
             <button
               type="button"
               className="lb-btn lb-flash"
