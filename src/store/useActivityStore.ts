@@ -179,7 +179,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
         overallProgress: 0,
         redeemedKits: [],
         isCheckingSub: false,
-        isInitialized: true,
+        isInitialized: false,
         xp: 0,
       });
       return;
@@ -230,6 +230,10 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
   // ── Activity progress ──
 
   markStepComplete: async (activityId, step) => {
+    const initialized = get().isInitialized
+    if (!initialized){
+      await get().initialize()
+    }
     const supabase = createClient();
     const current = get().stepProgress[activityId] ?? 0;
     if (step <= current) return;

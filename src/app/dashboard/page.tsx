@@ -54,7 +54,13 @@ const I = {
 export default function DashboardPage() {
   const router = useRouter();
   const activeDeviceId = useAppStore((s) => s.activeDeviceId);
-  const { completed, streak, isCompleted,xp } = useActivityStore();
+  const { completed, streak, isCompleted,xp,initialize,isInitialized } = useActivityStore();
+  useEffect(() => {
+    if (!isInitialized) {
+      initialize();
+    }
+  }, [isInitialized, initialize]);
+
 
   const totalActivities = ACTIVITIES.length;
   const [activities,     setActivities] = useState<Activity[]>([]);
