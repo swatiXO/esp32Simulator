@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useMemo, memo } from 'react';
+import React, { useState, useCallback, useMemo, memo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { generateCode } from '@/lib/codeGenerator';
@@ -172,6 +172,54 @@ const CP_STYLES = `
 
   @keyframes cp-pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
   @keyframes cp-fadein { from{opacity:0;transform:translateY(3px)} to{opacity:1;transform:none} }
+
+  /* ── Explain button ── */
+  .cp-btn-explain {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 28px;
+    padding: 0 13px;
+    border-radius: 7px;
+    font-size: 11.5px;
+    font-weight: 600;
+    font-family: "Space Grotesk", system-ui, sans-serif;
+    cursor: pointer;
+    border: 1px solid rgba(168,85,247,0.25);
+    background: rgba(168,85,247,0.08);
+    color: #c084fc;
+    transition: all 0.18s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    letter-spacing: 0.01em;
+  }
+  .cp-btn-explain:hover:not(:disabled) {
+    background: rgba(168,85,247,0.18);
+    border-color: rgba(168,85,247,0.45);
+    color: #e9d5ff;
+    box-shadow: 0 0 12px rgba(168,85,247,0.15);
+  }
+  .cp-btn-explain:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  .cp-btn-explain-loading {
+    animation: cp-spin 0.8s linear infinite;
+  }
+  @keyframes cp-spin { to { transform: rotate(360deg); } }
+
+  /* ── Explain panel ── */
+  .cp-explain-panel {
+    animation: cp-fadein 0.22s ease;
+    border-top: 1px solid rgba(168,85,247,0.18);
+    background: linear-gradient(180deg,rgba(88,28,135,0.08) 0%,rgba(8,14,23,0.6) 100%);
+    overflow-y: auto;
+    max-height: 280px;
+  }
+  .cp-explain-panel::-webkit-scrollbar { width: 3px; }
+  .cp-explain-panel::-webkit-scrollbar-track { background: transparent; }
+  .cp-explain-panel::-webkit-scrollbar-thumb { background: rgba(168,85,247,0.25); border-radius: 99px; }
 `;
 
 /* ── Icons ──────────────────────────────────────────────────────────── */
@@ -279,10 +327,28 @@ const TabBar = memo(function TabBar({ activeTab, hasEsp32, setTab }: TabBarProps
 interface ToolbarProps {
   copied: boolean;
   focus: CodeFocus;
+  hasCode: boolean;
+  explaining: boolean;
   onCopy: () => void;
   onFocus: (f: CodeFocus) => void;
+  onExplain: () => void;
 }
-const Toolbar = memo(function Toolbar({ copied, focus, onCopy, onFocus }: ToolbarProps) {
+const IcoSparkle = memo(() => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M12 3l1.5 4.5L18 9l-4.5 1.5L12 15l-1.5-4.5L6 9l4.5-1.5z" />
+    <path d="M19 3l.75 2.25L22 6l-2.25.75L19 9l-.75-2.25L16 6l2.25-.75z" />
+  </svg>
+));
+IcoSparkle.displayName = 'IcoSparkle';
+
+const IcoSpinner = memo(() => (
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden="true" className="cp-btn-explain-loading">
+    <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+  </svg>
+));
+IcoSpinner.displayName = 'IcoSpinner';
+
+const Toolbar = memo(function Toolbar({ copied, focus, hasCode, explaining, onCopy, onFocus, onExplain }: ToolbarProps) {
   const FOCUS_OPTIONS: { key: CodeFocus; label: string }[] = [
     { key: 'split', label: 'Split' },
     { key: 'code', label: 'Code' },
@@ -325,8 +391,18 @@ const Toolbar = memo(function Toolbar({ copied, focus, onCopy, onFocus }: Toolba
         ))}
       </div>
 
-      {/* Right: Copy only */}
-      <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
+      {/* Right: Explain + Copy */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+        <button
+          type="button"
+          onClick={onExplain}
+          disabled={!hasCode || explaining}
+          className="cp-btn-explain"
+          title={!hasCode ? 'Add blocks to explain' : 'Explain this code with AI'}
+        >
+          {explaining ? <IcoSpinner /> : <IcoSparkle />}
+          {explaining ? 'Thinking…' : 'Explain'}
+        </button>
         <button
           type="button"
           onClick={onCopy}
@@ -427,6 +503,106 @@ const StepsView = memo(function StepsView({ english }: { english: string[] }) {
   );
 });
 
+/* ── AI Explain Panel ───────────────────────────────────────────────── */
+interface ExplainResult {
+  summary: string;
+  steps: { line: string; explain: string }[];
+  tip: string;
+}
+const ExplainPanel = memo(function ExplainPanel({
+  result, error, onClose,
+}: { result: ExplainResult | null; error: string | null; onClose: () => void }) {
+  return (
+    <div className="cp-explain-panel" style={{ flexShrink: 0 }}>
+      {/* Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 14px 8px',
+        borderBottom: '1px solid rgba(168,85,247,0.12)',
+      }}>
+        <span style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          fontSize: 10, fontWeight: 700, letterSpacing: '0.1em',
+          color: 'rgba(192,132,252,0.8)', textTransform: 'uppercase',
+          fontFamily: '"Space Grotesk",system-ui,sans-serif',
+        }}>
+          ✨ AI Explanation
+        </span>
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: 'rgba(192,132,252,0.5)', padding: '2px 4px', borderRadius: 4,
+            fontSize: 16, lineHeight: 1, display: 'flex', alignItems: 'center',
+          }}
+          aria-label="Close explanation"
+        >×</button>
+      </div>
+
+      {error ? (
+        <p style={{ margin: 0, padding: '12px 14px', fontSize: 12, color: '#f87171', fontFamily: '"Space Grotesk",system-ui,sans-serif' }}>
+          {error}
+        </p>
+      ) : result ? (
+        <div style={{ padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Summary */}
+          <p style={{
+            margin: 0, fontSize: 12.5, fontWeight: 600,
+            color: 'rgba(240,244,255,0.9)', lineHeight: 1.6,
+            fontFamily: '"Space Grotesk",system-ui,sans-serif',
+          }}>
+            {result.summary}
+          </p>
+
+          {/* Steps */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {result.steps.map((s, i) => (
+              <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                <span style={{
+                  minWidth: 18, height: 18, borderRadius: 5, flexShrink: 0,
+                  background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.3)',
+                  color: '#c084fc', fontSize: 9, fontWeight: 700, marginTop: 1,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: '"JetBrains Mono",monospace',
+                }}>{i + 1}</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <code style={{
+                    display: 'block', fontSize: 10.5,
+                    color: 'rgba(192,132,252,0.75)',
+                    fontFamily: '"JetBrains Mono",monospace',
+                    marginBottom: 2, wordBreak: 'break-all',
+                  }}>{s.line}</code>
+                  <p style={{
+                    margin: 0, fontSize: 11.5,
+                    color: 'rgba(240,244,255,0.55)', lineHeight: 1.5,
+                    fontFamily: '"Space Grotesk",system-ui,sans-serif',
+                  }}>{s.explain}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tip */}
+          <div style={{
+            background: 'rgba(168,85,247,0.07)',
+            border: '1px solid rgba(168,85,247,0.18)',
+            borderRadius: 8, padding: '8px 11px',
+            display: 'flex', gap: 7, alignItems: 'flex-start',
+          }}>
+            <span style={{ fontSize: 13, flexShrink: 0 }}>💡</span>
+            <p style={{
+              margin: 0, fontSize: 11.5,
+              color: 'rgba(240,244,255,0.5)', lineHeight: 1.55,
+              fontFamily: '"Space Grotesk",system-ui,sans-serif',
+            }}>{result.tip}</p>
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
+});
+
 /* ── Serial header ──────────────────────────────────────────────────── */
 const SerialHeader = memo(function SerialHeader() {
   return (
@@ -466,11 +642,24 @@ export default function CodePanel({ showLiveOutput = true }: CodePanelProps) {
   const [activeTab, setActiveTab] = useState<MainTab>('code');
   const [focus, setFocus] = useState<CodeFocus>('split');
 
+  // AI Explainer state
+  const [explaining, setExplaining] = useState(false);
+  const [explainResult, setExplainResult] = useState<{ summary: string; steps: { line: string; explain: string }[]; tip: string } | null>(null);
+  const [explainError, setExplainError] = useState<string | null>(null);
+  const [showExplain, setShowExplain] = useState(false);
+
   const { code, english } = useMemo(() => generateCode(blocks), [blocks]);
   const codeHtml = useMemo(
     () => (blocks.length === 0 ? EMPTY_CODE_HTML : code),
     [blocks.length, code],
   );
+
+  // Reset explain panel when blocks change
+  useEffect(() => {
+    setShowExplain(false);
+    setExplainResult(null);
+    setExplainError(null);
+  }, [blocks.length]);
 
   const handleCopy = useCallback(async () => {
     const plain = codeHtml
@@ -488,6 +677,36 @@ export default function CodePanel({ showLiveOutput = true }: CodePanelProps) {
     }
   }, [codeHtml]);
 
+  const handleExplain = useCallback(async () => {
+    if (blocks.length === 0 || explaining) return;
+    setExplaining(true);
+    setShowExplain(true);
+    setExplainResult(null);
+    setExplainError(null);
+    try {
+      const plainCode = code
+        .replace(/<\/?span[^>]*>/g, '')
+        .replace(/&quot;/g, '"')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&');
+      const res = await fetch('/api/explain-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: plainCode }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setExplainError(data.error || 'Something went wrong.');
+      } else {
+        setExplainResult(data);
+      }
+    } catch {
+      setExplainError('Could not reach the AI service. Try again.');
+    } finally {
+      setExplaining(false);
+    }
+  }, [blocks.length, code, explaining]);
 
   const handleSetTab = useCallback((t: MainTab) => {
     if (t === 'simulator' && !hasEsp32) { router.push('/redeem'); return; }
@@ -530,8 +749,11 @@ export default function CodePanel({ showLiveOutput = true }: CodePanelProps) {
             <Toolbar
               copied={copied}
               focus={focus}
+              hasCode={blocks.length > 0}
+              explaining={explaining}
               onCopy={handleCopy}
               onFocus={handleFocus}
+              onExplain={handleExplain}
             />
 
             {/* Code area */}
@@ -539,6 +761,15 @@ export default function CodePanel({ showLiveOutput = true }: CodePanelProps) {
               <div style={{ flex: codeFlex, display: 'flex', flexDirection: 'column', minHeight: 0 }}>
                 <CodeView codeHtml={codeHtml} />
               </div>
+            )}
+
+            {/* ── AI Explain Panel ── */}
+            {showExplain && (
+              <ExplainPanel
+                result={explainResult}
+                error={explainError}
+                onClose={() => setShowExplain(false)}
+              />
             )}
 
             {/* Divider between code and steps */}

@@ -2,8 +2,7 @@ LEVEL 1.2: Making Changes Visible (Using Delay)
 
 ## Why couldn’t you clearly see the ON and OFF?
 
-In the previous lesson, when you turned the LED ON and then OFF, both actions happened almost instantly.
-The ESP32 executes instructions extremely fast—far faster than the human eye can detect changes.
+In the previous lesson, when you turned the LED ON and then OFF, both actions happened almost instantly. The ESP32 executes instructions extremely fast—far faster than the human eye can detect changes.
 Because of this:
 The LED turns ON
 Then immediately turns OFF
