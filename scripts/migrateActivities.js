@@ -36,12 +36,9 @@ loadEnv({ path: path.resolve(process.cwd(), '.env.local') });
       });
 
     if (error) {
-      console.error(`❌ Failed to upsert activity ${a.id}:`, error);
-    } else {
-      console.log(`✅ Upserted activity ${a.id}`);
+      console.error(`❌ Failed to upsert activity`);
     }
   }
 
-  console.log('✅ Migration complete.');
   process.exit(0);
 })();

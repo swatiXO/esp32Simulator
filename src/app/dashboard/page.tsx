@@ -6,9 +6,9 @@ import Header from '@/components/Header';
 import { ACTIVITIES, type Activity } from '@/lib/activitiesData';
 import { useAppStore } from '@/store/useAppStore';
 import { useActivityStore } from '@/store/useActivityStore';
-import ActivityStoreInitializer from '@/components/ActivityStoreInitializer'
 import { createClient } from '@/utils/supabase/client';
 import CircuitCanvas from '@/components/CircuitCanvas';
+import DashboardOnboarding, { TourStep, WelcomeConfig } from '@/components/DashboardOnboarding';
 
 /* ════════════════════════════════════════════════════════════════════════
    BUILD MIND — DASHBOARD
@@ -30,6 +30,27 @@ const AMBER_LT = '#fbbf24';
 const GREEN = '#10b981';
 const GREEN_LT = '#34d399';
 const VIOLET = '#8b5cf6';
+
+
+// ── onboarding config ──
+const DASHBOARD_TOUR: TourStep[] = [
+  { selector: '[data-tour="hero-cta"]', tone: '#3b82f6', title: 'Start here',
+    body: 'This button kicks off your first guided project, wiring and code step by step.' },
+  { selector: '[data-tour="features"]', tone: '#8b5cf6', title: 'Three ways to build',
+    body: 'Playground to experiment, Learn for a structured path, Activities for guided projects.' },
+  { selector: '[data-tour="progress"]', tone: '#f59e0b', title: 'Track your progress',
+    body: 'Your projects, streak, and XP show up here as you go.' },
+];
+const DASHBOARD_WELCOME: WelcomeConfig = {
+  badge: 'Welcome to Build Mind',
+  title: 'Build real ESP32 hardware, the easy way.',
+  body: 'Code with blocks, test on a live simulator, and flash to a real board.',
+  cards: [
+    { title: 'Playground', desc: 'Drag blocks, see real code, run it live.', tone: '#3b82f6' },
+    { title: 'Learn', desc: 'A guided path from first LED to IoT.', tone: '#f59e0b' },
+    { title: 'Activities', desc: 'Wire up real projects, step by step.', tone: '#10b981' },
+  ],
+};
 
 // ─── icons (stroke = currentColor) ────────────────────────────────────────────
 const I = {
@@ -55,7 +76,13 @@ const I = {
 export default function DashboardPage() {
   const router = useRouter();
   const activeDeviceId = useAppStore((s) => s.activeDeviceId);
-  const { completed, streak, isCompleted,xp } = useActivityStore();
+  const { completed, streak, isCompleted,xp,initialize,isInitialized } = useActivityStore();
+  useEffect(() => {
+    if (!isInitialized) {
+      initialize();
+    }
+  }, [isInitialized, initialize]);
+
 
   const totalActivities = ACTIVITIES.length;
   const [activities,     setActivities] = useState<Activity[]>([]);
@@ -128,7 +155,6 @@ useEffect(() => {
           .bm-split{ grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:28px; }
         }
       `}</style>
-      <ActivityStoreInitializer/>
       <Header />
       {/* brand accent line under header */}
       {/* <div style={{ height: 3, width: '100%', background: `linear-gradient(90deg,${BLUE},${VIOLET} 45%,${AMBER})` }} /> */}
@@ -159,7 +185,7 @@ useEffect(() => {
 
               <div style={{ marginTop: 22, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 {nextActivity && (
-                  <button onClick={() => router.push(`/activities/${nextActivity.id}`)} style={{ display: 'inline-flex', alignItems: 'center', gap: 9, borderRadius: 13, background: 'linear-gradient(135deg,#1a3a8a,#2563eb)', color: '#fff', border: 'none', padding: '12px 22px', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 12px 28px -10px rgba(37,99,235,0.6)' }}>
+                  <button data-tour="hero-cta" onClick={() => router.push(`/activities/${nextActivity.id}`)} style={{ display: 'inline-flex', alignItems: 'center', gap: 9, borderRadius: 13, background: 'linear-gradient(135deg,#1a3a8a,#2563eb)', color: '#fff', border: 'none', padding: '12px 22px', fontSize: 14, fontWeight: 700, cursor: 'pointer', boxShadow: '0 12px 28px -10px rgba(37,99,235,0.6)' }}>
                     {completedCount === 0 ? 'Start first project' : 'Continue building'}
                     <I.arrow width={15} height={15} className="bm-arrow" />
                   </button>
@@ -171,7 +197,7 @@ useEffect(() => {
             </div>
 
             {/* progress ring */}
-            <div className="bm-hero-side" style={{ display: 'flex', alignItems: 'center', gap: 18, background: 'rgba(255,255,255,0.04)', border: `1px solid ${LINE}`, borderRadius: 20, padding: '18px 22px', flexShrink: 0 }}>
+            <div className="bm-hero-side" data-tour="progress" style={{ display: 'flex', alignItems: 'center', gap: 18, background: 'rgba(255,255,255,0.04)', border: `1px solid ${LINE}`, borderRadius: 20, padding: '18px 22px', flexShrink: 0 }}>
               <div style={{ position: 'relative', width: 76, height: 76, flexShrink: 0 }}>
                 <svg width="76" height="76" viewBox="0 0 76 76" style={{ transform: 'rotate(-90deg)' }}>
                   <circle cx="38" cy="38" r="31" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="7" />
@@ -205,7 +231,7 @@ useEffect(() => {
             {/* ── LEFT: Where to next ── */}
             <div>
               <SectionTitle title="Where to next?" sub="Three connected ways to learn and build." />
-              <div className="bm-feat-list" style={{ marginTop: 16 }}>
+                <div className="bm-feat-list" data-tour="features" style={{ marginTop: 16 }}>
                 <FeatureRow primary Icon={I.blocks} title="Playground" tone={BLUE} tag="Build"
                   desc="Drag blocks that generate real Arduino code, test on the live simulator, then flash to a real ESP32."
                   onClick={() => router.push('/playground')} />
@@ -278,6 +304,7 @@ useEffect(() => {
         </section>
 
       </div>
+       <DashboardOnboarding flagKey="dashboard" steps={DASHBOARD_TOUR} welcome={DASHBOARD_WELCOME} />
     </main>
   );
 }

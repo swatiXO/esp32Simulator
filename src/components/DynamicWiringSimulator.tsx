@@ -105,7 +105,7 @@ const PMAP: Record<string, string> = {
   'GPIO21': 'IO21', 'GPIO22': 'IO22', 'GPIO23': 'IO23',
   'GPIO25': 'IO25', 'GPIO26': 'IO26', 'GPIO27': 'IO27',
   'GPIO32': 'IO32', 'GPIO33': 'IO33', 'GPIO34': 'IO34',
-  'GPIO36': 'VP', 'GPIO39': 'VN', 'GPIO48': 'IO4',
+  'GPIO36': 'VP', 'GPIO39': 'VN',
   'TX0': 'TX0', 'RX0': 'RX0',
 };
 
@@ -586,7 +586,7 @@ function LEDBody({ running, on, sim }: { running: boolean; on: boolean; sim?: st
         strokeWidth="3.5"
       />
 
-      {/* ➕➖ Labels */}
+      {/*Labels */}
       <text x="42" y="198" fill="#6b7280" fontSize="10" textAnchor="middle">
         +
       </text>
@@ -594,7 +594,7 @@ function LEDBody({ running, on, sim }: { running: boolean; on: boolean; sim?: st
         -
       </text>
 
-      {/* 📊 Status (animated feel) */}
+      {/*Status (animated feel) */}
       <text
         x="65"
         y="215"
@@ -606,7 +606,7 @@ function LEDBody({ running, on, sim }: { running: boolean; on: boolean; sim?: st
         {running ? (lit ? "● ACTIVE" : "○ INACTIVE") : "LED MODULE"}
       </text>
 
-      {/* ⚡ Optional learning cue (current flow hint) */}
+      {/*Optional learning cue (current flow hint) */}
       {lit && (
         <text
           x="65"
@@ -1292,7 +1292,7 @@ function Board({ step, doneKeys, running }: {
 
       {/* Capacitors */}
       <rect
-        x="116"
+        x="116" 
         y="132"
         width="18"
         height="8"
@@ -1608,7 +1608,7 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
         case 'LED': {
           const on = tick % 2 === 0;
           ss = on ? 'ON' : 'OFF';
-          line = `[GPIO48] ${on ? 'HIGH → LED ON ●' : 'LOW  → LED OFF ○'}`;
+          line = `[GPIO2] ${on ? 'HIGH → LED ON ●' : 'LOW  → LED OFF ○'}`;
           break;
         }
         case 'BUTTON': {
@@ -1620,7 +1620,7 @@ export default function DynamicWiringSimulator({ component }: { component: Compo
         case 'BUTTON_LED': {
           const p = Math.random() > .75;
           ss = p ? 'PRESSED' : 'RELEASED';
-          line = `Button: ${p ? 'PRESSED' : 'RELEASED'} → LED: ${p ? 'ON' : 'OFF'} (GPIO48: ${p ? 'HIGH' : 'LOW'})`;
+          line = `Button: ${p ? 'PRESSED' : 'RELEASED'} → LED: ${p ? 'ON' : 'OFF'} (GPIO2: ${p ? 'HIGH' : 'LOW'})`;
           break;
         }
         case 'BUZZER': {

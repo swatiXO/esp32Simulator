@@ -26,6 +26,7 @@ type AppStore = {
   liveLog: LiveLogEntry[];
   addLogEntry: (message: string, type: LiveLogEntry["type"]) => void;
   clearLog: () => void;
+  resetStore: () => void;
 };
 
 let logEntryIdCounter = 1;
@@ -109,4 +110,13 @@ export const useAppStore = create<AppStore>((set) => ({
       };
     }),
   clearLog: () => set({ liveLog: [] }),
+  resetStore: () => set({
+    blocks: [],
+    activeDeviceId: null,
+    deviceStatus: "idle",
+    loopMode: false,
+    savedProgramExists: false,
+    savedProgramLoop: false,
+    liveLog: [],
+  }),
 }));

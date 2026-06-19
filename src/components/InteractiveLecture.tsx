@@ -1,5 +1,5 @@
 'use client';
-
+import DOMPurify from 'isomorphic-dompurify';
 import React, { useState, useEffect } from 'react';
 import { LECTURES_STRUCTURED_DATA, LectureSection, LectureBlock, QuizQuestion } from '@/lib/lecturesStructuredData';
 import { createClient } from '@/utils/supabase/client';
@@ -91,7 +91,6 @@ const playSound = (type: 'correct' | 'incorrect') => {
       });
     }
   } catch (e) {
-    console.warn('Audio Context initialization skipped or failed.', e);
   }
 };
 
@@ -421,7 +420,7 @@ useEffect(() => {
       processed = processed.replace(regex, `<span class="glossary-term cursor-help border-b border-dashed border-indigo-400 hover:border-indigo-600 transition-colors font-bold text-slate-800">$1<span class="tooltip-text"><strong class="block text-indigo-300 font-extrabold text-[11px] mb-1">$1</strong>${definition}</span></span>`);
     });
 
-    return <span dangerouslySetInnerHTML={{ __html: processed }} />;
+    return <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(processed) }} />;
   };
 
   // Preprocess blocks to group consecutive comparison lists and normal bullet lists
@@ -1017,7 +1016,7 @@ export default function InteractiveLecture({ levelId, lessonId, stepId }: Intera
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
       .replace(/\*([^*]+)\*/g, '<em>$1</em>')
       .replace(/`([^`]+)`/g, '<code class="bg-white/10 px-1.5 py-0.5 rounded font-mono text-[90%]">$1</code>');
-    return <span dangerouslySetInnerHTML={{ __html: processed }} />;
+    return <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(processed) }} />;
   };
 
   // Reset and fetch progress when step changes
@@ -1027,7 +1026,6 @@ export default function InteractiveLecture({ levelId, lessonId, stepId }: Intera
     supabase.auth.getUser().then(({ data }) => {
       currentUser = data.user;
       setUser(currentUser);
-      console.log(currentUser)
       if (currentUser) {
         // Fetch saved progress
         supabase.from('user_progress').select('read_sections, quiz_score').match({
@@ -1084,7 +1082,7 @@ export default function InteractiveLecture({ levelId, lessonId, stepId }: Intera
         count += b.text.split(/\s+/).length;
       }
     });
-    return acc;
+    return acc + count;
   }, 0);
   const readTime = Math.max(1, Math.round(wordCount / 180)); // 180 Words per minute for learners
 
@@ -1096,7 +1094,11 @@ const toggleRead = (idx: number) => {
   setProgress(prev => {
     const next = new Set(prev);
     const isNewlyRead = !next.has(idx);
-    isNewlyRead ? next.add(idx) : next.delete(idx);
+    if (isNewlyRead) {
+      next.add(idx);
+    } else {
+      next.delete(idx);
+    }
 
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) return;
@@ -1114,8 +1116,6 @@ const toggleRead = (idx: number) => {
           { onConflict: 'user_id,course_id,level_id,lesson_id,step_id' }
         )
         .then(({ error }) => {
-          if (error) console.error('Upsert failed:', error);
-          else console.log('Upsert succeeded');
         });
     });
 
@@ -1267,7 +1267,6 @@ const toggleRead = (idx: number) => {
                     onConflict: 'user_id,course_id,level_id,lesson_id,step_id'
                   }
                 ).then(({ error }) => {
-                  if (error) console.error('Failed to save quiz score:', error);
                 });
               }
             }}
@@ -1309,7 +1308,7 @@ const toggleRead = (idx: number) => {
             margin: '8px 0 0', maxWidth: 420, fontSize: 12.5, lineHeight: 1.65,
             fontWeight: 500, color: 'rgba(240,244,255,0.6)', fontFamily: '"Inter",system-ui,sans-serif',
           }}>
-            You've marked all {totalSections} section{totalSections === 1 ? '' : 's'} as read.
+            You've read {totalSections === 1 ? '' : 'all'}  {totalSections} section{totalSections === 1 ? '' : 's'}.
             Hit <strong style={{ color: '#34d399', fontWeight: 700 }}>Next</strong> in the sidebar to move on to your next task.
           </p>
         </div>

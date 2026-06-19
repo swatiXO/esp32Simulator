@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Header from '@/components/Header';
 import { useActivityStore } from '@/store/useActivityStore';
-import { ACTIVITIES, type Activity } from '@/lib/activitiesData';
+import { type Activity } from '@/lib/activitiesData';
 import { createClient } from '@/utils/supabase/client';
 import CircuitCanvas from '@/components/CircuitCanvas';
 
@@ -45,41 +45,7 @@ function calcLocked(a: Activity, all: Activity[], mounted: boolean, hasEsp32: bo
   return !hasEsp32 || !done(all[i - 1].id);
 }
 
-/* ── circuit bg (dashboard identical) ── */
-function CircuitBg() {
-  return (
-    <div aria-hidden style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0, overflow: 'hidden' }}>
-      <svg width="100%" height="100%" preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 600"
-        style={{
-          position: 'absolute', inset: 0, width: '100%', height: '100%',
-          maskImage: 'linear-gradient(180deg,black 0%,rgba(0,0,0,0.4) 55%,transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(180deg,black 0%,rgba(0,0,0,0.4) 55%,transparent 100%)',
-        }}>
-        <defs>
-          <pattern id="cir" width="200" height="200" patternUnits="userSpaceOnUse">
-            <g fill="none" stroke="#3b82f6" strokeWidth="1.4" strokeLinecap="round" strokeOpacity="0.16">
-              <path d="M10 30 H70 a10 10 0 0 0 10-10 V0" /><path d="M0 90 H50 a12 12 0 0 1 12 12 V150" />
-              <path d="M200 40 H150 a10 10 0 0 1-10 10 V120 a14 14 0 0 0 14 14 H200" />
-              <path d="M30 200 V150 a10 10 0 0 1 10-10 H110" />
-              <path d="M120 0 V40 a10 10 0 0 0 10 10 H180 a12 12 0 0 1 12 12 V120" />
-              <path d="M70 200 V170 H140 a10 10 0 0 0 10-10 V110" />
-              <path d="M0 150 H30" /><path d="M160 200 V175 a8 8 0 0 1 8-8 H200" />
-            </g>
-            <g fill="#3b82f6">
-              {([[10, 30], [80, 0], [0, 90], [62, 150], [150, 40], [200, 134], [30, 200], [110, 140], [120, 0], [192, 120], [70, 200], [150, 110], [0, 150], [160, 200], [200, 167]] as [number, number][]).map(([x, y], i) => (
-                <g key={i} style={{ animation: `pad ${5 + (i % 5)}s ease-in-out ${i * 0.4}s infinite` }}>
-                  <circle cx={x} cy={y} r="3.4" fillOpacity="0.22" />
-                  <circle cx={x} cy={y} r="1.5" fillOpacity="0.5" />
-                </g>
-              ))}
-            </g>
-          </pattern>
-        </defs>
-        <rect width="800" height="600" fill="url(#cir)" />
-      </svg>
-    </div>
-  );
-}
+
 
 /* ── mission icons ── */
 function MIcon({ id, size = 22, color }: { id: string; size?: number; color: string }) {
@@ -216,14 +182,11 @@ function MissionCard({ a, done, progress, locked, hasEsp32, onOpen, onLockedClic
   );
 }
 
-/* ══════════════════════════════════
-   PATH PANEL
-══════════════════════════════════ */
-function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
+function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav, onLockedClick }: {
   activities: Activity[]; mounted: boolean; isCompleted: (id: string) => boolean;
-  hasEsp32: boolean; onNav: (a: Activity) => void;
+  hasEsp32: boolean; onNav: (a: Activity) => void; onLockedClick: () => void;
 }) {
-  const doneCount = mounted ? activities.filter(a => isCompleted(a.id)).length : 0;
+    const doneCount = mounted ? activities.filter(a => isCompleted(a.id)).length : 0;
   const pct = activities.length ? Math.round(doneCount / activities.length * 100) : 0;
   const currIdx = mounted ? activities.findIndex(a => !isCompleted(a.id)) : 0;
 
@@ -261,19 +224,25 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
           const isActive = !isDone && i === currIdx;
           const isLock = calcLocked(a, activities, mounted, hasEsp32, isCompleted);
           const color = accent(a.id);
-          const clickable = isDone || isActive;
+        const clickable = isDone || isActive;
+const lockedNoKit = isLock && !hasEsp32;
 
-          return (
-            <div key={a.id}
-              className={clickable ? 'pi-click' : ''}
-              onClick={() => clickable && onNav(a)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 10,
-                marginBottom: i < activities.length - 1 ? 16 : 0,
-                position: 'relative', zIndex: 1,
-                borderRadius: 10, padding: '6px',
-                cursor: clickable ? 'pointer' : 'default',
-              }}>
+const handlePathClick = () => {
+  if (lockedNoKit) { onLockedClick(); return; }
+  if (clickable) onNav(a);
+};
+
+return (
+  <div key={a.id}
+    className={clickable || lockedNoKit ? 'pi-click' : ''}
+    onClick={handlePathClick}
+    style={{
+      display: 'flex', alignItems: 'center', gap: 10,
+      marginBottom: i < activities.length - 1 ? 16 : 0,
+      position: 'relative', zIndex: 1,
+      borderRadius: 10, padding: '6px',
+      cursor: clickable || lockedNoKit ? 'pointer' : 'default',
+    }}>
 
               {/* node */}
               <div style={{
@@ -327,11 +296,11 @@ function PathPanel({ activities, mounted, isCompleted, hasEsp32, onNav }: {
 ══════════════════════════════════ */
 export default function ActivitiesPage() {
   const router = useRouter();
-  const { isCompleted, getProgress, initialize, hasAccess, streak, xp } = useActivityStore();
+  const { isCompleted, getProgress, hasAccess, streak, xp, completed } = useActivityStore();
   const hasEsp32 = hasAccess('esp32');
 
   const [activities, setActivities] = useState<Activity[]>([]);
-  const [completedCount, setDone] = useState(0);
+  const completedCount = completed.length;
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<Filter>('All');
@@ -340,7 +309,6 @@ export default function ActivitiesPage() {
   useEffect(() => {
     const load = async () => {
       const supabase = createClient();
-
 
       // 1. Get user
       const {
@@ -352,38 +320,17 @@ export default function ActivitiesPage() {
         return;
       }
 
-
-      await initialize();
-
       // 2. Load activities
       const { data: activitiesData, error: activitiesError } = await supabase
         .from('activities')
         .select('*');
 
       if (activitiesError) {
-        console.error('[init] activities error:', activitiesError);
+        console.error('[init] activities error:');
       }
 
       const activitiesList = activitiesData || [];
       setActivities(activitiesList);
-
-      // 3. Load completed activities
-      const { data: completedactivities, error: completedError } = await supabase
-        .from('user_activities')
-        .select('*')
-        .eq('user_id', user.id);
-
-      if (completedError) {
-        console.error('[init] completed error:', completedError);
-      }
-
-
-      // 4. Compute done count (DO NOT use state yet)
-
-      const completed = completedactivities?.[0]?.completed ?? [];
-      const doneCount = completed.length
-
-      setDone(doneCount);
       setLoading(false);
       setMounted(true);
     };
@@ -656,7 +603,7 @@ export default function ActivitiesPage() {
                 </div>
                 <h1 style={{ margin: '0 0 8px', fontSize: 'clamp(1.9rem,3.5vw,2.5rem)', fontWeight: 900, color: TEXT, letterSpacing: '-0.025em', lineHeight: 1.04 }}>Activities</h1>
                 <p style={{ margin: '0 0 20px', fontSize: 13.5, color: MUTED, fontFamily: INTER, lineHeight: 1.65, maxWidth: 410 }}>
-                  Guided hardware missions — wire up, simulate, code, and flash to real ESP32.
+                  Guided hardware missions where you wire it up, write the code, simulate, and run it live on a real ESP32.
                 </p>
                 {next && (
                   <button className="hero-cta" onClick={() => safeNav(next)}
@@ -800,7 +747,8 @@ export default function ActivitiesPage() {
 
           {/* RIGHT: path panel */}
           <PathPanel activities={activities} mounted={mounted}
-            isCompleted={isCompleted} hasEsp32={hasEsp32} onNav={safeNav} />
+  isCompleted={isCompleted} hasEsp32={hasEsp32} onNav={safeNav}
+  onLockedClick={() => router.push('/redeem')} />
         </div>
 
         {/* unlock banner */}

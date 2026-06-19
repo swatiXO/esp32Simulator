@@ -80,25 +80,25 @@ export default function LearnPage() {
     canAccessLesson, isLevelCompleted, initialize, isCheckingSub,
   } = useActivityStore();
 
-  const hasEsp32       = hasAccess('esp32');
+  const hasEsp32 = hasAccess('esp32');
   const [mounted, setMounted] = useState(false);
   const [openLevels, setOpenLevels] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    initialize().then(() => setMounted(true));
-  }, [initialize]);
+    setMounted(true);
+  }, []);
 
   const toggleLevel = (id: number) => {
     setOpenLevels(prev => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
       return next;
     });
   };
 
   const totalXP = mounted
     ? LEVELS.reduce((acc, level) =>
-        acc + level.lessons.filter(l => isLessonCompleted(l.id)).length * XP_PER_LESSON, 0)
+      acc + level.lessons.filter(l => isLessonCompleted(l.id)).length * XP_PER_LESSON, 0)
     : 0;
 
   const completedLessons = mounted
@@ -203,7 +203,7 @@ export default function LearnPage() {
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: 8,
                         padding: '10px 20px', borderRadius: 11,
-                        background:  'rgba(91, 150, 245, 0.6)',
+                        background: 'rgba(91, 150, 245, 0.6)',
                         border: 'none', cursor: 'pointer', color: '#fff',
                         fontSize: 13, fontWeight: 700, fontFamily: SANS,
                         boxShadow: '0 6px 20px -6px rgba(59,130,246,0.6)',
@@ -236,10 +236,10 @@ export default function LearnPage() {
                   {/* Stat pills */}
                   <div style={{ display: 'flex', gap: 6 }}>
                     {[
-                      { val: completedLessons,              label: 'Done',   color: '#10b981' },
-                      { val: totalLessons,                  label: 'Total',  color: '#3b82f6' },
+                      { val: completedLessons, label: 'Done', color: '#10b981' },
+                      { val: totalLessons, label: 'Total', color: '#3b82f6' },
                       { val: LEVELS.filter(l => isLevelCompleted(l.id)).length + 1, label: 'Levels', color: '#8b5cf6' },
-                      { val: completedLessons * 4,          label: 'Skills', color: '#f59e0b' },
+                      { val: completedLessons * 4, label: 'Skills', color: '#f59e0b' },
                     ].map(s => (
                       <div key={s.label} style={{ padding: '8px 10px', borderRadius: 10, background: 'rgba(255,255,255,0.03)', border: `1px solid ${LINE}`, textAlign: 'center', minWidth: 50 }}>
                         <p style={{ margin: '0 0 1px', fontSize: 16, fontWeight: 900, color: s.color, fontFamily: SANS, lineHeight: 1 }}>{s.val}</p>
@@ -273,12 +273,12 @@ export default function LearnPage() {
             <section style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {LEVELS.map((level, idx) => {
                 const levelAccessible = canAccessLevel(level.id);
-                const levelDone       = isLevelCompleted(level.id);
-                const completedCount  = level.lessons.filter(l => isLessonCompleted(l.id)).length;
-                const levelProgress   = level.lessons.length > 0 ? Math.round((completedCount / level.lessons.length) * 100) : 0;
-                const levelXP         = completedCount * XP_PER_LESSON;
-                const accent          = LEVEL_ACCENTS[(level.id - 1) % LEVEL_ACCENTS.length];
-                const isOpen          = openLevels.has(level.id);
+                const levelDone = isLevelCompleted(level.id);
+                const completedCount = level.lessons.filter(l => isLessonCompleted(l.id)).length;
+                const levelProgress = level.lessons.length > 0 ? Math.round((completedCount / level.lessons.length) * 100) : 0;
+                const levelXP = completedCount * XP_PER_LESSON;
+                const accent = LEVEL_ACCENTS[(level.id - 1) % LEVEL_ACCENTS.length];
+                const isOpen = openLevels.has(level.id);
 
                 return (
                   <div
@@ -295,7 +295,7 @@ export default function LearnPage() {
                       disabled={!levelAccessible}
                       onClick={() => levelAccessible && toggleLevel(level.id)}
                       className="lp-header-btn"
-                      style={{background:'rgba(30, 81, 169, 0.1)'}}
+                      style={{ background: 'rgba(30, 81, 169, 0.1)' }}
 
                     >
                       {/* Number badge */}
@@ -365,9 +365,9 @@ export default function LearnPage() {
                       <div style={{ padding: '0 16px 16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
                         <div style={{ paddingTop: 12, display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(300px,1fr))', gap: 8 }}>
                           {level.lessons.map((lesson, li) => {
-                            const accessible      = canAccessLesson(level.id, lesson.id);
-                            const done            = isLessonCompleted(lesson.id);
-                            const toneColor       =levelAccessible ? accent : 'rgba(255,255,255,0.08)'
+                            const accessible = canAccessLesson(level.id, lesson.id);
+                            const done = isLessonCompleted(lesson.id);
+                            const toneColor = levelAccessible ? accent : 'rgba(255,255,255,0.08)'
 
                             return (
                               <div
@@ -424,11 +424,11 @@ export default function LearnPage() {
                                         {done && <span style={{ fontSize: 9.5, color: accent, fontFamily: MONO }}>100%</span>}
                                       </div>
                                       <div style={{ height: 2, borderRadius: 99, background: 'rgba(255,255,255,0.06)' }}>
-                                        <div style={{ height: 2, borderRadius: 99, background: done ? accent: accent, width: done ? '100%' : '0%', transition: 'width .5s ease' }} />
+                                        <div style={{ height: 2, borderRadius: 99, background: done ? accent : accent, width: done ? '100%' : '0%', transition: 'width .5s ease' }} />
                                       </div>
                                     </div>
                                     {accessible && (
-                                      <div className="lp-lesson-arrow" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 700, color: done ? accent: accent, opacity: 0, transform: 'translateX(-4px)', transition: 'opacity .22s, transform .22s', flexShrink: 0 }}>
+                                      <div className="lp-lesson-arrow" style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11.5, fontWeight: 700, color: done ? accent : accent, opacity: 0, transform: 'translateX(-4px)', transition: 'opacity .22s, transform .22s', flexShrink: 0 }}>
                                         {done ? 'Review' : 'Start'} <ArrowRight />
                                       </div>
                                     )}
@@ -454,14 +454,38 @@ export default function LearnPage() {
                     )}
 
                     {/* Locked level footer */}
+                    
                     {!levelAccessible && (
-                      <div style={{ padding: '0 30px 18px' }}>
+                      <div style={{
+                        padding: '14px 30px 18px',
+                        borderTop: '1px solid rgba(255,255,255,0.05)',
+                        marginTop: 2,
+                      }}>
                         {!hasEsp32 ? (
-                          <Link href="/redeem" className="lp-unlock-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 10, padding: '7px 16px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: 12, fontWeight: 600, color: '#fbbf24', textDecoration: 'none', transition: 'all .2s' }}>
+                          <Link href="/redeem" className="lp-unlock-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 10, padding: '7px 16px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', fontSize: 12, fontWeight: 600,top:'2', color: '#fbbf24', textDecoration: 'none', transition: 'all .2s' }}>
                             <LockIcon size={11} /> Unlock Full Access →
                           </Link>
                         ) : (
-                          <p style={{ fontSize: 11, color: 'rgba(240,244,255,0.28)', fontFamily: MONO, margin: 0 }}>Complete the previous level to unlock</p>
+                         <div
+  style={{
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 6,
+    borderRadius: 10,
+    padding: '7px 16px',
+    background: 'linear-gradient(135deg,rgb(217,119,6), rgb(245,158,11))',
+    opacity: 0.5,
+    color:'#ffffff',
+    border: '1px solid rgba(240,244,255,0.06)',
+    boxShadow:'rgba(245,158,11,0.25) 0px 4px 18px',
+    fontSize: 12,
+    fontWeight: 500,
+    fontFamily: MONO,
+  }}
+>
+  <LockIcon size={11} />
+  Complete the previous level to unlock
+</div>
                         )}
                       </div>
                     )}
@@ -480,13 +504,13 @@ export default function LearnPage() {
    XP ring (animated on mount)
 ───────────────────────────────────────── */
 function XpRing({ xp }: { xp: number }) {
-  const MAX_XP   = 1050; // adjust to your actual max
-  const pct      = Math.min(xp / MAX_XP, 1);
-  const R        = 26;
-  const CIRC     = 2 * Math.PI * R;
-  const lvl      = Math.floor(xp / 210) + 1;
-  const lvlNames = ['NOVICE','MAKER','HACKER','BUILDER','WIZARD','GURU'];
-  const lvlName  = lvlNames[Math.min(lvl - 1, lvlNames.length - 1)];
+  const MAX_XP = 1050; // adjust to your actual max
+  const pct = Math.min(xp / MAX_XP, 1);
+  const R = 26;
+  const CIRC = 2 * Math.PI * R;
+  const lvl = Math.floor(xp / 210) + 1;
+  const lvlNames = ['NOVICE', 'MAKER', 'HACKER', 'BUILDER', 'WIZARD', 'GURU'];
+  const lvlName = lvlNames[Math.min(lvl - 1, lvlNames.length - 1)];
 
   const [offset, setOffset] = useState(CIRC);
   useEffect(() => {

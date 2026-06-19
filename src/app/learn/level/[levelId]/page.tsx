@@ -68,17 +68,17 @@ function LoadingScreen() {
 export default function LevelPage() {
   const router = useRouter();
   const params = useParams<{ levelId: string }>();
-  const { hasAccess, isLessonCompleted, canAccessLevel, canAccessLesson, initialize, isCheckingSub } = useActivityStore();
+  const { hasAccess, isLessonCompleted, canAccessLevel, canAccessLesson, isCheckingSub } = useActivityStore();
   const hasEsp32 = hasAccess('esp32');
   const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   if (!params) return <LoadingScreen />;
 
   const levelId = Number(params.levelId);
   const level   = LEVELS.find((l) => l.id === levelId);
   const accent  = getAccent(levelId);
-
-  useEffect(() => { initialize().then(() => setMounted(true)); }, [initialize]);
 
   if (!mounted || isCheckingSub) return <LoadingScreen />;
 

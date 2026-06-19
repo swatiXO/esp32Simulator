@@ -7,12 +7,11 @@ import { createClient } from '@/utils/supabase/client';
 
 export default function RedeemPage() {
   const router = useRouter();
-  const { addRedeemedKit, redeemedKits, initialize } = useActivityStore();
+  const { addRedeemedKit, redeemedKits } = useActivityStore();
   const [code, setCode] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
-  const [activeUser, setActiveUser] = useState<any>(null);
 
   useEffect(() => {
     const checkUser = async () => {
@@ -20,13 +19,10 @@ export default function RedeemPage() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push('/login');
-      } else {
-        setActiveUser(user);
-        await initialize();
       }
     };
     checkUser();
-  }, [router, initialize]);
+  }, [router]);
 
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +53,7 @@ export default function RedeemPage() {
         router.push('/learn');
       }, 2000);
     } catch (err: any) {
-      setError(err.message || 'An error occurred. Please try again.');
+      setError('An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }

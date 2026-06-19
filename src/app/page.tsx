@@ -1,5 +1,6 @@
 'use client';
 
+import CircuitCanvas from '@/components/CircuitCanvas';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 
@@ -295,6 +296,7 @@ export default function HomePage() {
     <div style={{
       fontFamily: '"Inter", system-ui, sans-serif',
       background: '#04080f', color: '#f0f4ff', cursor: 'none',
+      
     }}>
 
       {/* ── Fonts ── */}
@@ -379,7 +381,7 @@ export default function HomePage() {
       {/* ── Custom cursor ── */}
       <div className="bm-cursor" style={{ position: 'fixed', width: cursorBig ? 6 : 10, height: cursorBig ? 6 : 10, borderRadius: '50%', background: '#3b82f6', pointerEvents: 'none', zIndex: 9999, left: mousePos.x, top: mousePos.y, transform: 'translate(-50%,-50%)', transition: 'width .2s,height .2s', mixBlendMode: 'difference' }} />
       <div className="bm-cursor" style={{ position: 'fixed', width: cursorBig ? 50 : 36, height: cursorBig ? 50 : 36, borderRadius: '50%', border: `1px solid rgba(59,130,246,${cursorBig ? 0.7 : 0.4})`, pointerEvents: 'none', zIndex: 9998, left: ringPos.x, top: ringPos.y, transform: 'translate(-50%,-50%)', transition: 'width .25s,height .25s,border-color .25s' }} />
-
+        
       {/* ══════════════ NAVBAR ══════════════ */}
       <nav className="nav-pad" style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, padding: '0 48px', height: 72,
@@ -410,7 +412,7 @@ export default function HomePage() {
           <button onClick={go} className="btn-primary" {...interactiveProps} style={{ padding: '10px 22px', borderRadius: 10, fontSize: 13, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg,#1a3a8a,#2563eb)', border: 'none', cursor: 'none', fontFamily: '"Inter",sans-serif', boxShadow: '0 4px 20px rgba(37,99,235,0.4)', transition: 'all .25s', whiteSpace: 'nowrap' }}>Sign up free</button>
         </div>
       </nav>
-
+        <CircuitCanvas/>
       {/* ══════════════ HERO ══════════════ */}
       <section className="bm-pad" style={{ minHeight: '100vh', position: 'relative', display: 'flex', alignItems: 'center', padding: '120px 48px 80px', overflow: 'hidden', background: 'linear-gradient(160deg,#04080f 0%,#060d19 40%,#081120 70%,#06101c 100%)' }}>
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', backgroundImage: 'linear-gradient(rgba(37,99,235,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,235,0.04) 1px,transparent 1px)', backgroundSize: '60px 60px', maskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)', WebkitMaskImage: 'radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)' }} />
@@ -428,8 +430,7 @@ export default function HomePage() {
             <h1 style={{ fontWeight: 700, fontSize: 'clamp(48px,5vw,76px)', lineHeight: 0.98, letterSpacing: -2.5, marginBottom: 24, color: '#f0f4ff' }}>
               <span style={{ display: 'block' }}>Learn to build</span>
               <span style={{ display: 'block', background: 'linear-gradient(90deg,#3b82f6,#93c5fd)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>real ESP32 hardware</span>
-              <span style={{ display: 'block', background: 'linear-gradient(90deg,#f59e0b,#fde68a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>without the guesswork.</span>
-            </h1>
+              <span style={{ display: 'block', paddingBottom: '0.12em', background: 'linear-gradient(90deg,#f59e0b,#fde68a)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>without the guesswork.</span>            </h1>
 
             <p style={{ fontSize: 17, color: 'rgba(240,244,255,0.55)', lineHeight: 1.8, maxWidth: 500, marginBottom: 40 }}>
               Build Mind pairs a 60+ component hardware kit with a complete learning platform: block coding, a live simulator, guided wiring, and one-click flashing to a real ESP32. Designed to make electronics, robotics, and AI accessible for young learners and future innovators.

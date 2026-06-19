@@ -1,6 +1,5 @@
 'use client';
 
-import { useMemo } from 'react';
 import { useAppStore } from '@/store/useAppStore';
 import type { DeviceStatus } from '@/types';
 
@@ -11,13 +10,133 @@ import type { DeviceStatus } from '@/types';
 
 const PANEL = '#0a1422';
 const LINE = 'rgba(255,255,255,0.08)';
-const TEXT = '#eaf0fa';
 const FAINT = 'rgba(234,240,250,0.3)';
 const BLUE = '#3b82f6';
 const AMBER = '#f59e0b';
 const GREEN = '#10b981';
 const RED = '#ef4444';
 const VIOLET = '#8b5cf6';
+
+/* ── Static styles — hoisted so the string isn't recreated each render ── */
+const LB_STYLES = `
+  @keyframes lb-pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  @keyframes lb-glow-green  { 0%,100%{box-shadow:0 0 8px 1px rgba(16,185,129,0.5)}  50%{box-shadow:0 0 18px 4px rgba(16,185,129,0.85)} }
+  @keyframes lb-glow-violet { 0%,100%{box-shadow:0 0 8px 1px rgba(139,92,246,0.5)}  50%{box-shadow:0 0 18px 4px rgba(139,92,246,0.85)} }
+  @keyframes lb-glow-blue   { 0%,100%{box-shadow:0 0 8px 1px rgba(59,130,246,0.5)}  50%{box-shadow:0 0 18px 4px rgba(59,130,246,0.85)} }
+  @keyframes lb-glow-amber  { 0%,100%{box-shadow:0 0 8px 1px rgba(245,158,11,0.5)}  50%{box-shadow:0 0 18px 4px rgba(245,158,11,0.85)} }
+  .lb-pulse { animation: lb-pulse 1.6s ease-in-out infinite; }
+
+  /* ── Tooltip ── */
+  .lb-tip { position:relative; flex-shrink:0; }
+  .lb-tip::after {
+    content:attr(data-tip); position:absolute; bottom:calc(100% + 10px); left:50%;
+    transform:translateX(-50%) scale(0.88);
+    background:#0f1c30; color:#eaf0fa; border:1px solid rgba(255,255,255,0.12);
+    border-radius:7px; padding:5px 10px; font-size:11px; font-weight:600;
+    font-family:"Inter",sans-serif; white-space:nowrap; pointer-events:none;
+    opacity:0; transition:opacity .15s,transform .15s;
+    box-shadow:0 8px 24px rgba(0,0,0,0.5); z-index:100;
+  }
+  .lb-tip:hover::after { opacity:1; transform:translateX(-50%) scale(1); }
+
+  /* ── Base button ── */
+  .lb-btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    height:34px; padding:0 14px; border-radius:9px; border:none; cursor:pointer;
+    font-size:12px; font-weight:700; font-family:"Inter",sans-serif;
+    white-space:nowrap; flex-shrink:0; letter-spacing:0.01em;
+    transition:filter .15s, transform .15s, opacity .15s;
+    position:relative; overflow:hidden;
+  }
+  .lb-btn:active:not(:disabled) { transform:scale(0.95) !important; }
+  .lb-btn:disabled { opacity:0.38; cursor:not-allowed; filter:none !important; transform:none !important; animation:none !important; }
+
+  /* ── Connect (blue) ── */
+  .lb-connect {
+    background:linear-gradient(135deg,#1a3a8a,#2563eb);
+    color:#fff;
+    box-shadow:0 3px 12px -3px rgba(37,99,235,0.65), inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .lb-connect:hover { filter:brightness(1.15); transform:translateY(-1px); }
+
+  /* ── Disconnect (red) ── */
+  .lb-disconnect {
+    background:linear-gradient(135deg,#7f1d1d,#dc2626);
+    color:#fff;
+    box-shadow:0 3px 12px -3px rgba(220,38,38,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+  .lb-disconnect:hover { filter:brightness(1.1); transform:translateY(-1px); }
+
+  /* ── Connecting (muted) ── */
+  .lb-connecting {
+    background:rgba(255,255,255,0.07); color:rgba(234,240,250,0.35); cursor:not-allowed;
+    border:1px solid rgba(255,255,255,0.08);
+  }
+
+  /* ── Loop — always violet, glow when ON ── */
+  .lb-loop {
+    background:linear-gradient(135deg,#4c1d95,${VIOLET});
+    color:#fff;
+    box-shadow:0 3px 12px -3px rgba(139,92,246,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+  .lb-loop:hover { filter:brightness(1.15); transform:translateY(-1px); }
+  .lb-loop-active { animation:lb-glow-violet 2s ease-in-out infinite; }
+
+  /* ── Run — always green, glow when enabled ── */
+  .lb-run {
+    background:linear-gradient(135deg,#064e3b,${GREEN});
+    color:#fff;
+    box-shadow:0 3px 12px -3px rgba(16,185,129,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+  .lb-run:not(:disabled):hover { filter:brightness(1.12); transform:translateY(-1px); }
+  .lb-run-active { animation:lb-glow-green 2s ease-in-out infinite; }
+
+  /* ── Save — always blue, glow when enabled ── */
+  .lb-save {
+    background:linear-gradient(135deg,#1e3a8a,${BLUE});
+    color:#fff;
+    box-shadow:0 3px 12px -3px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+  .lb-save:not(:disabled):hover { filter:brightness(1.12); transform:translateY(-1px); }
+  .lb-save-active { animation:lb-glow-blue 2s ease-in-out infinite; }
+
+  /* ── Flash — always amber ── */
+  .lb-flash {
+   background:linear-gradient(135deg,#92400e,${AMBER});
+   color:#1a0f00;
+   box-shadow:0 3px 14px -3px rgba(245,158,11,0.55), inset 0 1px 0 rgba(255,255,255,0.2);
+   font-weight:800;
+   animation:lb-glow-amber 2.4s ease-in-out infinite;
+   font-family:"Inter",system-ui,sans-serif;
+   letter-spacing:0.01em;
+  }
+  .lb-flash:hover { filter:brightness(1.12); transform:translateY(-1px); }
+
+  /* ── Input ── */
+  .lb-input {
+    font-family:"JetBrains Mono",monospace; font-size:11px; font-weight:500;
+    background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1);
+    border-radius:9px; padding:0 12px; height:34px; color:#eaf0fa;
+    width:148px; outline:none; transition:border-color .2s, box-shadow .2s; flex-shrink:0;
+  }
+  .lb-input::placeholder { color:rgba(234,240,250,0.28); }
+  .lb-input:focus { border-color:rgba(59,130,246,0.55); box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
+
+  /* ── Divider ── */
+  .lb-div { width:1px; height:20px; background:rgba(255,255,255,0.1); flex-shrink:0; }
+
+  /* ── Status badge ── */
+  .lb-status {
+    display:inline-flex; align-items:center; gap:6px;
+    border-radius:99px; padding:0 11px; height:28px;
+    font-size:10px; font-weight:700;
+    font-family:"JetBrains Mono",monospace; flex-shrink:0; letter-spacing:0.04em;
+  }
+
+  /* ── Saved chip ── */
+  .lb-saved-clear { background:none; border:none; cursor:pointer; display:flex; align-items:center; padding:0; }
+  .lb-saved-clear:hover svg { stroke:#fca5a5; }
+`;
 
 /* ── Icons ── */
 const Icons = {
@@ -106,125 +225,7 @@ export default function LiveBar({
 
   return (
     <>
-      <style suppressHydrationWarning>{`
-        @keyframes lb-pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-        @keyframes lb-glow-green  { 0%,100%{box-shadow:0 0 8px 1px rgba(16,185,129,0.5)}  50%{box-shadow:0 0 18px 4px rgba(16,185,129,0.85)} }
-        @keyframes lb-glow-violet { 0%,100%{box-shadow:0 0 8px 1px rgba(139,92,246,0.5)}  50%{box-shadow:0 0 18px 4px rgba(139,92,246,0.85)} }
-        @keyframes lb-glow-blue   { 0%,100%{box-shadow:0 0 8px 1px rgba(59,130,246,0.5)}  50%{box-shadow:0 0 18px 4px rgba(59,130,246,0.85)} }
-        @keyframes lb-glow-amber  { 0%,100%{box-shadow:0 0 8px 1px rgba(245,158,11,0.5)}  50%{box-shadow:0 0 18px 4px rgba(245,158,11,0.85)} }
-        .lb-pulse { animation: lb-pulse 1.6s ease-in-out infinite; }
-
-        /* ── Tooltip ── */
-        .lb-tip { position:relative; flex-shrink:0; }
-        .lb-tip::after {
-          content:attr(data-tip); position:absolute; bottom:calc(100% + 10px); left:50%;
-          transform:translateX(-50%) scale(0.88);
-          background:#0f1c30; color:#eaf0fa; border:1px solid rgba(255,255,255,0.12);
-          border-radius:7px; padding:5px 10px; font-size:11px; font-weight:600;
-          font-family:"Inter",sans-serif; white-space:nowrap; pointer-events:none;
-          opacity:0; transition:opacity .15s,transform .15s;
-          box-shadow:0 8px 24px rgba(0,0,0,0.5); z-index:100;
-        }
-        .lb-tip:hover::after { opacity:1; transform:translateX(-50%) scale(1); }
-
-        /* ── Base button ── */
-        .lb-btn {
-          display:inline-flex; align-items:center; justify-content:center; gap:6px;
-          height:34px; padding:0 14px; border-radius:9px; border:none; cursor:pointer;
-          font-size:12px; font-weight:700; font-family:"Inter",sans-serif;
-          white-space:nowrap; flex-shrink:0; letter-spacing:0.01em;
-          transition:filter .15s, transform .15s, opacity .15s;
-          position:relative; overflow:hidden;
-        }
-        .lb-btn:active:not(:disabled) { transform:scale(0.95) !important; }
-        .lb-btn:disabled { opacity:0.38; cursor:not-allowed; filter:none !important; transform:none !important; animation:none !important; }
-
-        /* ── Connect (blue) ── */
-        .lb-connect {
-          background:linear-gradient(135deg,#1a3a8a,#2563eb);
-          color:#fff;
-          box-shadow:0 3px 12px -3px rgba(37,99,235,0.65), inset 0 1px 0 rgba(255,255,255,0.15);
-        }
-        .lb-connect:hover { filter:brightness(1.15); transform:translateY(-1px); }
-
-        /* ── Disconnect (red) ── */
-        .lb-disconnect {
-          background:linear-gradient(135deg,#7f1d1d,#dc2626);
-          color:#fff;
-          box-shadow:0 3px 12px -3px rgba(220,38,38,0.6), inset 0 1px 0 rgba(255,255,255,0.12);
-        }
-        .lb-disconnect:hover { filter:brightness(1.1); transform:translateY(-1px); }
-
-        /* ── Connecting (muted) ── */
-        .lb-connecting {
-          background:rgba(255,255,255,0.07); color:rgba(234,240,250,0.35); cursor:not-allowed;
-          border:1px solid rgba(255,255,255,0.08);
-        }
-
-        /* ── Loop — always violet, glow when ON ── */
-        .lb-loop {
-          background:linear-gradient(135deg,#4c1d95,${VIOLET});
-          color:#fff;
-          box-shadow:0 3px 12px -3px rgba(139,92,246,0.45), inset 0 1px 0 rgba(255,255,255,0.12);
-        }
-        .lb-loop:hover { filter:brightness(1.15); transform:translateY(-1px); }
-        .lb-loop-active { animation:lb-glow-violet 2s ease-in-out infinite; }
-
-        /* ── Run — always green, glow when enabled ── */
-        .lb-run {
-          background:linear-gradient(135deg,#064e3b,${GREEN});
-          color:#fff;
-          box-shadow:0 3px 12px -3px rgba(16,185,129,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
-        }
-        .lb-run:not(:disabled):hover { filter:brightness(1.12); transform:translateY(-1px); }
-        .lb-run-active { animation:lb-glow-green 2s ease-in-out infinite; }
-
-        /* ── Save — always blue, glow when enabled ── */
-        .lb-save {
-          background:linear-gradient(135deg,#1e3a8a,${BLUE});
-          color:#fff;
-          box-shadow:0 3px 12px -3px rgba(59,130,246,0.4), inset 0 1px 0 rgba(255,255,255,0.12);
-        }
-        .lb-save:not(:disabled):hover { filter:brightness(1.12); transform:translateY(-1px); }
-        .lb-save-active { animation:lb-glow-blue 2s ease-in-out infinite; }
-
-        /* ── Flash — always amber ── */
-        .lb-flash {
-         background:linear-gradient(135deg,#92400e,${AMBER});
-         color:#1a0f00;
-         box-shadow:0 3px 14px -3px rgba(99, 93, 83, 0.55), inset 0 1px 0 rgba(255,255,255,0.2);
-         font-weight:800;
-         animation:lb-glow-amber 2.4s ease-in-out infinite;
-         font-family:"Inter",system-ui,sans-serif;
-         letter-spacing:0.01em;
-}
-        .lb-flash:hover { filter:brightness(1.12); transform:translateY(-1px); }
-
-        /* ── Input ── */
-        .lb-input {
-          font-family:"JetBrains Mono",monospace; font-size:11px; font-weight:500;
-          background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1);
-          border-radius:9px; padding:0 12px; height:34px; color:#eaf0fa;
-          width:148px; outline:none; transition:border-color .2s, box-shadow .2s; flex-shrink:0;
-        }
-        .lb-input::placeholder { color:rgba(234,240,250,0.28); }
-        .lb-input:focus { border-color:rgba(59,130,246,0.55); box-shadow:0 0 0 3px rgba(59,130,246,0.12); }
-
-        /* ── Divider ── */
-        .lb-div { width:1px; height:20px; background:rgba(255,255,255,0.1); flex-shrink:0; }
-
-        /* ── Status badge ── */
-        .lb-status {
-          display:inline-flex; align-items:center; gap:6px;
-          border-radius:99px; padding:0 11px; height:28px;
-          font-size:10px; font-weight:700;
-          font-family:"JetBrains Mono",monospace; flex-shrink:0; letter-spacing:0.04em;
-        }
-
-        /* ── Saved chip ── */
-        .lb-saved-clear { background:none; border:none; cursor:pointer; display:flex; align-items:center; padding:0; }
-        .lb-saved-clear:hover svg { stroke:#fca5a5; }
-      `}</style>
+      <style suppressHydrationWarning>{LB_STYLES}</style>
 
       <div style={{
         width: '100%', background: PANEL,
@@ -354,7 +355,7 @@ export default function LiveBar({
           <div className="lb-div" />
 
           {/* Flash — primary CTA, always glowing */}
-          <div className="lb-tip" data-tip="Flash compiled code to ESP32">
+          <div className="lb-tip" data-tour="pg-flash" data-tip="Flash compiled code to ESP32">
             <button
               type="button"
               className="lb-btn lb-flash"

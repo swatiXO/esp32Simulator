@@ -16,7 +16,7 @@ type ActivityStore = {
   totalActivities: number;
   userId: string;
   courseId: string;
-  isIntialized: boolean;
+  isInitialized: boolean;
   xp: number;
 
   // Kit subscription tracking
@@ -41,6 +41,7 @@ type ActivityStore = {
   getLastStep: (activityId: string) => number;
   resetActivity: (activityId: string) => Promise<void>;
   resetAll: () => Promise<void>;
+  resetStore: () => void;
   _updateStreak: () => Promise<void>;
   _updateOverallProgress: () => Promise<void>;
   _updateXp : (toBeAdded: number) => Promise<void>;
@@ -66,17 +67,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
 ) => {
   const supabase = createClient();
   const { userId } = get();
-
-  console.log('[updateStats] START');
-  console.log('[updateStats] userId:', userId);
-  console.log('[updateStats] current state:', {
-    xp: get().xp,
-    streak: get().streak,
-  });
-  console.log('[updateStats] patch:', patch);
-
   if (!userId) {
-    console.warn('[updateStats] ABORTED: No userId found in store');
     return;
   }
 
@@ -88,20 +79,10 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
     ...patch,
   };
 
-  console.log('[updateStats] final payload:', payload);
-
   const { data, error } = await supabase
     .from('user_stats')
     .upsert(payload, { onConflict: 'user_id' })
     .select();
-
-  if (error) {
-    console.error('[updateStats] Supabase error:', error);
-  } else {
-    console.log('[updateStats] success:', data);
-  }
-
-  console.log('[updateStats] END');
 };
  return{ 
   completed: [],
@@ -115,7 +96,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
   redeemedKits: [],
   isCheckingSub: true,
   courseId: '',
-  isIntialized: false,
+  isInitialized: false,
   xp: 0,
 
 
@@ -175,7 +156,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
       .upsert(buildPayload(get(), { completed_lessons: newCompletedLessons }), {
         onConflict: 'user_id',
       });
-    if (error) console.error('[markLessonComplete] error:', error);
+    if (error) console.error('[markLessonComplete] error:');
     if(!(completedLessons.includes(lessonId))){
       await get()._updateXp(50);
     }
@@ -188,7 +169,23 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
     const { data: { user } } = await supabase.auth.getUser();
     const userId = user?.id;
     if (!userId) {
-      set({ isCheckingSub: false });
+      set({
+        userId: '',
+        completed: [],
+        stepProgress: {},
+        completedLessons: [],
+        streak: 0,
+        lastActive: null,
+        overallProgress: 0,
+        redeemedKits: [],
+        isCheckingSub: false,
+        isInitialized: false,
+        xp: 0,
+      });
+      return;
+    }
+
+    if (get().isInitialized && get().userId === userId) {
       return;
     }
 
@@ -217,14 +214,15 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
           streak: statsData?.user_streak || 0,
           xp: statsData?.user_xp || 0,
 
-        lastActive: statsData.last_active || null,
+        lastActive: statsData?.last_active || null,
         totalActivities: count ?? 0,
         redeemedKits,
         isCheckingSub: false,
+        isInitialized: true,
       });
       get()._updateStreak();
     } else {
-      set({ userId, totalActivities: count ?? 0, redeemedKits, isCheckingSub: false, isIntialized: true });
+      set({ userId, totalActivities: count ?? 0, redeemedKits, isCheckingSub: false, isInitialized: true });
     }
 
   },
@@ -232,6 +230,10 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
   // ── Activity progress ──
 
   markStepComplete: async (activityId, step) => {
+    const initialized = get().isInitialized
+    if (!initialized){
+      await get().initialize()
+    }
     const supabase = createClient();
     const current = get().stepProgress[activityId] ?? 0;
     if (step <= current) return;
@@ -244,7 +246,7 @@ export const useActivityStore = create<ActivityStore>()((set, get) => {
       .upsert(buildPayload(get(), { step_progress: newStepProgress }), { onConflict: 'user_id' });
 
     if (error) {
-      console.error('[markStepComplete] Supabase error:', error);
+      console.error('[markStepComplete] Supabase error:');
       return;
     }
     await get()._updateOverallProgress();
@@ -275,7 +277,7 @@ markActivityComplete: async (activityId) => {
     .single();
     
   if (error || !activity) {
-    console.error('[reward fetch error]', error);
+    console.error('[reward fetch error]');
     return;
   }
 
@@ -308,17 +310,11 @@ markActivityComplete: async (activityId) => {
       });
   },
 _updateStreak: async () => {
-  console.log('[updateStreak] START');
-
+ 
   const today = new Date().toISOString().split('T')[0];
   const { lastActive, streak } = get();
 
-  console.log('[updateStreak] today:', today);
-  console.log('[updateStreak] lastActive:', get().lastActive);
-  console.log('[updateStreak] current streak:', streak);
-
   if (lastActive === today) {
-    console.log('[updateStreak] SKIP: already updated today');
     return;
   }
 
@@ -326,30 +322,16 @@ _updateStreak: async () => {
     .toISOString()
     .split('T')[0];
 
-  console.log('[updateStreak] yesterday:', yesterday);
-
   const continued = lastActive === yesterday;
   const newStreak = continued ? streak + 1 : 1;
 
-  console.log('[updateStreak] continued streak?', continued);
-  console.log('[updateStreak] newStreak:', newStreak);
-
   set({ lastActive: today, streak: newStreak });
-  console.log(get().lastActive)
-
-  console.log('[updateStreak] Zustand updated ->', {
-    lastActive: today,
-    streak: newStreak,
-  });
 
   try {
     await updateStats({ user_streak: newStreak });
-    console.log('[updateStreak] DB sync SUCCESS');
   } catch (err) {
-    console.error('[updateStreak] DB sync FAILED:', err);
+    console.error('[updateStreak] DB sync FAILED:');
   }
-
-  console.log('[updateStreak] END');
 },
 _updateXp: async (toBeAdded: number) => {
   const supabase = createClient();
@@ -359,12 +341,11 @@ _updateXp: async (toBeAdded: number) => {
 
   // 1. get current xp from store
   const currentXp = get().xp;
-  console.log("current XP: ", currentXp)
+
   const newXp = currentXp + toBeAdded;
 
   // 2. update local state immediately
   set({ xp: newXp });
-console.log("new XP: ", get().xp)
   // 3. update DB safely
   const { error } = await supabase
     .from('user_stats')
@@ -372,7 +353,7 @@ console.log("new XP: ", get().xp)
     .eq('user_id', userId);
 
   if (error) {
-    console.error('[XP UPDATE ERROR]', error);
+    console.error('[XP UPDATE ERROR]');
   }
 },
 
@@ -391,6 +372,21 @@ console.log("new XP: ", get().xp)
       },
       { onConflict: 'user_id' }
     );
+  },
+  resetStore: () => {
+    set({
+      completed: [],
+      stepProgress: {},
+      completedLessons: [],
+      streak: 0,
+      lastActive: null,
+      overallProgress: 0,
+      userId: '',
+      redeemedKits: [],
+      isCheckingSub: false,
+      isInitialized: false,
+      xp: 0,
+    });
   },
  
   _updateOverallProgress: async () => {

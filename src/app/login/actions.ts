@@ -3,6 +3,7 @@ import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 
 export async function signIn(formData: FormData) {
+  
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
   const supabase = createClient();
@@ -14,8 +15,7 @@ export async function signIn(formData: FormData) {
 }
 
 export async function signUp(formData: FormData) {
-  const origin =
-    process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
   const email = formData.get('email') as string;
   const password = formData.get('password') as string;
@@ -31,7 +31,6 @@ export async function signUp(formData: FormData) {
   });
 
   if (error) {
-    console.error('Signup error:', error);
 
     return redirect(
       `/login?message=${encodeURIComponent(error.message)}`

@@ -1,4 +1,3 @@
-import { LECTURES_DATA } from './lecturesData';
 
 export type LessonStep = {
   id: string;
